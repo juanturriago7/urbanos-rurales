@@ -1,0 +1,22 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+logs/
+*.log
+
+## Secrets — nunca commitear
+**/appsettings.Production.json
+**/*.pfx
+**/.env
+
+## Docker
+.dockerignore
+
+## JetBrains
+.idea/
+
+## VS Code
+.vscode/

@@ -1,0 +1,79 @@
+import { Outlet, Link, NavLink, useNavigate } from 'react-router-dom'
+import { useAuthStore } from '@/shared/hooks/useAuthStore'
+
+const navItems = [
+  { to: '/admin/dashboard', label: 'Dashboard' },
+  { to: '/admin/properties', label: 'Propiedades' },
+  { to: '/admin/leads', label: 'Leads' },
+  { to: '/admin/media', label: 'Multimedia' },
+  { to: '/admin/users', label: 'Usuarios' },
+]
+
+/**
+ * Layout del panel de administración.
+ * Sidebar + topbar + contenido. Solo accesible para usuarios autenticados (ver AuthGuard).
+ */
+export function AdminLayout() {
+  const { user, clearAuth } = useAuthStore()
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    clearAuth()
+    navigate('/admin/login')
+  }
+
+  return (
+    <div className="flex h-screen overflow-hidden bg-surface-muted font-sans">
+      {/* Sidebar */}
+      <aside className="hidden w-64 flex-col border-r border-border bg-white shadow-sm md:flex">
+        <div className="flex h-16 items-center border-b border-border px-6">
+          <Link to="/admin/dashboard" className="text-lg font-bold text-brand-700">
+            Portal Admin
+          </Link>
+        </div>
+        <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+          {navItems.map(({ to, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                [
+                  'flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                  isActive
+                    ? 'bg-brand-50 text-brand-700'
+                    : 'text-text-secondary hover:bg-surface-muted hover:text-text-primary',
+                ].join(' ')
+              }
+            >
+              {label}
+            </NavLink>
+          ))}
+        </nav>
+        {/* User info */}
+        <div className="border-t border-border p-4">
+          <p className="truncate text-sm font-medium text-text-primary">{user?.fullName}</p>
+          <p className="text-xs text-text-secondary">{user?.role}</p>
+        </div>
+      </aside>
+
+      {/* Main content */}
+      <div className="flex flex-1 flex-col overflow-hidden">
+        {/* Topbar */}
+        <header className="flex h-16 items-center justify-between border-b border-border bg-white px-6 shadow-sm">
+          <h1 className="text-base font-semibold text-text-primary">Panel de Administración</h1>
+          <button
+            onClick={handleLogout}
+            className="rounded-lg px-3 py-1.5 text-sm font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary"
+          >
+            Cerrar sesión
+          </button>
+        </header>
+
+        {/* Page content */}
+        <main className="flex-1 overflow-y-auto p-6">
+          <Outlet />
+        </main>
+      </div>
+    </div>
+  )
+}

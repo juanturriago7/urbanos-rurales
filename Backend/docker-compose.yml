@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  # ─── PostgreSQL 16 con extensiones necesarias ────────────────────────────────
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: portal_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: portal_db
+      POSTGRES_USER: portal_user
+      POSTGRES_PASSWORD: portal_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # El esquema NO se crea aquí: las migraciones se aplican con EF
+      # (Update-Database desde la consola del administrador de paquetes)
+      # una vez el contenedor está arriba.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U portal_user -d portal_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: >
+      postgres
+        -c shared_preload_libraries=pg_stat_statements
+        -c pg_stat_statements.track=all
+
+  # ─── Portal API (.NET 10) ─────────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: src/Portal.Api/Dockerfile
+    container_name: portal_api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Default: "Host=postgres;Port=5432;Database=portal_db;Username=portal_user;Password=portal_pass"
+      Jwt__Key: "${JWT_KEY:-change-this-in-production}"
+      Jwt__Issuer: "portal-api"
+      Jwt__Audience: "portal-frontend"
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:

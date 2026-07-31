@@ -1,0 +1,87 @@
+# .gitignore raiz — Plataforma Web Inmobiliaria (INM-WEB-001)
+# Aplica a todo el repo. Backend/ y FrontEndUrbanos/ tienen los suyos propios,
+# que suman reglas adicionales sobre estas.
+
+## ─────────────────────────────────────────────
+## Secretos y configuracion local — NUNCA commitear
+## ─────────────────────────────────────────────
+# appsettings.json si va versionado (trae placeholders CHANGE_ME);
+# los valores reales viven en los archivos por entorno.
+**/appsettings.Development.json
+**/appsettings.Production.json
+**/appsettings.Staging.json
+**/appsettings.*.local.json
+**/secrets.json
+
+# Variables de entorno (Vite y cualquier otro)
+.env
+.env.*
+!.env.example
+
+# Certificados y llaves
+*.pfx
+*.p12
+*.pem
+*.key
+*.snk
+
+## ─────────────────────────────────────────────
+## .NET / Backend
+## ─────────────────────────────────────────────
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+artifacts/
+*.user
+*.suo
+*.userprefs
+*.cache
+*.dll
+*.pdb
+.vs/
+TestResults/
+BenchmarkDotNet.Artifacts/
+
+## ─────────────────────────────────────────────
+## Node / Frontend
+## ─────────────────────────────────────────────
+node_modules/
+dist/
+dist-ssr/
+.vite/
+*.local
+.eslintcache
+coverage/
+
+## ─────────────────────────────────────────────
+## Logs
+## ─────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+## ─────────────────────────────────────────────
+## Editores y herramientas
+## ─────────────────────────────────────────────
+# Se versiona la config compartida del proyecto, no las preferencias personales
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.sw?
+
+# Claude Code: settings.json es compartible, settings.local.json es de esta maquina
+.claude/settings.local.json
+
+## ─────────────────────────────────────────────
+## Sistema operativo
+## ─────────────────────────────────────────────
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store

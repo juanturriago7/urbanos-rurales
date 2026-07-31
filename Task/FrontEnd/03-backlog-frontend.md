@@ -1,0 +1,44 @@
+## 3. Backlog Frontend
+
+- [ ] **Landing page**
+  - [ ] Buscador principal (operación, tipo, ubicación, rango de precio) (RF-001)
+  - [ ] Sección de inmuebles destacados, consumiendo `destacado=true` (RF-002)
+  - [ ] Secciones de propuesta de valor, servicios y CTA de contacto (RF-003)
+  - [ ] Menú de navegación persistente y footer con datos de contacto y enlaces legales (RF-004)
+  - [ ] Botón flotante de WhatsApp con mensaje precargado (RF-005)
+  - [ ] Accesos directos de búsqueda rápida por localidad/zona (RF-006)
+- [ ] **Listado de resultados**
+  - [ ] Panel de filtros completo, incluyendo los dinámicos de la sección 1 (leídos desde `/api/catalogos/caracteristicas`)
+  - [ ] Combinación de múltiples filtros simultáneos (RF-021)
+  - [ ] Selector de ordenamiento: precio asc/desc, área, fecha, relevancia (RF-022)
+  - [ ] Paginación (12 por página) con contador total de resultados (RF-023)
+  - [ ] Estado vacío con sugerencias alternativas cuando no hay resultados (RF-024)
+  - [ ] Buscador de texto libre (código, barrio, título) (RF-025)
+- [ ] **Ficha de detalle de inmueble**
+  - [ ] Galería con visor ampliado (RF-040)
+  - [ ] Bloque de precio, administración, código y tipo de operación — soportando venta y arriendo simultáneos (RF-041, RF-076)
+  - [ ] Ficha técnica completa: áreas, habitaciones, baños, parqueaderos, estrato, piso, antigüedad, orientación, amoblado (RF-042)
+  - [ ] Características agrupadas por categoría, renderizadas dinámicamente (RF-043)
+  - [ ] Mapa con ubicación aproximada (RF-044)
+  - [ ] Formulario de contacto con checkbox de datos **no premarcado** (RF-045, RNF-061)
+  - [ ] Sección de inmuebles similares (RF-046)
+- [ ] **Páginas institucionales**
+  - [ ] Quiénes somos, contacto, política de tratamiento de datos, términos y condiciones
+- [ ] **Panel administrativo**
+  - [ ] Login, recuperación de contraseña, manejo de expiración de sesión por inactividad (RF-060 a RF-063)
+  - [ ] Listado de inmuebles con búsqueda y filtro por estado (RF-071)
+  - [ ] Formulario de creación/edición con validaciones de campos obligatorios (RF-070, RF-072, RF-077)
+  - [ ] Gestor de galería: subir (mín. 5, máx. 10), reordenar, marcar portada, eliminar, editar alt text (RF-090 a RF-094)
+  - [ ] Selector de precio/cuota/estado independientes para venta y arriendo (RF-076)
+  - [ ] Marcar inmueble como destacado y cambiar estado editorial (borrador/publicado/pausado/archivado) (RF-075, RF-078)
+  - [ ] Administración de catálogos: ubicaciones, tipos de inmueble, características agrupadas (RF-100 a RF-102)
+  - [ ] (Recomendado) Bandeja de leads: listado, filtro por estado, asignación a asesor
+  - [ ] Meta tag `noindex` en todas las rutas del panel (RNF-024)
+- [ ] **Transversal**
+  - [ ] Diseño mobile-first, probado de 320px a 1920px (RNF-040)
+  - [ ] Compatibilidad con últimas 2 versiones de Chrome, Safari, Edge y Firefox (RNF-041)
+  - [ ] Mensajes de error claros y orientados a la acción correctiva (RNF-043)
+  - [ ] SEO: server-side rendering o pre-render de fichas, URLs semánticas, canonicalización de búsquedas filtradas (RNF-050, RNF-053, RNF-054)
+  - [ ] Integración de reCAPTCHA v3/honeypot en formularios públicos (RNF-023)
+  - [ ] Integración de Google Analytics 4 con eventos de conversión (RNF-075)
+

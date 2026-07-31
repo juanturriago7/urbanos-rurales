@@ -1,0 +1,47 @@
+## 3. Backlog Backend
+
+- [ ] **Infraestructura de datos**
+  - [ ] Configurar PostgreSQL en dev/pruebas/producción (RNF-071)
+  - [ ] Migraciones versionadas y reversibles (RNF-072) a partir del DDL de la sección 2.3
+  - [ ] Datos semilla: zonas/localidades/UPZ/barrios de Bogotá, tipos de inmueble, catálogo inicial de características agrupadas
+- [ ] **Autenticación y usuarios**
+  - [ ] Login/logout con hash Argon2/bcrypt (RNF-021)
+  - [ ] Expiración de sesión por inactividad (RF-061), sesión externalizada (Redis) para escalado horizontal (RNF-012)
+  - [ ] Recuperación de contraseña con token de un solo uso (RF-062)
+  - [ ] Bloqueo tras 5 intentos fallidos (RF-063)
+  - [ ] Middleware de autorización por rol (`admin`/`asesor`) validado en servidor (RNF-025)
+- [ ] **CRUD de inmuebles**
+  - [ ] Endpoints crear/listar/editar/borrado lógico (RF-070 a RF-073)
+  - [ ] Generación automática de `codigo_referencia` y `slug` únicos (RF-074)
+  - [ ] Validación: no publicar sin imágenes ni campos obligatorios (RF-077)
+  - [ ] Marcar destacado (RF-078) y cambiar estado (RF-075)
+  - [ ] Endpoints de `inmueble_operaciones` (crear/editar precio y estado de venta/arriendo por separado)
+- [ ] **Multimedia**
+  - [ ] Servicio de carga a almacenamiento de objetos (S3 o equivalente), nunca al filesystem del server (RNF-013)
+  - [ ] Pipeline de compresión/generación de WebP y miniaturas (RF-092)
+  - [ ] Validación de MIME real, formato y peso máximo (RF-093, RNF-026)
+  - [ ] Endpoints reordenar, marcar portada, eliminar, editar alt text (RF-091, RF-094)
+- [ ] **Búsqueda y filtros públicos**
+  - [ ] Endpoint de búsqueda con combinación de filtros AND/OR (RF-021) usando los índices definidos
+  - [ ] Ordenamiento y paginación (RF-022, RF-023)
+  - [ ] Búsqueda de texto libre con `tsvector`/`GIN` (RF-025)
+  - [ ] Endpoint de inmuebles similares (mismo barrio + rango de precio + tipo) (RF-046)
+  - [ ] Endpoint de catálogos (ubicaciones/tipos/características) para poblar filtros dinámicamente
+- [ ] **Leads**
+  - [ ] Captura de lead (general y por inmueble) con anti-spam (reCAPTCHA v3/honeypot) y rate limit por IP (RNF-023)
+  - [ ] Registro de `utm`/origen y consentimiento de datos (RNF-061)
+  - [ ] Notificación (correo/webhook) al crear lead
+  - [ ] Endpoints para gestionar/asignar/cambiar estado del lead
+- [ ] **SEO técnico**
+  - [ ] Generación dinámica de `sitemap.xml` y `robots.txt` (RNF-051)
+  - [ ] Server-side rendering o pre-render de fichas de inmueble (RNF-053)
+  - [ ] Endpoint/serialización de datos estructurados Schema.org (RNF-052)
+  - [ ] Canonicalización de URLs de búsqueda filtrada (RNF-054)
+- [ ] **Seguridad transversal**
+  - [ ] HTTPS forzado (RNF-020), mitigación OWASP Top 10 (RNF-022)
+  - [ ] Header/robots para no indexar el panel admin (RNF-024)
+  - [ ] Backups automáticos diarios con retención de 30 días + prueba de restauración (RNF-031/033)
+- [ ] **Observabilidad**
+  - [ ] Logging centralizado y monitoreo de disponibilidad con alertas (RNF-073)
+  - [ ] Integración de analítica (GA4) con eventos de conversión (RNF-075)
+

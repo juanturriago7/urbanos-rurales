@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+/* ─── Design Tokens personalizados ──────────────────────────────────────────── */
+@theme {
+  /* Paleta de marca */
+  --color-brand-50:  #f0f9ff;
+  --color-brand-100: #e0f2fe;
+  --color-brand-200: #bae6fd;
+  --color-brand-300: #7dd3fc;
+  --color-brand-400: #38bdf8;
+  --color-brand-500: #0ea5e9;
+  --color-brand-600: #0284c7;
+  --color-brand-700: #0369a1;
+  --color-brand-800: #075985;
+  --color-brand-900: #0c4a6e;
+
+  /* Neutrales */
+  --color-surface:         #ffffff;
+  --color-surface-muted:   #f8fafc;
+  --color-border:          #e2e8f0;
+  --color-text-primary:    #0f172a;
+  --color-text-secondary:  #64748b;
+  --color-text-disabled:   #94a3b8;
+
+  /* Semánticos */
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-error:   #ef4444;
+  --color-info:    #3b82f6;
+
+  /* Tipografía */
+  --font-sans: 'Inter', system-ui, sans-serif;
+
+  /* Espaciado extra */
+  --spacing-18: 4.5rem;
+  --spacing-22: 5.5rem;
+
+  /* Border radius */
+  --radius-card: 0.75rem;
+}
