@@ -1,45 +1,67 @@
-import { Outlet, Link } from 'react-router-dom'
+import { useCallback, useState } from 'react'
+import { Outlet, useLocation } from 'react-router-dom'
+import { Footer } from '@/app/layouts/public/Footer'
+import { Header } from '@/app/layouts/public/Header'
+import { WhatsAppFab } from '@/shared/components/WhatsAppFab'
 
 /**
- * Layout del sitio público.
- * Navbar simple + contenido + footer.
- * Las páginas públicas (listings, búsqueda) renderizan aquí via <Outlet />.
+ * Shell del sitio público: ensambla las piezas y es dueño del estado del drawer.
+ *
+ * El header es `fixed`, así que no ocupa espacio en el flujo. En la landing eso
+ * es lo que se busca — flota sobre el hero. En el resto de rutas hay que
+ * compensar con un padding superior, o el contenido arrancaría debajo de él.
+ *
+ * El estado del drawer vive aquí y no en el `Header` por una razón concreta:
+ * este es el único componente que tiene a `<main>` y `<footer>` como hijos y
+ * puede marcarlos `inert` mientras el panel está abierto. El focus trap del
+ * drawer contiene la tabulación, pero sin `inert` el cursor virtual de un
+ * lector de pantalla sigue recorriendo el contenido de detrás del overlay, y
+ * entonces el diálogo no es realmente modal.
  */
 export function PublicLayout() {
-  return (
-    <div className="flex min-h-screen flex-col bg-surface font-sans text-text-primary">
-      {/* Navbar público */}
-      <header className="sticky top-0 z-40 border-b border-border bg-white shadow-sm">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-          <Link to="/" className="text-xl font-bold text-brand-700">
-            Portal Urbanos
-          </Link>
-          <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
-            <Link to="/properties" className="text-text-secondary hover:text-text-primary transition-colors">
-              Propiedades
-            </Link>
-            <Link to="/search" className="text-text-secondary hover:text-text-primary transition-colors">
-              Buscar
-            </Link>
-          </nav>
-          <Link
-            to="/admin"
-            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
-          >
-            Acceso Admin
-          </Link>
-        </div>
-      </header>
+  const location = useLocation()
+  const esLanding = location.pathname === '/'
 
-      {/* Contenido de la página */}
-      <main className="flex-1">
+  const [drawerAbierto, setDrawerAbierto] = useState(false)
+
+  // `useCallback` aquí NO es una optimización: es obligatorio.
+  // El `Header` cierra el drawer al cambiar de ruta con un efecto cuyas
+  // dependencias incluyen `onCerrarDrawer`. Si la identidad de esa función
+  // cambiara en cada render, el efecto se reejecutaría en cada render y
+  // cerraría el drawer inmediatamente después de abrirlo — el panel no llegaría
+  // a verse nunca.
+  const abrirDrawer = useCallback(() => setDrawerAbierto(true), [])
+  const cerrarDrawer = useCallback(() => setDrawerAbierto(false), [])
+
+  return (
+    <div className="bg-surface text-text-primary flex min-h-screen flex-col font-sans">
+      <a
+        href="#contenido"
+        className="focus:rounded-control focus:bg-surface focus:text-brand-700 focus:shadow-dropdown sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold"
+      >
+        Saltar al contenido
+      </a>
+
+      <Header
+        drawerAbierto={drawerAbierto}
+        onAbrirDrawer={abrirDrawer}
+        onCerrarDrawer={cerrarDrawer}
+      />
+
+      {/* `inert` saca a estos dos del árbol de accesibilidad y del foco
+          mientras el drawer está abierto. React 19 lo soporta de forma nativa. */}
+      <main
+        id="contenido"
+        inert={drawerAbierto}
+        className={['flex-1', esLanding ? '' : 'pt-20'].join(' ')}
+      >
         <Outlet />
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-border bg-surface-muted py-8 text-center text-sm text-text-secondary">
-        © {new Date().getFullYear()} Portal Urbanos. Todos los derechos reservados.
-      </footer>
+      <div inert={drawerAbierto}>
+        <Footer />
+        <WhatsAppFab />
+      </div>
     </div>
   )
 }
