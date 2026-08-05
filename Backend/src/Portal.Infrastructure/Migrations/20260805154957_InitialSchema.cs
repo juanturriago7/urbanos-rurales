@@ -730,11 +730,23 @@ namespace Portal.Infrastructure.Migrations
                 table: "usuarios",
                 column: "correo",
                 unique: true);
+
+            migrationBuilder.Sql("""
+                INSERT INTO usuarios (nombre, correo, password_hash, rol)
+                VALUES (
+                    'Administrador Dev',
+                    'admin@portal.local',
+                    crypt('Admin123*', gen_salt('bf', 11)),
+                    'admin'
+                );
+                """);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.Sql("DELETE FROM usuarios WHERE correo = 'admin@portal.local';");
+
             migrationBuilder.DropTable(
                 name: "imagenes");
 
