@@ -262,7 +262,11 @@ interface LogoProps {
 }
 ```
 
-Mientras no exista el archivo del logo, renderiza un logotipo tipográfico: "URBANOS & RURALES" en Playfair Display 700, con `letter-spacing` ajustado. El componente aísla el cambio: sustituir el provisional por el archivo real toca un solo archivo.
+**Por ahora el logo va en blanco.** No hay archivo y no se sustituye por un logotipo tipográfico: `Logo` renderiza un slot vacío que reserva el espacio (40px de alto, 180px de ancho) para que el header no cambie de layout cuando llegue el archivo real.
+
+Como el slot no tiene contenido visible, el `<Link>` que lo envuelve lleva `aria-label="Urbanos & Rurales — Ir al inicio"`; de lo contrario el enlace a inicio quedaría sin nombre accesible.
+
+El componente aísla el cambio: cuando llegue el SVG o el PNG, se sustituye tocando un solo archivo.
 
 ### 6.7 No se construyen aquí
 
@@ -400,9 +404,9 @@ Todos los valores están verificados contra urbanosrurales.com. Los componentes 
 
 Tres puntos quedan pendientes de confirmación del cliente. Se marcan con `// TODO(cliente):` en el código y **no** se rellenan con valores plausibles.
 
-1. **Años de trayectoria.** El sitio actual dice "desde 1996" en un lugar y "18 años" en otro; en 2026 serían 30. `site.anioFundacion` guarda 1996, que es el dato verificable, pero **ninguna superficie muestra una cifra de años** hasta que se confirme cuál es la correcta.
+1. **Años de trayectoria — pendiente, el cliente lo va a confirmar.** El sitio actual dice "desde 1996" en un lugar y "18 años" en otro; en 2026 serían 30. `site.anioFundacion` guarda 1996, que es el dato verificable, pero **ninguna superficie muestra una cifra de años** hasta que se confirme cuál es la correcta. No bloquea este sub-proyecto: ninguna superficie del shell muestra esa cifra.
 
-2. **El logo.** No se pudo extraer del sitio actual: el header lo sirve como GIF base64 con lazy-load, sin URL de origen. Se necesita el SVG o un PNG en alta resolución. Hasta entonces, `Logo` renderiza el logotipo tipográfico provisional descrito en 6.6.
+2. **El logo — pendiente, va en blanco.** No se pudo extraer del sitio actual: el header lo sirve como GIF base64 con lazy-load, sin URL de origen. Hasta que llegue el SVG o el PNG, `Logo` renderiza el slot vacío descrito en 6.6, que reserva el espacio para evitar un salto de layout al sustituirlo.
 
 3. **Contenido de marketing del documento de diseño.** Los logos de medios (El Tiempo, Portafolio, Fedelonjas, Semana…), los portales aliados (Fincaraíz, Metro Cuadrado, LaHaus…), los testimonios de clientes, las cifras "12 años" y "12 operaciones exitosas", las comisiones del 3% y de un canon, y la oficina de Medellín provienen de Mubrick, no de Urbanos & Rurales. Nada de eso entra al código. Las secciones que dependen de esos datos se replantean en el sub-proyecto 3, apoyándose en los activos reales de la empresa: trayectoria desde 1996, certificaciones ISO 9001 y 14001, equipo interdisciplinario y contratos con entidades del sector público.
 
