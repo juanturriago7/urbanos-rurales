@@ -202,7 +202,7 @@ Se descarta Google Fonts con `preconnect` (lo que sugería la sección 7 del doc
 Se conserva la API actual (`variant`, `size`, `isLoading`, `forwardRef`) y se cambia:
 
 - Radio `rounded-lg` (8px) → `rounded-control` (4px), según el documento
-- Variantes: `primary` (sólido `brand-600`), `gold` (sólido `accent-gold`), `outline-light` (borde blanco, para el hero), `outline-dark` (borde `brand-600`), `ghost`, `danger`
+- Variantes: se **conservan** `primary`, `secondary`, `ghost` y `danger` — `secondary` (fondo blanco, borde `brand-300`) ya cumple el papel del botón de contorno oscuro y está usado en 8 lugares del admin, así que renombrarlo obligaría a un refactor que este sub-proyecto promete evitar. Se **añaden** `gold` (sólido `accent-gold`, para el CTA de consignación) y `outline-light` (borde blanco, para el header sobre el hero)
 - Hover: oscurece un tono **y** `scale(1.02)`; active `scale(0.98)` con sombra reducida
 - `transition-colors` → `transition-[colors,transform]`
 
