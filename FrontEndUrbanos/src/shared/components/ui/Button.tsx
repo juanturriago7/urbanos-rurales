@@ -11,11 +11,9 @@ const variantClasses: Record<NonNullable<ButtonProps['variant']>, string> = {
     'bg-brand-600 text-white hover:bg-brand-700 focus-visible:ring-brand-500 disabled:bg-brand-300',
   secondary:
     'bg-white text-brand-700 border border-brand-300 hover:bg-brand-50 focus-visible:ring-brand-500',
-  gold:
-    'bg-accent-gold text-white hover:bg-accent-gold-hover focus-visible:ring-accent-gold disabled:opacity-60',
+  gold: 'bg-accent-gold text-white hover:bg-accent-gold-hover focus-visible:ring-accent-gold disabled:opacity-60',
   // Solo para el header sobre el hero, donde el fondo es una foto oscurecida.
-  'outline-light':
-    'border border-white/70 text-white hover:bg-white/10 focus-visible:ring-white',
+  'outline-light': 'border border-white/70 text-white hover:bg-white/10 focus-visible:ring-white',
   ghost: 'text-text-secondary hover:bg-surface-muted focus-visible:ring-brand-500',
   danger: 'bg-error text-white hover:bg-red-700 focus-visible:ring-red-500 disabled:opacity-60',
 }
@@ -26,6 +24,38 @@ const sizeClasses: Record<NonNullable<ButtonProps['size']>, string> = {
   lg: 'px-6 py-3 text-base',
 }
 
+interface ClasesBotonArgs {
+  variant?: ButtonProps['variant']
+  size?: ButtonProps['size']
+  className?: string
+}
+
+/**
+ * Composición de clases del botón, expuesta aparte del componente.
+ *
+ * Existe para que un enlace pueda **parecer** un botón sin **contener** uno.
+ * Envolver un `<Button>` en un `<Link>` produce `<a><button></button></a>`:
+ * contenido interactivo dentro de contenido interactivo, que es HTML inválido
+ * y, en la práctica, hace que cada CTA consuma dos paradas de tabulación.
+ */
+// eslint-disable-next-line react-refresh/only-export-components
+export function clasesBoton({
+  variant = 'primary',
+  size = 'md',
+  className = '',
+}: ClasesBotonArgs = {}) {
+  return [
+    'inline-flex items-center justify-center gap-2 rounded-control font-semibold tracking-[0.5px]',
+    'transition-[color,background-color,border-color,transform,box-shadow] duration-200',
+    'hover:scale-[1.02] active:scale-[0.98]',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+    'disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100',
+    variantClasses[variant],
+    sizeClasses[size],
+    className,
+  ].join(' ')
+}
+
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     { variant = 'primary', size = 'md', isLoading, disabled, children, className = '', ...props },
@@ -34,16 +64,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     <button
       ref={ref}
       disabled={disabled || isLoading}
-      className={[
-        'inline-flex items-center justify-center gap-2 rounded-control font-semibold tracking-[0.5px]',
-        'transition-[color,background-color,border-color,transform,box-shadow] duration-200',
-        'hover:scale-[1.02] active:scale-[0.98]',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-        'disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100',
-        variantClasses[variant],
-        sizeClasses[size],
-        className,
-      ].join(' ')}
+      className={clasesBoton({ variant, size, className })}
       {...props}
     >
       {isLoading && (
@@ -54,7 +75,14 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           viewBox="0 0 24 24"
           aria-hidden="true"
         >
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          />
           <path
             className="opacity-75"
             fill="currentColor"

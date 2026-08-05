@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { AnchorLink } from '@/app/layouts/public/AnchorLink'
 import { NavLinks } from '@/app/layouts/public/NavLinks'
-import { Button } from '@/shared/components/ui/Button'
+import { clasesBoton } from '@/shared/components/ui/Button'
 
 /**
  * Panel de navegación móvil. Se comporta como un diálogo modal: atrapa el foco,
@@ -117,16 +117,22 @@ export function MobileDrawer({ abierto, onCerrar }: MobileDrawerProps) {
           />
         </nav>
 
+        {/* Enlaces con apariencia de botón, no botones dentro de enlaces: cada
+            CTA es un solo elemento y una sola parada de tabulación. */}
         <div className="mt-auto flex flex-col gap-3">
-          <Link to="/inmuebles?operacion=arriendo" onClick={onCerrar}>
-            <Button variant="secondary" size="lg" className="w-full">
-              Buscar inmueble
-            </Button>
+          <Link
+            to="/inmuebles?operacion=arriendo"
+            onClick={onCerrar}
+            className={clasesBoton({ variant: 'secondary', size: 'lg', className: 'w-full' })}
+          >
+            Buscar inmueble
           </Link>
-          <AnchorLink anchor="consignar" onNavigate={onCerrar}>
-            <Button variant="primary" size="lg" className="w-full">
-              Consignar
-            </Button>
+          <AnchorLink
+            anchor="consignar"
+            onNavigate={onCerrar}
+            className={clasesBoton({ variant: 'primary', size: 'lg', className: 'w-full' })}
+          >
+            Consignar
           </AnchorLink>
         </div>
       </div>
