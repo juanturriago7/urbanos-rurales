@@ -392,13 +392,17 @@ Reemplazar `claseControl` (líneas 15-19) de `src/shared/components/ui/Field.tsx
 
 ```tsx
 const claseControl = [
-  'mt-1 w-full rounded-control border border-border px-3 py-2 text-sm outline-none',
+  'mt-1 w-full rounded-control border border-border px-3 py-2 text-sm',
   'transition-colors focus:border-b-2 focus:border-b-brand-600',
   'disabled:bg-surface-muted disabled:text-text-secondary',
 ].join(' ')
 ```
 
-El documento pide que el foco engrose el borde inferior a 2px en verde, en vez del anillo que había. El resto del archivo no cambia.
+El documento pide que el foco engrose el borde inferior a 2px en verde, en vez del anillo que había.
+
+**`outline-none` se elimina, y esto es deliberado.** La revisión de la Tarea 1 dejó constancia de que las utilidades de Tailwind se aplican después de `@layer base`, así que un `outline-none` en la clase del control anularía el `:focus-visible` global que define `index.css`. Con el anillo ya retirado, el input se quedaría con un borde inferior de 2px como único indicador de foco, y la promesa de la sección 10 del spec — contorno de 2px en `brand-600` en todo elemento interactivo — sería falsa justo donde más importa, en los formularios. Al quitar `outline-none`, un input enfocado por teclado muestra el contorno global **y** el borde inferior engrosado.
+
+El resto del archivo no cambia.
 
 - [ ] **Step 3: Verificar**
 
