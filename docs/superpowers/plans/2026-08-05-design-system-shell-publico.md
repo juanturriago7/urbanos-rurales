@@ -1313,6 +1313,14 @@ export function WhatsAppFab() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Escribir por WhatsApp"
+      // Mientras es invisible tiene que salir del orden de tabulación y del
+      // árbol de accesibilidad. `opacity-0` no lo saca —no es `display` ni
+      // `visibility`— y `pointer-events-none` solo gobierna ratón y táctil, no
+      // el teclado. Sin esto, quien tabula durante los dos primeros segundos
+      // aterriza en un enlace completamente transparente cuyo anillo de foco
+      // también es invisible, que es justo lo que prohíbe WCAG 2.4.7.
+      tabIndex={visible ? 0 : -1}
+      aria-hidden={!visible}
       className={[
         'group fixed right-6 bottom-6 z-50 flex items-center gap-3',
         'transition-opacity duration-300',
