@@ -356,6 +356,35 @@ const sizeClasses: Record<NonNullable<ButtonProps['size']>, string> = {
   lg: 'px-6 py-3 text-base',
 }
 
+interface ClasesBotonArgs {
+  variant?: ButtonProps['variant']
+  size?: ButtonProps['size']
+  className?: string
+}
+
+/**
+ * Composición de clases del botón, expuesta aparte del componente.
+ *
+ * Existe para que un enlace pueda **parecer** un botón sin **contener** uno.
+ * Envolver un `<Button>` en un `<Link>` produce `<a><button></button></a>`:
+ * contenido interactivo dentro de contenido interactivo, que es HTML inválido
+ * y, en la práctica, hace que cada CTA consuma dos paradas de tabulación.
+ * Un `<Link className={clasesBoton(...)}>` es un solo elemento y una sola
+ * parada.
+ */
+export function clasesBoton({ variant = 'primary', size = 'md', className = '' }: ClasesBotonArgs = {}) {
+  return [
+    'inline-flex items-center justify-center gap-2 rounded-control font-semibold tracking-[0.5px]',
+    'transition-[color,background-color,border-color,transform,box-shadow] duration-200',
+    'hover:scale-[1.02] active:scale-[0.98]',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+    'disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100',
+    variantClasses[variant],
+    sizeClasses[size],
+    className,
+  ].join(' ')
+}
+
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     { variant = 'primary', size = 'md', isLoading, disabled, children, className = '', ...props },
@@ -364,19 +393,12 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     <button
       ref={ref}
       disabled={disabled || isLoading}
-      className={[
-        'inline-flex items-center justify-center gap-2 rounded-control font-semibold tracking-[0.5px]',
-        'transition-[color,background-color,border-color,transform,box-shadow] duration-200',
-        'hover:scale-[1.02] active:scale-[0.98]',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-        'disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100',
-        variantClasses[variant],
-        sizeClasses[size],
-        className,
-      ].join(' ')}
+      className={clasesBoton({ variant, size, className })}
       {...props}
     >
 ```
+
+`Button` queda como el único consumidor de `clasesBoton` dentro del propio archivo, así que su apariencia y la de los enlaces-botón no pueden divergir. Sus 12 llamadas actuales en el admin no cambian.
 
 Tres cambios que conviene entender:
 
@@ -732,7 +754,7 @@ import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { AnchorLink } from '@/app/layouts/public/AnchorLink'
 import { NavLinks } from '@/app/layouts/public/NavLinks'
-import { Button } from '@/shared/components/ui/Button'
+import { clasesBoton } from '@/shared/components/ui/Button'
 
 /**
  * Panel de navegación móvil. Se comporta como un diálogo modal: atrapa el foco,
@@ -851,16 +873,22 @@ export function MobileDrawer({ abierto, onCerrar }: MobileDrawerProps) {
           />
         </nav>
 
+        {/* Enlaces con apariencia de botón, no botones dentro de enlaces: cada
+            CTA es un solo elemento y una sola parada de tabulación. */}
         <div className="mt-auto flex flex-col gap-3">
-          <Link to="/inmuebles?operacion=arriendo" onClick={onCerrar}>
-            <Button variant="secondary" size="lg" className="w-full">
-              Buscar inmueble
-            </Button>
+          <Link
+            to="/inmuebles?operacion=arriendo"
+            onClick={onCerrar}
+            className={clasesBoton({ variant: 'secondary', size: 'lg', className: 'w-full' })}
+          >
+            Buscar inmueble
           </Link>
-          <AnchorLink anchor="consignar" onNavigate={onCerrar}>
-            <Button variant="primary" size="lg" className="w-full">
-              Consignar
-            </Button>
+          <AnchorLink
+            anchor="consignar"
+            onNavigate={onCerrar}
+            className={clasesBoton({ variant: 'primary', size: 'lg', className: 'w-full' })}
+          >
+            Consignar
           </AnchorLink>
         </div>
       </div>
@@ -898,8 +926,10 @@ al cerrarse para que sus enlaces no queden tabulables detras del contenido."
 - Create: `FrontEndUrbanos/src/app/layouts/public/Header.tsx`
 
 **Interfaces:**
-- Consumes: `Logo` (Tarea 4), `NavLinks` y `AnchorLink` (Tarea 5), `MobileDrawer` (Tarea 6), `Button` (Tarea 3), `Container` (Tarea 2)
-- Produce: `Header()` sin props — la consume la Tarea 10
+- Consumes: `Logo` (Tarea 4), `NavLinks` y `AnchorLink` (Tarea 5), `MobileDrawer` (Tarea 6), `clasesBoton` (Tarea 3), `Container` (Tarea 2)
+- Produce: `Header({ drawerAbierto: boolean; onAbrirDrawer: () => void; onCerrarDrawer: () => void })` — la consume la Tarea 10
+
+**El estado del drawer NO vive aquí.** Vive en `PublicLayout` (Tarea 10), que es el único componente capaz de marcar `<main>` y `<footer>` como `inert` mientras el panel está abierto. Sin eso el drawer no es un modal de verdad: el focus trap contiene la tabulación, pero el cursor virtual de un lector de pantalla sigue alcanzando el contenido de detrás del overlay. El `Header` solo recibe el estado y los dos manejadores.
 
 - [ ] **Step 1: Crear el componente**
 
@@ -909,7 +939,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { AnchorLink } from '@/app/layouts/public/AnchorLink'
 import { MobileDrawer } from '@/app/layouts/public/MobileDrawer'
 import { NavLinks } from '@/app/layouts/public/NavLinks'
-import { Button } from '@/shared/components/ui/Button'
+import { clasesBoton } from '@/shared/components/ui/Button'
 import { Container } from '@/shared/components/ui/Container'
 import { Logo } from '@/shared/components/ui/Logo'
 
@@ -921,13 +951,21 @@ import { Logo } from '@/shared/components/ui/Logo'
  * listado no tendría hero sobre el cual ser transparente.
  *
  * En ambos modos, al hacer scroll se compacta y opaca.
+ *
+ * El estado del drawer llega por props porque `PublicLayout` es quien tiene
+ * que marcar el resto de la página como inerte mientras está abierto.
  */
+interface HeaderProps {
+  drawerAbierto: boolean
+  onAbrirDrawer: () => void
+  onCerrarDrawer: () => void
+}
+
 const UMBRAL_SCROLL = 40
 
-export function Header() {
+export function Header({ drawerAbierto, onAbrirDrawer, onCerrarDrawer }: HeaderProps) {
   const location = useLocation()
   const [scrolleado, setScrolleado] = useState(false)
-  const [drawerAbierto, setDrawerAbierto] = useState(false)
 
   const esLanding = location.pathname === '/'
 
@@ -945,8 +983,8 @@ export function Header() {
 
   // Cierra el drawer al cambiar de ruta.
   useEffect(() => {
-    setDrawerAbierto(false)
-  }, [location.pathname])
+    onCerrarDrawer()
+  }, [location.pathname, onCerrarDrawer])
 
   const solido = !esLanding || scrolleado
 
@@ -978,22 +1016,28 @@ export function Header() {
               <NavLinks claseEnlace={claseEnlace} />
             </nav>
 
+            {/* Enlaces con apariencia de botón, no botones dentro de enlaces. */}
             <div className="hidden items-center gap-3 md:flex">
-              <Link to="/inmuebles?operacion=arriendo">
-                <Button variant={solido ? 'secondary' : 'outline-light'} size="sm">
-                  Buscar inmueble
-                </Button>
+              <Link
+                to="/inmuebles?operacion=arriendo"
+                className={clasesBoton({
+                  variant: solido ? 'secondary' : 'outline-light',
+                  size: 'sm',
+                })}
+              >
+                Buscar inmueble
               </Link>
-              <AnchorLink anchor="consignar">
-                <Button variant="primary" size="sm">
-                  Consignar
-                </Button>
+              <AnchorLink
+                anchor="consignar"
+                className={clasesBoton({ variant: 'primary', size: 'sm' })}
+              >
+                Consignar
               </AnchorLink>
             </div>
 
             <button
               type="button"
-              onClick={() => setDrawerAbierto(true)}
+              onClick={onAbrirDrawer}
               aria-label="Abrir menú"
               aria-expanded={drawerAbierto}
               className={['p-2 md:hidden', solido ? 'text-text-primary' : 'text-white'].join(' ')}
@@ -1013,7 +1057,7 @@ export function Header() {
         </Container>
       </header>
 
-      <MobileDrawer abierto={drawerAbierto} onCerrar={() => setDrawerAbierto(false)} />
+      <MobileDrawer abierto={drawerAbierto} onCerrar={onCerrarDrawer} />
     </>
   )
 }
@@ -1335,21 +1379,40 @@ competir con el hero en el primer vistazo."
 Reemplazar el contenido completo de `src/app/layouts/PublicLayout.tsx` por:
 
 ```tsx
+import { useCallback, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { Footer } from '@/app/layouts/public/Footer'
 import { Header } from '@/app/layouts/public/Header'
 import { WhatsAppFab } from '@/shared/components/WhatsAppFab'
 
 /**
- * Shell del sitio público: solo ensambla las piezas.
+ * Shell del sitio público: ensambla las piezas y es dueño del estado del drawer.
  *
  * El header es `fixed`, así que no ocupa espacio en el flujo. En la landing eso
  * es lo que se busca — flota sobre el hero. En el resto de rutas hay que
  * compensar con un padding superior, o el contenido arrancaría debajo de él.
+ *
+ * El estado del drawer vive aquí y no en el `Header` por una razón concreta:
+ * este es el único componente que tiene a `<main>` y `<footer>` como hijos y
+ * puede marcarlos `inert` mientras el panel está abierto. El focus trap del
+ * drawer contiene la tabulación, pero sin `inert` el cursor virtual de un
+ * lector de pantalla sigue recorriendo el contenido de detrás del overlay, y
+ * entonces el diálogo no es realmente modal.
  */
 export function PublicLayout() {
   const location = useLocation()
   const esLanding = location.pathname === '/'
+
+  const [drawerAbierto, setDrawerAbierto] = useState(false)
+
+  // `useCallback` aquí NO es una optimización: es obligatorio.
+  // El `Header` cierra el drawer al cambiar de ruta con un efecto cuyas
+  // dependencias incluyen `onCerrarDrawer`. Si la identidad de esa función
+  // cambiara en cada render, el efecto se reejecutaría en cada render y
+  // cerraría el drawer inmediatamente después de abrirlo — el panel no llegaría
+  // a verse nunca.
+  const abrirDrawer = useCallback(() => setDrawerAbierto(true), [])
+  const cerrarDrawer = useCallback(() => setDrawerAbierto(false), [])
 
   return (
     <div className="flex min-h-screen flex-col bg-surface font-sans text-text-primary">
@@ -1360,20 +1423,36 @@ export function PublicLayout() {
         Saltar al contenido
       </a>
 
-      <Header />
+      <Header
+        drawerAbierto={drawerAbierto}
+        onAbrirDrawer={abrirDrawer}
+        onCerrarDrawer={cerrarDrawer}
+      />
 
-      <main id="contenido" className={['flex-1', esLanding ? '' : 'pt-20'].join(' ')}>
+      {/* `inert` saca a estos dos del árbol de accesibilidad y del foco
+          mientras el drawer está abierto. React 19 lo soporta de forma nativa. */}
+      <main
+        id="contenido"
+        inert={drawerAbierto}
+        className={['flex-1', esLanding ? '' : 'pt-20'].join(' ')}
+      >
         <Outlet />
       </main>
 
-      <Footer />
-      <WhatsAppFab />
+      <div inert={drawerAbierto}>
+        <Footer />
+        <WhatsAppFab />
+      </div>
     </div>
   )
 }
 ```
 
 El `pt-20` condicional resuelve un problema real: con el header en `fixed`, en cualquier ruta que no sea la landing el contenido empezaría tapado por él.
+
+El `Footer` y el `WhatsAppFab` van envueltos en un `<div>` porque `inert` se aplica sobre un elemento y ninguno de los dos acepta props que reenviar. El `div` no altera la maquetación: el `Footer` sigue siendo un bloque al final del flujo y el FAB es `fixed`, así que su posición no depende de su contenedor.
+
+El FAB entra en lo inerte igual que el resto. Con un diálogo modal abierto, nada de detrás debe ser alcanzable — y aunque el focus trap ya impide llegar con `Tab`, el cursor virtual de un lector de pantalla sí lo alcanzaría.
 
 - [ ] **Step 2: Verificar que compila**
 
