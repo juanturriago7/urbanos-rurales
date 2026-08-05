@@ -272,6 +272,21 @@ El componente aísla el cambio: cuando llegue el SVG o el PNG, se sustituye toca
 
 `Accordion` y `Carousel` solo los usa la landing. Se construyen en el sub-proyecto 3, con su caso de uso real delante.
 
+**`Section` y `Card` tampoco.** Descritos en 6.4 y 6.5, se difieren por la misma razón: ningún componente de este sub-proyecto los consume. Sus usuarios están en el marketplace y en la landing, y diseñar su API ahora sería adivinar — la card del listado tendrá que resolver imagen, precio y badge de operación, requisitos que todavía no existen. La decisión de las dos densidades queda registrada en la sección 3 y `Container` ya la encarna en su prop `width`.
+
+### 6.8 `NavLinks` — nuevo
+
+El header (7.1) y el drawer (7.4) recorren `navItems` con la misma estructura y se diferencian solo en las clases. Ese recorrido vive en un único componente:
+
+```ts
+interface NavLinksProps {
+  claseEnlace: string
+  onNavigate?: () => void
+}
+```
+
+No decide su propia apariencia: el llamador pasa las clases, porque el header las cambia según el modo de scroll y el drawer las tiene fijas. Devuelve un fragmento, de modo que el contenedor y su disposición también son del llamador.
+
 ---
 
 ## 7. Shell público (`src/app/layouts/PublicLayout.tsx`)

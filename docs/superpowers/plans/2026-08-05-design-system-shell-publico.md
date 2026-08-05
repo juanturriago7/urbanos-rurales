@@ -57,11 +57,10 @@ Todos los comandos se ejecutan desde `FrontEndUrbanos/`.
 |---|---|
 | `src/shared/config/site.ts` | Fuente única de los datos de la empresa |
 | `src/shared/components/ui/Container.tsx` | Ancho máximo y padding lateral, en dos anchos |
-| `src/shared/components/ui/Section.tsx` | Padding vertical y superficie, en dos densidades |
-| `src/shared/components/ui/Card.tsx` | Tarjeta con dos densidades y hover opcional |
 | `src/shared/components/ui/Logo.tsx` | Aísla el logo pendiente en un solo punto |
 | `src/app/layouts/public/navItems.ts` | Definición declarativa del menú |
 | `src/app/layouts/public/AnchorLink.tsx` | Enlace a sección de la landing desde cualquier ruta |
+| `src/app/layouts/public/NavLinks.tsx` | Renderiza `navItems`; el llamador aporta las clases |
 | `src/app/layouts/public/MobileDrawer.tsx` | Panel de navegación móvil con semántica de diálogo modal |
 | `src/app/layouts/public/Header.tsx` | Cabecera de dos modos con comportamiento de scroll |
 | `src/app/layouts/public/Footer.tsx` | Pie oscuro de cuatro columnas |
@@ -241,21 +240,18 @@ Fonts, lo que saca dos conexiones a terceros del critical path."
 
 ---
 
-## Task 2: Primitivos de layout — `Container`, `Section`, `Card`
+## Task 2: Primitivo de layout — `Container`
 
 **Files:**
 - Create: `FrontEndUrbanos/src/shared/components/ui/Container.tsx`
-- Create: `FrontEndUrbanos/src/shared/components/ui/Section.tsx`
-- Create: `FrontEndUrbanos/src/shared/components/ui/Card.tsx`
 
 **Interfaces:**
-- Consumes: los tokens de la Tarea 1 (`bg-surface`, `bg-surface-muted`, `bg-surface-dark`, `bg-surface-card`, `rounded-card`, `shadow-card`, `shadow-card-hover`)
-- Produce:
-  - `Container({ width?: 'editorial' | 'wide', as?: ElementType, className?: string, children: ReactNode })`
-  - `Section({ density?: 'editorial' | 'utility', surface?: 'default' | 'muted' | 'dark', as?: ElementType, id?: string, className?: string, children: ReactNode })`
-  - `Card({ density?: 'editorial' | 'utility', interactive?: boolean, as?: ElementType, className?: string, children: ReactNode })`
+- Consumes: nada de la Tarea 1 en tiempo de compilación; usa utilidades estándar de Tailwind
+- Produce: `Container({ width?: 'editorial' | 'wide', as?: ElementType, className?: string, children: ReactNode })` — lo consumen las tareas 7 y 8
 
-Los tres son exportaciones nombradas, no `default`, siguiendo la convención de `Button` y `Field`.
+Exportación nombrada, no `default`, siguiendo la convención de `Button` y `Field`.
+
+**Nota de alcance.** El spec describía también `Section` y `Card` como parte del design system. **No se construyen aquí**: ningún componente de este sub-proyecto los consume — sus usuarios están en el marketplace y en la landing. Se crearán en el sub-proyecto que los necesite, con requisitos reales delante; la card del listado, por ejemplo, tendrá que resolver imagen, precio y badge de operación, y diseñar su API ahora sería adivinar. La decisión de las dos densidades sigue registrada en el spec y `Container` ya la encarna en su prop `width`.
 
 - [ ] **Step 1: Crear `Container`**
 
@@ -296,123 +292,23 @@ export function Container({
 
 `px-4` son los 16px de móvil y `sm:px-6` los 24px de tablet en adelante, tal como fija el spec.
 
-- [ ] **Step 2: Crear `Section`**
-
-```tsx
-import type { ElementType, ReactNode } from 'react'
-
-/**
- * Banda horizontal de contenido: define el padding vertical y la superficie.
- *
- * La densidad es la decisión estructural del design system. `editorial` usa la
- * escala generosa del documento de UX/UI (96px); `utility` la escala compacta
- * (32px) que necesita el marketplace para no mostrar tres inmuebles por scroll.
- */
-interface SectionProps {
-  density?: 'editorial' | 'utility'
-  surface?: 'default' | 'muted' | 'dark'
-  as?: ElementType
-  id?: string
-  className?: string
-  children: ReactNode
-}
-
-const densidadClases: Record<NonNullable<SectionProps['density']>, string> = {
-  editorial: 'py-12 md:py-24',
-  utility: 'py-8',
-}
-
-const superficieClases: Record<NonNullable<SectionProps['surface']>, string> = {
-  default: 'bg-surface',
-  muted: 'bg-surface-muted',
-  dark: 'bg-surface-dark text-text-inverse',
-}
-
-export function Section({
-  density = 'editorial',
-  surface = 'default',
-  as: Tag = 'section',
-  id,
-  className = '',
-  children,
-}: SectionProps) {
-  return (
-    <Tag
-      id={id}
-      className={[densidadClases[density], superficieClases[surface], className].join(' ')}
-    >
-      {children}
-    </Tag>
-  )
-}
-```
-
-`py-24` son 96px; en móvil baja a `py-12` (48px) porque 96px de aire vertical en una pantalla de 320px deja la sección prácticamente vacía.
-
-- [ ] **Step 3: Crear `Card`**
-
-```tsx
-import type { ElementType, ReactNode } from 'react'
-
-/**
- * Tarjeta de contenido. `interactive` activa el hover del documento de UX/UI
- * (elevación de 4px y sombra mayor) y solo debe usarse cuando la tarjeta
- * completa es clicable.
- */
-interface CardProps {
-  density?: 'editorial' | 'utility'
-  interactive?: boolean
-  as?: ElementType
-  className?: string
-  children: ReactNode
-}
-
-const densidadClases: Record<NonNullable<CardProps['density']>, string> = {
-  editorial: 'p-8',
-  utility: 'p-4',
-}
-
-export function Card({
-  density = 'editorial',
-  interactive = false,
-  as: Tag = 'div',
-  className = '',
-  children,
-}: CardProps) {
-  return (
-    <Tag
-      className={[
-        'rounded-card border border-border bg-surface-card shadow-card',
-        interactive
-          ? 'transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-card-hover'
-          : '',
-        densidadClases[density],
-        className,
-      ].join(' ')}
-    >
-      {children}
-    </Tag>
-  )
-}
-```
-
-- [ ] **Step 4: Verificar**
+- [ ] **Step 2: Verificar**
 
 ```bash
 pnpm lint
 pnpm build
 ```
 
-Esperado: sin errores. Los tres componentes todavía no tienen consumidores; esto solo confirma que tipan y compilan.
+Esperado: sin errores. `Container` todavía no tiene consumidores — los gana en las tareas 7 y 8 —, así que esto solo confirma que tipa y compila.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 3: Commit**
 
 ```bash
-git add FrontEndUrbanos/src/shared/components/ui/Container.tsx FrontEndUrbanos/src/shared/components/ui/Section.tsx FrontEndUrbanos/src/shared/components/ui/Card.tsx
-git commit -m "feat(ui): primitivos Container, Section y Card con dos densidades
+git add FrontEndUrbanos/src/shared/components/ui/Container.tsx
+git commit -m "feat(ui): primitivo Container con dos anchos
 
-La densidad se expresa como prop en vez de utilidades custom de Tailwind:
-el nivel queda explicito al leer el JSX y no hay convenciones que memorizar."
+editorial (1200px) para landing e institucionales, wide (1440px) para el
+marketplace, que necesita caber mas columnas de resultados."
 ```
 
 ---
@@ -648,17 +544,19 @@ layout cuando llegue el archivo."
 
 ---
 
-## Task 5: Definición del menú y `AnchorLink`
+## Task 5: Definición del menú, `AnchorLink` y `NavLinks`
 
 **Files:**
 - Create: `FrontEndUrbanos/src/app/layouts/public/navItems.ts`
 - Create: `FrontEndUrbanos/src/app/layouts/public/AnchorLink.tsx`
+- Create: `FrontEndUrbanos/src/app/layouts/public/NavLinks.tsx`
 
 **Interfaces:**
 - Consumes: nada
 - Produce:
-  - `type NavItem = { label: string; to: string; anchor?: string }` y `navItems: readonly NavItem[]` — los consumen las tareas 6 y 7
+  - `type NavItem = { label: string; to: string; anchor?: string }` y `navItems: readonly NavItem[]`
   - `AnchorLink({ anchor: string; className?: string; onNavigate?: () => void; children: ReactNode })` — la consumen las tareas 6, 7 y 8
+  - `NavLinks({ claseEnlace: string; onNavigate?: () => void })` — la consumen las tareas 6 y 7
 
 - [ ] **Step 1: Crear `navItems.ts`**
 
@@ -741,7 +639,56 @@ export function AnchorLink({ anchor, className = '', onNavigate, children }: Anc
 }
 ```
 
-- [ ] **Step 3: Verificar**
+- [ ] **Step 3: Crear `NavLinks`**
+
+El header y el drawer recorren `navItems` con la misma estructura y solo se
+diferencian en las clases. Ese recorrido vive en un único sitio:
+
+```tsx
+import { Link } from 'react-router-dom'
+import { AnchorLink } from '@/app/layouts/public/AnchorLink'
+import { navItems } from '@/app/layouts/public/navItems'
+
+/**
+ * Renderiza los items del menú, eligiendo entre enlace de ruta y enlace de
+ * ancla según cada item.
+ *
+ * No decide su propia apariencia: el llamador pasa las clases, porque el
+ * header las cambia según el modo de scroll y el drawer las tiene fijas.
+ * Devuelve un fragmento, así que el llamador también controla el contenedor
+ * y su disposición.
+ */
+interface NavLinksProps {
+  claseEnlace: string
+  /** Permite al drawer móvil cerrarse al navegar. */
+  onNavigate?: () => void
+}
+
+export function NavLinks({ claseEnlace, onNavigate }: NavLinksProps) {
+  return (
+    <>
+      {navItems.map((item) =>
+        item.anchor ? (
+          <AnchorLink
+            key={item.label}
+            anchor={item.anchor}
+            onNavigate={onNavigate}
+            className={claseEnlace}
+          >
+            {item.label}
+          </AnchorLink>
+        ) : (
+          <Link key={item.label} to={item.to} onClick={onNavigate} className={claseEnlace}>
+            {item.label}
+          </Link>
+        ),
+      )}
+    </>
+  )
+}
+```
+
+- [ ] **Step 4: Verificar**
 
 ```bash
 pnpm lint
@@ -750,14 +697,15 @@ pnpm build
 
 Esperado: sin errores.
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
-git add FrontEndUrbanos/src/app/layouts/public/navItems.ts FrontEndUrbanos/src/app/layouts/public/AnchorLink.tsx
-git commit -m "feat(public): definicion del menu y enlace a secciones de la landing
+git add FrontEndUrbanos/src/app/layouts/public/navItems.ts FrontEndUrbanos/src/app/layouts/public/AnchorLink.tsx FrontEndUrbanos/src/app/layouts/public/NavLinks.tsx
+git commit -m "feat(public): definicion del menu, enlace a secciones y NavLinks
 
 Ningun item lleva a una pagina vacia: los que no tienen ruta propia hacen
-scroll a una seccion, navegando primero a / si hace falta."
+scroll a una seccion, navegando primero a / si hace falta. NavLinks deja el
+recorrido de navItems en un solo sitio; las clases las pone el llamador."
 ```
 
 ---
@@ -768,7 +716,7 @@ scroll a una seccion, navegando primero a / si hace falta."
 - Create: `FrontEndUrbanos/src/app/layouts/public/MobileDrawer.tsx`
 
 **Interfaces:**
-- Consumes: `navItems`, `NavItem` y `AnchorLink` (Tarea 5); `Button` (Tarea 3)
+- Consumes: `NavLinks` y `AnchorLink` (Tarea 5); `Button` (Tarea 3)
 - Produce: `MobileDrawer({ abierto: boolean; onCerrar: () => void })` — la consume la Tarea 7
 
 Se construye antes que el `Header` porque el `Header` lo importa.
@@ -779,7 +727,7 @@ Se construye antes que el `Header` porque el `Header` lo importa.
 import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { AnchorLink } from '@/app/layouts/public/AnchorLink'
-import { navItems } from '@/app/layouts/public/navItems'
+import { NavLinks } from '@/app/layouts/public/NavLinks'
 import { Button } from '@/shared/components/ui/Button'
 
 /**
@@ -893,27 +841,10 @@ export function MobileDrawer({ abierto, onCerrar }: MobileDrawerProps) {
         </button>
 
         <nav className="flex flex-col gap-6">
-          {navItems.map((item) =>
-            item.anchor ? (
-              <AnchorLink
-                key={item.label}
-                anchor={item.anchor}
-                onNavigate={onCerrar}
-                className="text-sm font-medium tracking-[1.5px] text-text-primary uppercase"
-              >
-                {item.label}
-              </AnchorLink>
-            ) : (
-              <Link
-                key={item.label}
-                to={item.to}
-                onClick={onCerrar}
-                className="text-sm font-medium tracking-[1.5px] text-text-primary uppercase"
-              >
-                {item.label}
-              </Link>
-            ),
-          )}
+          <NavLinks
+            claseEnlace="text-sm font-medium tracking-[1.5px] text-text-primary uppercase"
+            onNavigate={onCerrar}
+          />
         </nav>
 
         <div className="mt-auto flex flex-col gap-3">
@@ -963,7 +894,7 @@ al cerrarse para que sus enlaces no queden tabulables detras del contenido."
 - Create: `FrontEndUrbanos/src/app/layouts/public/Header.tsx`
 
 **Interfaces:**
-- Consumes: `Logo` (Tarea 4), `navItems` y `AnchorLink` (Tarea 5), `MobileDrawer` (Tarea 6), `Button` (Tarea 3), `Container` (Tarea 2)
+- Consumes: `Logo` (Tarea 4), `NavLinks` y `AnchorLink` (Tarea 5), `MobileDrawer` (Tarea 6), `Button` (Tarea 3), `Container` (Tarea 2)
 - Produce: `Header()` sin props — la consume la Tarea 10
 
 - [ ] **Step 1: Crear el componente**
@@ -973,7 +904,7 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { AnchorLink } from '@/app/layouts/public/AnchorLink'
 import { MobileDrawer } from '@/app/layouts/public/MobileDrawer'
-import { navItems } from '@/app/layouts/public/navItems'
+import { NavLinks } from '@/app/layouts/public/NavLinks'
 import { Button } from '@/shared/components/ui/Button'
 import { Container } from '@/shared/components/ui/Container'
 import { Logo } from '@/shared/components/ui/Logo'
@@ -1015,9 +946,11 @@ export function Header() {
 
   const solido = !esLanding || scrolleado
 
-  const claseEnlace = solido
-    ? 'text-text-primary hover:text-brand-600'
-    : 'text-white hover:text-brand-100'
+  // El color de los enlaces depende del modo; el resto de su estilo es fijo.
+  const claseEnlace = [
+    'text-[13px] font-medium tracking-[1.5px] uppercase transition-colors',
+    solido ? 'text-text-primary hover:text-brand-600' : 'text-white hover:text-brand-100',
+  ].join(' ')
 
   return (
     <>
@@ -1038,31 +971,7 @@ export function Header() {
             </Link>
 
             <nav className="hidden items-center gap-8 md:flex">
-              {navItems.map((item) =>
-                item.anchor ? (
-                  <AnchorLink
-                    key={item.label}
-                    anchor={item.anchor}
-                    className={[
-                      'text-[13px] font-medium tracking-[1.5px] uppercase transition-colors',
-                      claseEnlace,
-                    ].join(' ')}
-                  >
-                    {item.label}
-                  </AnchorLink>
-                ) : (
-                  <Link
-                    key={item.label}
-                    to={item.to}
-                    className={[
-                      'text-[13px] font-medium tracking-[1.5px] uppercase transition-colors',
-                      claseEnlace,
-                    ].join(' ')}
-                  >
-                    {item.label}
-                  </Link>
-                ),
-              )}
+              <NavLinks claseEnlace={claseEnlace} />
             </nav>
 
             <div className="hidden items-center gap-3 md:flex">
