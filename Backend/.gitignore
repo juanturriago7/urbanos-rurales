@@ -8,6 +8,7 @@ logs/
 *.log
 
 ## Secrets — nunca commitear
+**/appsettings.Development.json
 **/appsettings.Production.json
 **/*.pfx
 **/.env
