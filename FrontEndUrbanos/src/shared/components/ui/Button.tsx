@@ -1,7 +1,7 @@
 import { type ButtonHTMLAttributes, forwardRef } from 'react'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger'
+  variant?: 'primary' | 'secondary' | 'gold' | 'outline-light' | 'ghost' | 'danger'
   size?: 'sm' | 'md' | 'lg'
   isLoading?: boolean
 }
@@ -11,8 +11,13 @@ const variantClasses: Record<NonNullable<ButtonProps['variant']>, string> = {
     'bg-brand-600 text-white hover:bg-brand-700 focus-visible:ring-brand-500 disabled:bg-brand-300',
   secondary:
     'bg-white text-brand-700 border border-brand-300 hover:bg-brand-50 focus-visible:ring-brand-500',
+  gold:
+    'bg-accent-gold text-white hover:bg-accent-gold-hover focus-visible:ring-accent-gold disabled:opacity-60',
+  // Solo para el header sobre el hero, donde el fondo es una foto oscurecida.
+  'outline-light':
+    'border border-white/70 text-white hover:bg-white/10 focus-visible:ring-white',
   ghost: 'text-text-secondary hover:bg-surface-muted focus-visible:ring-brand-500',
-  danger: 'bg-error text-white hover:bg-red-600 focus-visible:ring-red-500 disabled:bg-red-300',
+  danger: 'bg-error text-white hover:bg-red-700 focus-visible:ring-red-500 disabled:opacity-60',
 }
 
 const sizeClasses: Record<NonNullable<ButtonProps['size']>, string> = {
@@ -30,9 +35,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ref={ref}
       disabled={disabled || isLoading}
       className={[
-        'inline-flex items-center justify-center gap-2 rounded-lg font-medium',
-        'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-        'disabled:cursor-not-allowed disabled:opacity-60',
+        'inline-flex items-center justify-center gap-2 rounded-control font-semibold tracking-[0.5px]',
+        'transition-[color,background-color,border-color,transform,box-shadow] duration-200',
+        'hover:scale-[1.02] active:scale-[0.98]',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+        'disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100',
         variantClasses[variant],
         sizeClasses[size],
         className,
