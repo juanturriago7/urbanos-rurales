@@ -1,40 +1,97 @@
 @import "tailwindcss";
 
-/* ─── Design Tokens personalizados ──────────────────────────────────────────── */
+/* ─── Design tokens ─────────────────────────────────────────────────────────
+   Paleta verde petróleo del documento de UX/UI. La escala se escribe sobre los
+   nombres `brand-*` que ya usaba la paleta azul anterior, para que el panel
+   admin herede el color nuevo sin tocar ninguno de sus archivos. Por la misma
+   razón se conserva el nombre `surface-muted` con un valor nuevo: `Button` y
+   `Field` ya dependen de él.
+   Todos los colores son sólidos: el sistema no usa gradientes en ninguna parte.
+   ────────────────────────────────────────────────────────────────────────── */
 @theme {
-  /* Paleta de marca */
-  --color-brand-50:  #f0f9ff;
-  --color-brand-100: #e0f2fe;
-  --color-brand-200: #bae6fd;
-  --color-brand-300: #7dd3fc;
-  --color-brand-400: #38bdf8;
-  --color-brand-500: #0ea5e9;
-  --color-brand-600: #0284c7;
-  --color-brand-700: #0369a1;
-  --color-brand-800: #075985;
-  --color-brand-900: #0c4a6e;
+  /* Marca — escala derivada de #0D6E6E, el único acento que fija el documento */
+  --color-brand-50:  #F0F7F7;
+  --color-brand-100: #D6E9E9;
+  --color-brand-200: #ADD3D3;
+  --color-brand-300: #6FB3B3;
+  --color-brand-400: #3A9090;
+  --color-brand-500: #1A7E7E;
+  --color-brand-600: #0D6E6E;
+  --color-brand-700: #0A5757;
+  --color-brand-800: #084545;
+  --color-brand-900: #063535;
 
-  /* Neutrales */
-  --color-surface:         #ffffff;
-  --color-surface-muted:   #f8fafc;
-  --color-border:          #e2e8f0;
-  --color-text-primary:    #0f172a;
-  --color-text-secondary:  #64748b;
-  --color-text-disabled:   #94a3b8;
+  /* Acento secundario */
+  --color-accent-gold:       #B8960C;
+  --color-accent-gold-hover: #9A7D0A;
+
+  /* Superficies */
+  --color-surface:        #FFFFFF;
+  --color-surface-muted:  #F5F6FA;
+  --color-surface-card:   #FAFAF8;
+  --color-surface-dark:   #1C1C1E;
+  --color-surface-darker: #111111;
+
+  /* Texto */
+  --color-text-primary:       #1C1C1E;
+  --color-text-secondary:     #4A4A4A;
+  --color-text-tertiary:      #6B6B6B;
+  --color-text-disabled:      #9A9A9A;
+  --color-text-inverse:       #FFFFFF;
+  --color-text-muted-inverse: #AAAAAA;
+
+  --color-border: #E2E2E2;
 
   /* Semánticos */
-  --color-success: #22c55e;
-  --color-warning: #f59e0b;
-  --color-error:   #ef4444;
-  --color-info:    #3b82f6;
+  --color-error:   #D32F2F;
+  --color-success: #388E3C;
+  --color-warning: #F59E0B;
+  --color-info:    #0D6E6E;
 
   /* Tipografía */
-  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-sans:  'Inter Variable', 'Inter', system-ui, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
 
-  /* Espaciado extra */
+  /* Radios */
+  --radius-control: 4px;
+  --radius-card:    8px;
+
+  /* Sombras — deliberadamente sutiles */
+  --shadow-card:       0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-card-hover: 0 12px 32px rgba(0, 0, 0, 0.08);
+  --shadow-dropdown:   0 8px 24px rgba(0, 0, 0, 0.06);
+  --shadow-header:     0 1px 0 rgba(0, 0, 0, 0.05);
+
+  /* Espaciado extra heredado */
   --spacing-18: 4.5rem;
   --spacing-22: 5.5rem;
+}
 
-  /* Border radius */
-  --radius-card: 0.75rem;
+/* ─── Estilos base ──────────────────────────────────────────────────────── */
+@layer base {
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Indicador de foco visible en todo elemento interactivo, requisito WCAG */
+  :focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
