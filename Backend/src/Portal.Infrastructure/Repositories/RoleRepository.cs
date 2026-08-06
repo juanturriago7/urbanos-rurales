@@ -32,7 +32,10 @@ internal sealed class RoleRepository : IRoleRepository
                 r.id          AS Id,
                 r.name        AS Name,
                 r.description AS Description,
-                COUNT(u.id)   AS UserCount
+                -- ::int es obligatorio: COUNT devuelve bigint y RoleDto.UserCount
+                -- es int; Dapper materializa el record por constructor y falla si
+                -- el tipo no calza exactamente.
+                COUNT(u.id)::int AS UserCount
             FROM roles r
             LEFT JOIN usuarios u ON u.rol::text = LOWER(r.name) AND u.activo = TRUE
             GROUP BY r.id, r.name, r.description

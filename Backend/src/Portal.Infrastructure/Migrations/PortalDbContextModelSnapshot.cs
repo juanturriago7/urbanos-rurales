@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using NpgsqlTypes;
+using Portal.Domain.Enums;
 using Portal.Infrastructure.Persistence;
 
 #nullable disable
@@ -525,10 +526,10 @@ namespace Portal.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("eliminado_en");
 
-                    b.Property<int>("Estado")
+                    b.Property<EstadoInmueble>("Estado")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(1)
+                        .HasColumnType("estado_inmueble")
+                        .HasDefaultValue(EstadoInmueble.Borrador)
                         .HasColumnName("estado");
 
                     b.Property<short?>("Estrato")
@@ -541,7 +542,7 @@ namespace Portal.Infrastructure.Migrations
                         .HasDefaultValue((short)0)
                         .HasColumnName("habitaciones");
 
-                    b.Property<decimal>("LatitudAproximada")
+                    b.Property<decimal?>("LatitudAproximada")
                         .HasPrecision(10, 7)
                         .HasColumnType("numeric(10,7)")
                         .HasColumnName("latitud_aproximada");
@@ -551,7 +552,7 @@ namespace Portal.Infrastructure.Migrations
                         .HasColumnType("numeric(10,7)")
                         .HasColumnName("latitud_exacta");
 
-                    b.Property<decimal>("LongitudAproximada")
+                    b.Property<decimal?>("LongitudAproximada")
                         .HasPrecision(10, 7)
                         .HasColumnType("numeric(10,7)")
                         .HasColumnName("longitud_aproximada");
@@ -595,10 +596,10 @@ namespace Portal.Infrastructure.Migrations
                         .HasColumnType("smallint")
                         .HasColumnName("pisos_edificio");
 
-                    b.Property<int>("PoliticaMascotas")
+                    b.Property<PoliticaMascotas>("PoliticaMascotas")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(2)
+                        .HasColumnType("politica_mascotas")
+                        .HasDefaultValue(PoliticaMascotas.NoPermitidas)
                         .HasColumnName("politica_mascotas");
 
                     b.Property<string>("Slug")
@@ -765,10 +766,10 @@ namespace Portal.Infrastructure.Migrations
                         .HasDefaultValue(0m)
                         .HasColumnName("cuota_administracion");
 
-                    b.Property<int>("Estado")
+                    b.Property<EstadoOperacion>("Estado")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(1)
+                        .HasColumnType("estado_operacion")
+                        .HasDefaultValue(EstadoOperacion.Disponible)
                         .HasColumnName("estado");
 
                     b.Property<long>("InmuebleId")
@@ -780,8 +781,8 @@ namespace Portal.Infrastructure.Migrations
                         .HasColumnType("numeric(14,2)")
                         .HasColumnName("precio");
 
-                    b.Property<int>("TipoOperacion")
-                        .HasColumnType("integer")
+                    b.Property<TipoOperacion>("TipoOperacion")
+                        .HasColumnType("tipo_operacion")
                         .HasColumnName("tipo_operacion");
 
                     b.HasKey("Id");
@@ -826,10 +827,10 @@ namespace Portal.Infrastructure.Migrations
                         .HasColumnName("creado_en")
                         .HasDefaultValueSql("now()");
 
-                    b.Property<int>("Estado")
+                    b.Property<EstadoLead>("Estado")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(1)
+                        .HasColumnType("estado_lead")
+                        .HasDefaultValue(EstadoLead.Nuevo)
                         .HasColumnName("estado");
 
                     b.Property<long?>("InmuebleId")
@@ -1116,8 +1117,8 @@ namespace Portal.Infrastructure.Migrations
                         .HasColumnType("character varying(140)")
                         .HasColumnName("slug");
 
-                    b.Property<int>("Tipo")
-                        .HasColumnType("integer")
+                    b.Property<TipoUbicacion>("Tipo")
+                        .HasColumnType("tipo_ubicacion")
                         .HasColumnName("tipo");
 
                     b.HasKey("Id");
@@ -1141,7 +1142,7 @@ namespace Portal.Infrastructure.Migrations
                             CreadoEn = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Nombre = "Norte",
                             Slug = "norte",
-                            Tipo = 1
+                            Tipo = TipoUbicacion.Zona
                         },
                         new
                         {
@@ -1150,7 +1151,7 @@ namespace Portal.Infrastructure.Migrations
                             CreadoEn = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Nombre = "Noroccidente",
                             Slug = "noroccidente",
-                            Tipo = 1
+                            Tipo = TipoUbicacion.Zona
                         },
                         new
                         {
@@ -1159,7 +1160,7 @@ namespace Portal.Infrastructure.Migrations
                             CreadoEn = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Nombre = "Occidente",
                             Slug = "occidente",
-                            Tipo = 1
+                            Tipo = TipoUbicacion.Zona
                         },
                         new
                         {
@@ -1168,7 +1169,7 @@ namespace Portal.Infrastructure.Migrations
                             CreadoEn = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Nombre = "Centro",
                             Slug = "centro",
-                            Tipo = 1
+                            Tipo = TipoUbicacion.Zona
                         },
                         new
                         {
@@ -1177,7 +1178,7 @@ namespace Portal.Infrastructure.Migrations
                             CreadoEn = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Nombre = "Sur",
                             Slug = "sur",
-                            Tipo = 1
+                            Tipo = TipoUbicacion.Zona
                         },
                         new
                         {
@@ -1186,7 +1187,7 @@ namespace Portal.Infrastructure.Migrations
                             CreadoEn = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Nombre = "Suroccidente",
                             Slug = "suroccidente",
-                            Tipo = 1
+                            Tipo = TipoUbicacion.Zona
                         },
                         new
                         {
@@ -1196,7 +1197,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Usaquén",
                             PadreId = 1L,
                             Slug = "usaquen",
-                            Tipo = 2
+                            Tipo = TipoUbicacion.Localidad
                         },
                         new
                         {
@@ -1206,7 +1207,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Chapinero",
                             PadreId = 1L,
                             Slug = "chapinero",
-                            Tipo = 2
+                            Tipo = TipoUbicacion.Localidad
                         },
                         new
                         {
@@ -1216,7 +1217,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Suba",
                             PadreId = 2L,
                             Slug = "suba",
-                            Tipo = 2
+                            Tipo = TipoUbicacion.Localidad
                         },
                         new
                         {
@@ -1226,7 +1227,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Engativá",
                             PadreId = 2L,
                             Slug = "engativa",
-                            Tipo = 2
+                            Tipo = TipoUbicacion.Localidad
                         },
                         new
                         {
@@ -1236,7 +1237,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Barrios Unidos",
                             PadreId = 2L,
                             Slug = "barrios-unidos",
-                            Tipo = 2
+                            Tipo = TipoUbicacion.Localidad
                         },
                         new
                         {
@@ -1246,7 +1247,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Fontibón",
                             PadreId = 3L,
                             Slug = "fontibon",
-                            Tipo = 2
+                            Tipo = TipoUbicacion.Localidad
                         },
                         new
                         {
@@ -1256,7 +1257,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Teusaquillo",
                             PadreId = 4L,
                             Slug = "teusaquillo",
-                            Tipo = 2
+                            Tipo = TipoUbicacion.Localidad
                         },
                         new
                         {
@@ -1266,7 +1267,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Santa Fe",
                             PadreId = 4L,
                             Slug = "santa-fe",
-                            Tipo = 2
+                            Tipo = TipoUbicacion.Localidad
                         },
                         new
                         {
@@ -1276,7 +1277,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "La Candelaria",
                             PadreId = 4L,
                             Slug = "la-candelaria",
-                            Tipo = 2
+                            Tipo = TipoUbicacion.Localidad
                         },
                         new
                         {
@@ -1286,7 +1287,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Los Mártires",
                             PadreId = 4L,
                             Slug = "los-martires",
-                            Tipo = 2
+                            Tipo = TipoUbicacion.Localidad
                         },
                         new
                         {
@@ -1296,7 +1297,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Puente Aranda",
                             PadreId = 6L,
                             Slug = "puente-aranda",
-                            Tipo = 2
+                            Tipo = TipoUbicacion.Localidad
                         },
                         new
                         {
@@ -1306,7 +1307,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Kennedy",
                             PadreId = 6L,
                             Slug = "kennedy",
-                            Tipo = 2
+                            Tipo = TipoUbicacion.Localidad
                         },
                         new
                         {
@@ -1316,7 +1317,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Bosa",
                             PadreId = 6L,
                             Slug = "bosa",
-                            Tipo = 2
+                            Tipo = TipoUbicacion.Localidad
                         },
                         new
                         {
@@ -1326,7 +1327,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Antonio Nariño",
                             PadreId = 5L,
                             Slug = "antonio-narino",
-                            Tipo = 2
+                            Tipo = TipoUbicacion.Localidad
                         },
                         new
                         {
@@ -1336,7 +1337,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Rafael Uribe Uribe",
                             PadreId = 5L,
                             Slug = "rafael-uribe-uribe",
-                            Tipo = 2
+                            Tipo = TipoUbicacion.Localidad
                         },
                         new
                         {
@@ -1346,7 +1347,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Tunjuelito",
                             PadreId = 5L,
                             Slug = "tunjuelito",
-                            Tipo = 2
+                            Tipo = TipoUbicacion.Localidad
                         },
                         new
                         {
@@ -1356,7 +1357,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "San Cristóbal",
                             PadreId = 5L,
                             Slug = "san-cristobal",
-                            Tipo = 2
+                            Tipo = TipoUbicacion.Localidad
                         },
                         new
                         {
@@ -1366,7 +1367,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Usme",
                             PadreId = 5L,
                             Slug = "usme",
-                            Tipo = 2
+                            Tipo = TipoUbicacion.Localidad
                         },
                         new
                         {
@@ -1376,7 +1377,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Ciudad Bolívar",
                             PadreId = 5L,
                             Slug = "ciudad-bolivar",
-                            Tipo = 2
+                            Tipo = TipoUbicacion.Localidad
                         },
                         new
                         {
@@ -1386,7 +1387,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Santa Bárbara",
                             PadreId = 7L,
                             Slug = "santa-barbara",
-                            Tipo = 3
+                            Tipo = TipoUbicacion.Upz
                         },
                         new
                         {
@@ -1396,7 +1397,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Country Club",
                             PadreId = 7L,
                             Slug = "country-club",
-                            Tipo = 3
+                            Tipo = TipoUbicacion.Upz
                         },
                         new
                         {
@@ -1406,7 +1407,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Chicó Lago",
                             PadreId = 8L,
                             Slug = "chico-lago",
-                            Tipo = 3
+                            Tipo = TipoUbicacion.Upz
                         },
                         new
                         {
@@ -1416,7 +1417,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Chapinero Norte",
                             PadreId = 8L,
                             Slug = "chapinero-norte",
-                            Tipo = 3
+                            Tipo = TipoUbicacion.Upz
                         },
                         new
                         {
@@ -1426,7 +1427,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Niza",
                             PadreId = 9L,
                             Slug = "niza",
-                            Tipo = 3
+                            Tipo = TipoUbicacion.Upz
                         },
                         new
                         {
@@ -1436,7 +1437,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "El Prado",
                             PadreId = 9L,
                             Slug = "el-prado",
-                            Tipo = 3
+                            Tipo = TipoUbicacion.Upz
                         },
                         new
                         {
@@ -1446,7 +1447,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Castilla",
                             PadreId = 18L,
                             Slug = "castilla",
-                            Tipo = 3
+                            Tipo = TipoUbicacion.Upz
                         },
                         new
                         {
@@ -1456,7 +1457,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Santa Bárbara Occidental",
                             PadreId = 26L,
                             Slug = "santa-barbara-occidental",
-                            Tipo = 4
+                            Tipo = TipoUbicacion.Barrio
                         },
                         new
                         {
@@ -1466,7 +1467,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Molinos Norte",
                             PadreId = 26L,
                             Slug = "molinos-norte",
-                            Tipo = 4
+                            Tipo = TipoUbicacion.Barrio
                         },
                         new
                         {
@@ -1476,7 +1477,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Chicó Norte",
                             PadreId = 28L,
                             Slug = "chico-norte",
-                            Tipo = 4
+                            Tipo = TipoUbicacion.Barrio
                         },
                         new
                         {
@@ -1486,7 +1487,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "El Retiro",
                             PadreId = 28L,
                             Slug = "el-retiro",
-                            Tipo = 4
+                            Tipo = TipoUbicacion.Barrio
                         },
                         new
                         {
@@ -1496,7 +1497,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Quinta Camacho",
                             PadreId = 29L,
                             Slug = "quinta-camacho",
-                            Tipo = 4
+                            Tipo = TipoUbicacion.Barrio
                         },
                         new
                         {
@@ -1506,7 +1507,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Niza Sur",
                             PadreId = 30L,
                             Slug = "niza-sur",
-                            Tipo = 4
+                            Tipo = TipoUbicacion.Barrio
                         },
                         new
                         {
@@ -1516,7 +1517,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Colina Campestre",
                             PadreId = 30L,
                             Slug = "colina-campestre",
-                            Tipo = 4
+                            Tipo = TipoUbicacion.Barrio
                         },
                         new
                         {
@@ -1526,7 +1527,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Prado Veraniego",
                             PadreId = 31L,
                             Slug = "prado-veraniego",
-                            Tipo = 4
+                            Tipo = TipoUbicacion.Barrio
                         },
                         new
                         {
@@ -1536,7 +1537,7 @@ namespace Portal.Infrastructure.Migrations
                             Nombre = "Castilla Central",
                             PadreId = 32L,
                             Slug = "castilla-central",
-                            Tipo = 4
+                            Tipo = TipoUbicacion.Barrio
                         });
                 });
 
@@ -1596,10 +1597,10 @@ namespace Portal.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("refresh_token_hash");
 
-                    b.Property<int>("Rol")
+                    b.Property<RolUsuario>("Rol")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(2)
+                        .HasColumnType("rol_usuario")
+                        .HasDefaultValue(RolUsuario.Asesor)
                         .HasColumnName("rol");
 
                     b.Property<string>("Telefono")

@@ -13,8 +13,8 @@ public abstract record InmuebleDatosCommandBase
     public string DireccionExacta { get; init; } = default!;
     public decimal? LatitudExacta { get; init; }
     public decimal? LongitudExacta { get; init; }
-    public decimal LatitudAproximada { get; init; }
-    public decimal LongitudAproximada { get; init; }
+    public decimal? LatitudAproximada { get; init; }
+    public decimal? LongitudAproximada { get; init; }
     public decimal? AreaConstruidaM2 { get; init; }
     public decimal? AreaPrivadaM2 { get; init; }
     public short Habitaciones { get; init; }
@@ -56,8 +56,12 @@ public abstract class InmuebleDatosValidatorBase<T> : AbstractValidator<T>
         RuleFor(x => x.TipoInmuebleId).GreaterThan(0);
         RuleFor(x => x.UbicacionId).GreaterThan(0);
         RuleFor(x => x.DireccionExacta).NotEmpty().MaximumLength(200);
-        RuleFor(x => x.LatitudAproximada).InclusiveBetween(-90, 90);
-        RuleFor(x => x.LongitudAproximada).InclusiveBetween(-180, 180);
+        RuleFor(x => x.LatitudAproximada)
+            .InclusiveBetween(-90, 90)
+            .When(x => x.LatitudAproximada is not null);
+        RuleFor(x => x.LongitudAproximada)
+            .InclusiveBetween(-180, 180)
+            .When(x => x.LongitudAproximada is not null);
         RuleFor(x => x.AreaConstruidaM2).GreaterThan(0).When(x => x.AreaConstruidaM2 is not null);
         RuleFor(x => x.AreaPrivadaM2).GreaterThan(0).When(x => x.AreaPrivadaM2 is not null);
         RuleFor(x => x.Habitaciones).GreaterThanOrEqualTo((short)0);

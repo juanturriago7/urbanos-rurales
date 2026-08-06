@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { AnchorLink } from '@/app/layouts/public/AnchorLink'
 import { NavLinks } from '@/app/layouts/public/NavLinks'
-import { clasesBoton } from '@/shared/components/ui/Button'
 
 /**
  * Panel de navegación móvil. Se comporta como un diálogo modal: atrapa el foco,
@@ -83,54 +82,70 @@ export function MobileDrawer({ abierto, onCerrar }: MobileDrawerProps) {
 
   return (
     <div className="fixed inset-0 z-50 md:hidden">
-      <div className="absolute inset-0 bg-black/40" onClick={onCerrar} aria-hidden="true" />
+      {/* Overlay con blur suave */}
+      <div
+        className="absolute inset-0 bg-[#1c1917]/40 backdrop-blur-sm"
+        onClick={onCerrar}
+        aria-hidden="true"
+      />
 
       <div
         ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-label="Menú de navegación"
-        className="bg-surface shadow-dropdown animate-drawer-in absolute top-0 right-0 flex h-full w-[80%] max-w-sm flex-col p-6"
+        className="animate-drawer-in absolute top-0 right-0 flex h-full w-[82%] max-w-sm flex-col bg-[#faf8f5] px-8 py-7"
       >
+        {/* Línea decorativa bronce en la parte superior */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-[#8b6f4e]/30" />
+
+        {/* Cerrar */}
         <button
           type="button"
           onClick={onCerrar}
           aria-label="Cerrar menú"
-          className="text-text-primary mb-8 self-end p-2"
+          className="mb-10 self-end p-1 text-[#1c1917]/30 hover:text-[#1c1917] transition-colors"
         >
-          <svg
-            className="h-6 w-6"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            aria-hidden="true"
-          >
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
             <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
           </svg>
         </button>
 
-        <nav className="flex flex-col gap-6">
+        {/* Links */}
+        <nav className="flex flex-col gap-7">
           <NavLinks
-            claseEnlace="text-sm font-medium tracking-[1.5px] text-text-primary uppercase"
+            claseEnlace="text-[10.5px] font-semibold tracking-[2px] uppercase text-[#1c1917]/50 hover:text-[#1c1917] transition-colors duration-200"
             onNavigate={onCerrar}
           />
         </nav>
 
-        {/* Enlaces con apariencia de botón, no botones dentro de enlaces: cada
-            CTA es un solo elemento y una sola parada de tabulación. */}
-        <div className="mt-auto flex flex-col gap-3">
+        {/* Divisor */}
+        <div className="mt-auto mb-7 h-px bg-[#1c1917]/08" />
+
+        {/* CTAs */}
+        <div className="flex flex-col gap-3">
           <Link
             to="/inmuebles?operacion=arriendo"
             onClick={onCerrar}
-            className={clasesBoton({ variant: 'secondary', size: 'lg', className: 'w-full' })}
+            className={[
+              'inline-flex items-center justify-center px-6 py-3 w-full rounded-sm',
+              'text-[10.5px] font-semibold tracking-[2px] uppercase',
+              'border border-[#1c1917]/20 text-[#1c1917]/70',
+              'hover:border-[#8b6f4e] hover:text-[#8b6f4e] transition-colors duration-200',
+            ].join(' ')}
           >
             Buscar inmueble
           </Link>
           <AnchorLink
             anchor="consignar"
             onNavigate={onCerrar}
-            className={clasesBoton({ variant: 'primary', size: 'lg', className: 'w-full' })}
+            className={[
+              'inline-flex items-center justify-center px-6 py-3 w-full rounded-sm',
+              'text-[10.5px] font-semibold tracking-[2px] uppercase',
+              'bg-[#1c1917] text-[#faf8f5]',
+              'hover:bg-[#2d2926] transition-colors duration-200',
+              'shadow-[0_2px_12px_rgba(28,25,23,0.15)]',
+            ].join(' ')}
           >
             Consignar
           </AnchorLink>

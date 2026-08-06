@@ -1,22 +1,47 @@
 /**
- * Aísla el logo en un único punto del código.
+ * Logotipo tipográfico de Urbanos & Rurales.
  *
- * TODO(cliente): falta el archivo del logo. El sitio actual lo sirve como GIF
- * en base64 con lazy-load, sin URL de origen, así que no se pudo extraer.
- * Por decisión del cliente el slot va en blanco — deliberadamente NO se
- * sustituye por un logotipo tipográfico. Reserva sus dimensiones para que el
- * header no salte de layout el día que llegue el SVG.
+ * Serif principal (Playfair Display) + tagline en tracking ultrawido.
+ * Variante `dark` : carbón sobre fondos claros/crema.
+ * Variante `light`: crema/blanco sobre fondos oscuros o fotos.
+ *
+ * TODO(cliente): reemplazar por el SVG oficial cuando el cliente lo provea.
  */
 interface LogoProps {
-  /**
-   * Aceptada ya para que las llamadas no cambien cuando llegue el archivo:
-   * `light` será la versión sobre el hero y el footer. Hoy no tiene efecto
-   * porque el slot está vacío.
-   */
   variant?: 'dark' | 'light'
   className?: string
 }
 
-export function Logo({ className = '' }: LogoProps) {
-  return <span aria-hidden="true" className={['block h-10 w-[180px]', className].join(' ')} />
+export function Logo({ variant = 'dark', className = '' }: LogoProps) {
+  const isLight = variant === 'light'
+
+  return (
+    <span className={['flex flex-col items-start leading-none select-none', className].join(' ')}>
+      <span
+        className={[
+          'font-serif text-[19px] font-bold tracking-[0.06em]',
+          isLight ? 'text-[#faf8f5]' : 'text-[#1c1917]',
+        ].join(' ')}
+      >
+        URBANOS
+        <span
+          className={[
+            'mx-1.5 inline-block text-[12px] font-light',
+            isLight ? 'text-[#faf8f5]/40' : 'text-[#8b6f4e]/60',
+          ].join(' ')}
+        >
+          &amp;
+        </span>
+        RURALES
+      </span>
+      <span
+        className={[
+          'mt-1 text-[7px] font-semibold tracking-[0.32em] uppercase',
+          isLight ? 'text-[#faf8f5]/40' : 'text-[#1c1917]/35',
+        ].join(' ')}
+      >
+        Bienes Raíces · Colombia
+      </span>
+    </span>
+  )
 }

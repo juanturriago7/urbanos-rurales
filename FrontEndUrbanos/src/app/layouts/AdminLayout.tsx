@@ -1,5 +1,6 @@
-import { Outlet, Link, NavLink, useNavigate } from 'react-router-dom'
+import { Outlet, Link, NavLink } from 'react-router-dom'
 import { useAuthStore } from '@/shared/hooks/useAuthStore'
+import { useLogout } from '@/features/admin/auth/hooks/useLogin'
 
 const navItems = [
   { to: '/admin/dashboard', label: 'Dashboard' },
@@ -14,13 +15,12 @@ const navItems = [
  * Sidebar + topbar + contenido. Solo accesible para usuarios autenticados (ver AuthGuard).
  */
 export function AdminLayout() {
-  const { user, clearAuth } = useAuthStore()
-  const navigate = useNavigate()
+  const user = useAuthStore((s) => s.user)
+  const { mutate: cerrarSesion, isPending: cerrandoSesion } = useLogout()
 
-  const handleLogout = () => {
-    clearAuth()
-    navigate('/admin/login')
-  }
+  // Revoca el refresh token en el servidor además de limpiar el estado local;
+  // el hook navega a /admin/login pase lo que pase.
+  const handleLogout = () => cerrarSesion()
 
   return (
     <div className="flex h-screen overflow-hidden bg-surface-muted font-sans">
@@ -63,9 +63,10 @@ export function AdminLayout() {
           <h1 className="text-base font-semibold text-text-primary">Panel de Administración</h1>
           <button
             onClick={handleLogout}
-            className="rounded-lg px-3 py-1.5 text-sm font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary"
+            disabled={cerrandoSesion}
+            className="rounded-lg px-3 py-1.5 text-sm font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary disabled:opacity-60"
           >
-            Cerrar sesión
+            {cerrandoSesion ? 'Cerrando…' : 'Cerrar sesión'}
           </button>
         </header>
 

@@ -1,15 +1,18 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import { PublicLayout } from '@/app/layouts/PublicLayout'
 import { AdminLayout } from '@/app/layouts/AdminLayout'
 import { AuthGuard } from '@/app/router/AuthGuard'
 
 // ─── Páginas públicas ─────────────────────────────────────────────────────────
 import { HomePage } from '@/features/public/properties/pages/HomePage'
+import { InmueblesListPage } from '@/features/public/properties/pages/InmueblesListPage'
 
 // ─── Páginas admin ────────────────────────────────────────────────────────────
 import { LoginPage } from '@/features/admin/auth/pages/LoginPage'
 import { DashboardPage } from '@/features/admin/dashboard/pages/DashboardPage'
 import { RolesPage } from '@/features/admin/users/pages/RolesPage'
+import { InmueblesPage } from '@/features/admin/properties/pages/InmueblesPage'
+import { InmuebleFormPage } from '@/features/admin/properties/pages/InmuebleFormPage'
 
 const router = createBrowserRouter([
   // ─── Rutas públicas ──────────────────────────────────────────────────────
@@ -17,6 +20,7 @@ const router = createBrowserRouter([
     element: <PublicLayout />,
     children: [
       { index: true, element: <HomePage /> },
+      { path: 'inmuebles', element: <InmueblesListPage /> },
       { path: 'properties', element: <div className="p-8">Propiedades — próximamente</div> },
       { path: 'search', element: <div className="p-8">Búsqueda — próximamente</div> },
     ],
@@ -33,8 +37,13 @@ const router = createBrowserRouter([
       {
         element: <AdminLayout />,
         children: [
-          { index: true, path: 'dashboard', element: <DashboardPage /> },
-          { path: 'properties', element: <div className="p-4">Propiedades Admin</div> },
+          // Una ruta no puede ser índice y tener path a la vez: React Router
+          // ignora el flag y la registra solo como '/admin/dashboard', dejando
+          // '/admin' sin nada que renderizar en el Outlet (pantalla en blanco).
+          { index: true, element: <Navigate to="/admin/dashboard" replace /> },
+          { path: 'dashboard', element: <DashboardPage /> },
+          { path: 'properties', element: <InmueblesPage /> },
+          { path: 'properties/nuevo', element: <InmuebleFormPage /> },
           { path: 'leads', element: <div className="p-4">Leads</div> },
           { path: 'media', element: <div className="p-4">Multimedia</div> },
           { path: 'users', element: <RolesPage /> },

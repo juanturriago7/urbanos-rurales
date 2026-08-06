@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Portal.Application.Features.Catalogos.DTOs;
+using Portal.Application.Features.Catalogos.Queries.BuscarUbicaciones;
 using Portal.Application.Features.Catalogos.Queries.GetCaracteristicas;
 using Portal.Application.Features.Catalogos.Queries.GetTiposInmueble;
 using Portal.Application.Features.Catalogos.Queries.GetUbicaciones;
@@ -24,11 +25,17 @@ public sealed class CatalogosController : ControllerBase
         _mediator = mediator;
     }
 
-    /// <summary>Árbol zona → localidad → upz → barrio.</summary>
+    /// <summary>Árbol zona → localidad → upz (los barrios se resuelven por búsqueda).</summary>
     [HttpGet("ubicaciones")]
     [ProducesResponseType(typeof(IReadOnlyList<UbicacionNodoDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetUbicaciones(CancellationToken ct)
         => Ok(await _mediator.Send(new GetUbicacionesQuery(), ct));
+
+    /// <summary>Busca ubicaciones por nombre (incluye barrios), máx. 10 resultados — combobox del formulario.</summary>
+    [HttpGet("ubicaciones/buscar")]
+    [ProducesResponseType(typeof(IReadOnlyList<UbicacionBusquedaDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> BuscarUbicaciones([FromQuery] string q, CancellationToken ct)
+        => Ok(await _mediator.Send(new BuscarUbicacionesQuery(q), ct));
 
     /// <summary>Tipos de inmueble activos.</summary>
     [HttpGet("tipos-inmueble")]

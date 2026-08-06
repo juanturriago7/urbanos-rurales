@@ -12,9 +12,12 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    // Respaldo para cuando VITE_API_BASE_URL se deja vacío y las peticiones
+    // salen relativas. El destino es el puerto del perfil `http` de la API
+    // (`dotnet run`); si levantas el backend con docker compose, es el 8080.
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        target: 'http://localhost:5095',
         changeOrigin: true,
       },
     },

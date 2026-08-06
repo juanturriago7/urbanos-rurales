@@ -1,7 +1,9 @@
-export type UserRole = 'Admin' | 'Asesor' | 'Editor'
+/** Los roles son fijos: viven en el enum RolUsuario del backend, no en una tabla editable. */
+export type UserRole = 'Admin' | 'Asesor'
 
 export interface AuthUser {
-  id: string
+  /** BIGSERIAL en la base; el backend lo serializa como número. */
+  id: number
   email: string
   fullName: string
   role: UserRole

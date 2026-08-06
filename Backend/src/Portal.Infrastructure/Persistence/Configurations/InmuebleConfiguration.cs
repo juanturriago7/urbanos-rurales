@@ -30,10 +30,13 @@ internal sealed class InmuebleConfiguration : IEntityTypeConfiguration<Inmueble>
                .HasColumnName("direccion_exacta").HasMaxLength(200).IsRequired();
         builder.Property(i => i.LatitudExacta).HasColumnName("latitud_exacta").HasPrecision(10, 7);
         builder.Property(i => i.LongitudExacta).HasColumnName("longitud_exacta").HasPrecision(10, 7);
+        // Nullable hasta que exista geocodificación o mapa (RF-044 aún no implementado):
+        // pedirle al admin que calcule a mano un lat/long "aproximado" era mala UX sin
+        // ningún consumidor real del dato todavía.
         builder.Property(i => i.LatitudAproximada)
-               .HasColumnName("latitud_aproximada").HasPrecision(10, 7).IsRequired();
+               .HasColumnName("latitud_aproximada").HasPrecision(10, 7);
         builder.Property(i => i.LongitudAproximada)
-               .HasColumnName("longitud_aproximada").HasPrecision(10, 7).IsRequired();
+               .HasColumnName("longitud_aproximada").HasPrecision(10, 7);
 
         builder.Property(i => i.AreaConstruidaM2).HasColumnName("area_construida_m2").HasPrecision(8, 2);
         builder.Property(i => i.AreaPrivadaM2).HasColumnName("area_privada_m2").HasPrecision(8, 2);

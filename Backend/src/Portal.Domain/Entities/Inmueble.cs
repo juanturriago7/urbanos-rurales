@@ -22,8 +22,8 @@ public sealed class Inmueble
     public string DireccionExacta { get; private set; } = default!;
     public decimal? LatitudExacta { get; private set; }
     public decimal? LongitudExacta { get; private set; }
-    public decimal LatitudAproximada { get; private set; }
-    public decimal LongitudAproximada { get; private set; }
+    public decimal? LatitudAproximada { get; private set; }
+    public decimal? LongitudAproximada { get; private set; }
 
     public decimal? AreaConstruidaM2 { get; private set; }
     public decimal? AreaPrivadaM2 { get; private set; }
@@ -67,8 +67,8 @@ public sealed class Inmueble
         int tipoInmuebleId,
         long ubicacionId,
         string direccionExacta,
-        decimal latitudAproximada,
-        decimal longitudAproximada,
+        decimal? latitudAproximada = null,
+        decimal? longitudAproximada = null,
         long? asesorId = null,
         long? creadoPor = null)
     {
@@ -110,8 +110,8 @@ public sealed class Inmueble
         int tipoInmuebleId,
         long ubicacionId,
         string direccionExacta,
-        decimal latitudAproximada,
-        decimal longitudAproximada,
+        decimal? latitudAproximada,
+        decimal? longitudAproximada,
         decimal? latitudExacta,
         decimal? longitudExacta,
         decimal? areaConstruidaM2,

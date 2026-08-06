@@ -26,6 +26,14 @@ let failedQueue: Array<{
   reject: (error: unknown) => void
 }> = []
 
+/**
+ * Endpoints donde un 401 significa "credenciales inválidas", no "token expirado".
+ * Sin esta excepción, un login fallido dispararía el refresh, este fallaría por no
+ * haber refresh token, y el catch recargaría la página hacia /admin/login —
+ * borrando el mensaje de error antes de que el usuario alcance a leerlo.
+ */
+const rutasSinRefresh = ['/api/auth/login', '/api/auth/refresh']
+
 const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.forEach(({ resolve, reject }) => {
     if (error) {
@@ -44,7 +52,9 @@ apiClient.interceptors.response.use(
       _retry?: boolean
     }
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    const esRutaDeAuth = rutasSinRefresh.some((ruta) => originalRequest?.url?.includes(ruta))
+
+    if (error.response?.status === 401 && !originalRequest._retry && !esRutaDeAuth) {
       if (isRefreshing) {
         // Encolar requests mientras se está refrescando el token
         return new Promise((resolve, reject) => {

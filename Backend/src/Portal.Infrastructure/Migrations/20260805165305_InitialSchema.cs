@@ -3,6 +3,7 @@ using System.Net;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using NpgsqlTypes;
+using Portal.Domain.Enums;
 
 #nullable disable
 
@@ -79,7 +80,7 @@ namespace Portal.Infrastructure.Migrations
                 {
                     id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    tipo = table.Column<int>(type: "integer", nullable: false),
+                    tipo = table.Column<TipoUbicacion>(type: "tipo_ubicacion", nullable: false),
                     nombre = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: false),
                     slug = table.Column<string>(type: "character varying(140)", maxLength: 140, nullable: false),
                     padre_id = table.Column<long>(type: "bigint", nullable: true),
@@ -106,7 +107,7 @@ namespace Portal.Infrastructure.Migrations
                     nombre = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: false),
                     correo = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
                     password_hash = table.Column<string>(type: "text", nullable: false),
-                    rol = table.Column<int>(type: "integer", nullable: false, defaultValue: 2),
+                    rol = table.Column<RolUsuario>(type: "rol_usuario", nullable: false, defaultValue: RolUsuario.Asesor),
                     telefono = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
                     activo = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
                     intentos_fallidos = table.Column<short>(type: "smallint", nullable: false, defaultValue: (short)0),
@@ -171,10 +172,10 @@ namespace Portal.Infrastructure.Migrations
                     estrato = table.Column<short>(type: "smallint", nullable: true),
                     antiguedad = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
                     orientacion = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
-                    politica_mascotas = table.Column<int>(type: "integer", nullable: false, defaultValue: 2),
+                    politica_mascotas = table.Column<PoliticaMascotas>(type: "politica_mascotas", nullable: false, defaultValue: PoliticaMascotas.NoPermitidas),
                     amoblado = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true, defaultValue: "no"),
                     matricula_inmobiliaria = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: true),
-                    estado = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
+                    estado = table.Column<EstadoInmueble>(type: "estado_inmueble", nullable: false, defaultValue: EstadoInmueble.Borrador),
                     destacado = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     meta_titulo = table.Column<string>(type: "character varying(160)", maxLength: 160, nullable: true),
                     meta_descripcion = table.Column<string>(type: "character varying(320)", maxLength: 320, nullable: true),
@@ -328,11 +329,11 @@ namespace Portal.Infrastructure.Migrations
                     id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     inmueble_id = table.Column<long>(type: "bigint", nullable: false),
-                    tipo_operacion = table.Column<int>(type: "integer", nullable: false),
+                    tipo_operacion = table.Column<TipoOperacion>(type: "tipo_operacion", nullable: false),
                     precio = table.Column<decimal>(type: "numeric(14,2)", precision: 14, scale: 2, nullable: false),
                     cuota_administracion = table.Column<decimal>(type: "numeric(12,2)", precision: 12, scale: 2, nullable: true, defaultValue: 0m),
                     admin_incluida = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    estado = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
+                    estado = table.Column<EstadoOperacion>(type: "estado_operacion", nullable: false, defaultValue: EstadoOperacion.Disponible),
                     activo = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
                     creado_en = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()")
                 },
@@ -362,7 +363,7 @@ namespace Portal.Infrastructure.Migrations
                     utm_source = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: true),
                     utm_campaign = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: true),
                     acepto_tratamiento_datos = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    estado = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
+                    estado = table.Column<EstadoLead>(type: "estado_lead", nullable: false, defaultValue: EstadoLead.Nuevo),
                     asignado_a = table.Column<long>(type: "bigint", nullable: true),
                     ip_origen = table.Column<IPAddress>(type: "inet", nullable: true),
                     creado_en = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()")
@@ -423,12 +424,12 @@ namespace Portal.Infrastructure.Migrations
                 columns: new[] { "id", "activo", "creado_en", "nombre", "padre_id", "slug", "tipo" },
                 values: new object[,]
                 {
-                    { 1L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Norte", null, "norte", 1 },
-                    { 2L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Noroccidente", null, "noroccidente", 1 },
-                    { 3L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Occidente", null, "occidente", 1 },
-                    { 4L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Centro", null, "centro", 1 },
-                    { 5L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Sur", null, "sur", 1 },
-                    { 6L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Suroccidente", null, "suroccidente", 1 }
+                    { 1L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Norte", null, "norte", TipoUbicacion.Zona },
+                    { 2L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Noroccidente", null, "noroccidente", TipoUbicacion.Zona },
+                    { 3L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Occidente", null, "occidente", TipoUbicacion.Zona },
+                    { 4L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Centro", null, "centro", TipoUbicacion.Zona },
+                    { 5L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Sur", null, "sur", TipoUbicacion.Zona },
+                    { 6L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Suroccidente", null, "suroccidente", TipoUbicacion.Zona }
                 });
 
             migrationBuilder.InsertData(
@@ -522,41 +523,41 @@ namespace Portal.Infrastructure.Migrations
                 columns: new[] { "id", "activo", "creado_en", "nombre", "padre_id", "slug", "tipo" },
                 values: new object[,]
                 {
-                    { 7L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Usaquén", 1L, "usaquen", 2 },
-                    { 8L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Chapinero", 1L, "chapinero", 2 },
-                    { 9L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Suba", 2L, "suba", 2 },
-                    { 10L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Engativá", 2L, "engativa", 2 },
-                    { 11L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Barrios Unidos", 2L, "barrios-unidos", 2 },
-                    { 12L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Fontibón", 3L, "fontibon", 2 },
-                    { 13L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Teusaquillo", 4L, "teusaquillo", 2 },
-                    { 14L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Santa Fe", 4L, "santa-fe", 2 },
-                    { 15L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "La Candelaria", 4L, "la-candelaria", 2 },
-                    { 16L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Los Mártires", 4L, "los-martires", 2 },
-                    { 17L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Puente Aranda", 6L, "puente-aranda", 2 },
-                    { 18L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Kennedy", 6L, "kennedy", 2 },
-                    { 19L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Bosa", 6L, "bosa", 2 },
-                    { 20L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Antonio Nariño", 5L, "antonio-narino", 2 },
-                    { 21L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Rafael Uribe Uribe", 5L, "rafael-uribe-uribe", 2 },
-                    { 22L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Tunjuelito", 5L, "tunjuelito", 2 },
-                    { 23L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "San Cristóbal", 5L, "san-cristobal", 2 },
-                    { 24L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Usme", 5L, "usme", 2 },
-                    { 25L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Ciudad Bolívar", 5L, "ciudad-bolivar", 2 },
-                    { 26L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Santa Bárbara", 7L, "santa-barbara", 3 },
-                    { 27L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Country Club", 7L, "country-club", 3 },
-                    { 28L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Chicó Lago", 8L, "chico-lago", 3 },
-                    { 29L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Chapinero Norte", 8L, "chapinero-norte", 3 },
-                    { 30L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Niza", 9L, "niza", 3 },
-                    { 31L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "El Prado", 9L, "el-prado", 3 },
-                    { 32L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Castilla", 18L, "castilla", 3 },
-                    { 33L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Santa Bárbara Occidental", 26L, "santa-barbara-occidental", 4 },
-                    { 34L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Molinos Norte", 26L, "molinos-norte", 4 },
-                    { 35L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Chicó Norte", 28L, "chico-norte", 4 },
-                    { 36L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "El Retiro", 28L, "el-retiro", 4 },
-                    { 37L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Quinta Camacho", 29L, "quinta-camacho", 4 },
-                    { 38L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Niza Sur", 30L, "niza-sur", 4 },
-                    { 39L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Colina Campestre", 30L, "colina-campestre", 4 },
-                    { 40L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Prado Veraniego", 31L, "prado-veraniego", 4 },
-                    { 41L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Castilla Central", 32L, "castilla-central", 4 }
+                    { 7L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Usaquén", 1L, "usaquen", TipoUbicacion.Localidad },
+                    { 8L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Chapinero", 1L, "chapinero", TipoUbicacion.Localidad },
+                    { 9L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Suba", 2L, "suba", TipoUbicacion.Localidad },
+                    { 10L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Engativá", 2L, "engativa", TipoUbicacion.Localidad },
+                    { 11L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Barrios Unidos", 2L, "barrios-unidos", TipoUbicacion.Localidad },
+                    { 12L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Fontibón", 3L, "fontibon", TipoUbicacion.Localidad },
+                    { 13L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Teusaquillo", 4L, "teusaquillo", TipoUbicacion.Localidad },
+                    { 14L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Santa Fe", 4L, "santa-fe", TipoUbicacion.Localidad },
+                    { 15L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "La Candelaria", 4L, "la-candelaria", TipoUbicacion.Localidad },
+                    { 16L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Los Mártires", 4L, "los-martires", TipoUbicacion.Localidad },
+                    { 17L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Puente Aranda", 6L, "puente-aranda", TipoUbicacion.Localidad },
+                    { 18L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Kennedy", 6L, "kennedy", TipoUbicacion.Localidad },
+                    { 19L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Bosa", 6L, "bosa", TipoUbicacion.Localidad },
+                    { 20L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Antonio Nariño", 5L, "antonio-narino", TipoUbicacion.Localidad },
+                    { 21L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Rafael Uribe Uribe", 5L, "rafael-uribe-uribe", TipoUbicacion.Localidad },
+                    { 22L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Tunjuelito", 5L, "tunjuelito", TipoUbicacion.Localidad },
+                    { 23L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "San Cristóbal", 5L, "san-cristobal", TipoUbicacion.Localidad },
+                    { 24L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Usme", 5L, "usme", TipoUbicacion.Localidad },
+                    { 25L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Ciudad Bolívar", 5L, "ciudad-bolivar", TipoUbicacion.Localidad },
+                    { 26L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Santa Bárbara", 7L, "santa-barbara", TipoUbicacion.Upz },
+                    { 27L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Country Club", 7L, "country-club", TipoUbicacion.Upz },
+                    { 28L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Chicó Lago", 8L, "chico-lago", TipoUbicacion.Upz },
+                    { 29L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Chapinero Norte", 8L, "chapinero-norte", TipoUbicacion.Upz },
+                    { 30L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Niza", 9L, "niza", TipoUbicacion.Upz },
+                    { 31L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "El Prado", 9L, "el-prado", TipoUbicacion.Upz },
+                    { 32L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Castilla", 18L, "castilla", TipoUbicacion.Upz },
+                    { 33L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Santa Bárbara Occidental", 26L, "santa-barbara-occidental", TipoUbicacion.Barrio },
+                    { 34L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Molinos Norte", 26L, "molinos-norte", TipoUbicacion.Barrio },
+                    { 35L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Chicó Norte", 28L, "chico-norte", TipoUbicacion.Barrio },
+                    { 36L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "El Retiro", 28L, "el-retiro", TipoUbicacion.Barrio },
+                    { 37L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Quinta Camacho", 29L, "quinta-camacho", TipoUbicacion.Barrio },
+                    { 38L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Niza Sur", 30L, "niza-sur", TipoUbicacion.Barrio },
+                    { 39L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Colina Campestre", 30L, "colina-campestre", TipoUbicacion.Barrio },
+                    { 40L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Prado Veraniego", 31L, "prado-veraniego", TipoUbicacion.Barrio },
+                    { 41L, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Castilla Central", 32L, "castilla-central", TipoUbicacion.Barrio }
                 });
 
             migrationBuilder.CreateIndex(
@@ -731,22 +732,14 @@ namespace Portal.Infrastructure.Migrations
                 column: "correo",
                 unique: true);
 
-            migrationBuilder.Sql("""
-                INSERT INTO usuarios (nombre, correo, password_hash, rol)
-                VALUES (
-                    'Administrador Dev',
-                    'admin@portal.local',
-                    crypt('Admin123*', gen_salt('bf', 11)),
-                    'admin'
-                );
-                """);
+            // El usuario admin de desarrollo NO se siembra aquí a propósito: esta
+            // migración se aplica también en producción y sembrarlo dejaría una
+            // cuenta con contraseña conocida. Lo crea scripts/dev-setup.ps1.
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql("DELETE FROM usuarios WHERE correo = 'admin@portal.local';");
-
             migrationBuilder.DropTable(
                 name: "imagenes");
 

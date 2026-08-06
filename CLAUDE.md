@@ -15,23 +15,33 @@ Real-estate listing portal for Bogotá D.C. ("Plataforma Web Inmobiliaria", proj
 
 ### Commands
 
-```bash
+```powershell
 # from Backend/
+./scripts/dev-setup.ps1                    # container + migrations + dev admin, idempotent
+./scripts/dev-setup.ps1 -Recreate          # same, but wipes the data volume first
 dotnet build Portal.slnx
-dotnet run --project src/Portal.Api        # runs on the port in Properties/launchSettings.json
+dotnet run --project src/Portal.Api        # http://localhost:5095 (see Properties/launchSettings.json)
 docker compose up -d                       # postgres (postgis/postgis:16) + api, see docker-compose.yml
 ```
 
+`Backend/README.md` is the human-facing setup guide (dev credentials, pgAdmin, known issues).
+
 There are no test projects in the solution yet.
 
-**Migrations are EF Core migrations**, applied by hand from Visual Studio's Package Manager Console (Default project: `Portal.Infrastructure`, Startup project: `Portal.Api`):
+**Postgres listens on host port `5433`, not 5432** — 5432 is typically taken by a native Windows PostgreSQL service. When it is, connecting on 5432 reaches *that* server instead of the container and fails with `28P01: password authentication failed for user "portal_user"` even though the container is healthy; editing `pg_hba.conf` inside the container changes nothing because the connection never arrives there. Inside the compose network the API still talks to `postgres:5432`.
+
+**Migrations are EF Core migrations**, applied by `scripts/dev-setup.ps1`, or by hand from Visual Studio's Package Manager Console (Default project: `Portal.Infrastructure`, Startup project: `Portal.Api`):
 
 ```powershell
-Add-Migration InitialSchema
+Add-Migration NombreDeLaMigracion
 Update-Database
 ```
 
 Nothing migrates automatically: there is **no** `Migrate()`/`MigrateAsync()` call in `Program.cs`, and docker-compose no longer mounts anything into `docker-entrypoint-initdb.d`. Bring the postgres container up first, then run `Update-Database`. `PortalDbContextFactory` supplies the design-time connection string from `ConnectionStrings__Default` / `PORTAL_DB_CONNECTION`, falling back to the docker-compose dev credentials.
+
+**Migrations must stay production-safe: no dev-only seed data in them.** The dev admin (`admin@portal.local` / `Admin123*`) is created by `scripts/dev-setup.ps1`, not by `InitialSchema` — a seeded admin in a migration would ship a known-password account to production. Catalog seeds (`roles`, `tipos_inmueble`, `caracteristicas`) do belong in the migration, via `HasData`.
+
+**Native Postgres enums need two registrations.** `modelBuilder.HasPostgresEnum<T>()` in `PortalDbContext.OnModelCreating` only emits the `CREATE TYPE`; the property is bound to that type by `npgsql.MapEnum<T>("nombre_del_tipo")` in `PortalDbContextFactory`. Miss the second and EF silently falls back to the default CLR-enum mapping and emits the column as `integer`, which breaks the Dapper SQL (`estado = 'publicado'`, `CAST(@Rol AS rol_usuario)`) and label-filtered indexes. After adding an enum, check the generated migration says `type: "nombre_del_tipo"` and not `type: "integer"`.
 
 The original hand-written SQL migrations are kept for reference only in `Backend/db/sql-legacy/` — they are superseded by the EF model and must not be applied alongside it.
 
@@ -51,13 +61,13 @@ Portal.Domain         → (nothing)                      (POCO entities, enums, 
 Key conventions, established by the `Roles` feature (`src/Portal.Application/Features/Roles/`) — follow this shape for every new feature:
 
 - **CQRS via MediatR**: one folder per feature under `Features/<Name>/{Queries,Commands}/<Verb>/`, each with a `record` request + a `sealed class ...Handler : IRequestHandler<,>`. Controllers only translate HTTP → MediatR request → `Ok(result)`; no business logic in controllers.
-- **Runtime data access is Dapper only.** EF Core is present but is a *design-time tool for migrations only*: `PortalDbContext` (`Persistence/PortalDbContext.cs`) describes the schema so EF can generate DDL, is deliberately **not registered in DI**, and no repository or handler may query through it. Adding a table means adding an entity + an `IEntityTypeConfiguration<T>` under `Persistence/Configurations/`, then `Add-Migration`. Repositories live in `Portal.Infrastructure/Repositories/`, implement interfaces from `Portal.Application/Interfaces/`, and are `internal sealed`. SQL uses explicit `AS PascalCase` aliases to map `snake_case` Postgres columns straight onto DTOs (see `RoleRepository`). Get connections via the injected `DbConnectionFactory` (singleton), one `using var conn = await _connectionFactory.OpenAsync(ct)` per repository call.
+- **Runtime data access is Dapper only.** EF Core is present but is a *design-time tool for migrations only*: `PortalDbContext` (`Persistence/PortalDbContext.cs`) describes the schema so EF can generate DDL, is deliberately **not registered in DI**, and no repository or handler may query through it. Adding a table means adding an entity + an `IEntityTypeConfiguration<T>` under `Persistence/Configurations/`, then `Add-Migration`. Repositories live in `Portal.Infrastructure/Repositories/`, implement interfaces from `Portal.Application/Interfaces/`, and are `internal sealed`. SQL uses explicit `AS PascalCase` aliases to map `snake_case` Postgres columns straight onto DTOs (see `RoleRepository`). DTOs are `record`s, so Dapper materializes them **through the constructor and requires exact parameter types** — cast aggregates that widen, e.g. `COUNT(u.id)::int` for an `int UserCount`, or materialization throws at runtime (scalar reads like `ReadSingleAsync<int>` convert fine and need no cast). Get connections via the injected `DbConnectionFactory` (singleton), one `using var conn = await _connectionFactory.OpenAsync(ct)` per repository call.
 - **Domain entities** are POCOs with private setters, a private parameterless ctor for Dapper hydration, and a static `Create(...)` factory that validates invariants (see `Usuario.cs`). Business rules live on the entity, not in handlers. `BaseEntity` (`Id: Guid`, `CreatedAt`, `UpdatedAt`, `IsDeleted`) exists but does **not** fit the planned schema — the Task DDL uses `BIGSERIAL` PKs, `creado_en`, and `activo`, so entities built from it stand alone.
 - **Validation**: FluentValidation validators are auto-discovered and run through `ValidationBehavior<,>`, a MediatR pipeline behavior — throws `FluentValidation.ValidationException`, which `ErrorHandlingMiddleware` turns into a 400 ProblemDetails response. Don't hand-roll validation in handlers.
 - **Errors**: all exceptions are caught centrally in `ErrorHandlingMiddleware` (registered first in the pipeline) and mapped to RFC 7807 ProblemDetails (`ValidationException`→400, `UnauthorizedAccessException`→401, `KeyNotFoundException`→404, else 500). Don't add try/catch in controllers/handlers for these cases.
 - **Write operations** return `Result` / `Result<T>` (`Portal.Application/Common/Result.cs`) instead of throwing, for expected failure paths.
 - **Pagination**: list queries take a `PaginationParams(Page, PageSize)` (`.WithClamp()` enforces `MaxPageSize = 100`) and return `PagedResult<T>`.
-- **Auth**: JWT bearer, roles are `Admin` / `Asesor` (`RolUsuario` enum ↔ native Postgres enum `rol_usuario` with lowercase labels; `UsuarioRepository` reads it via `rol::text` and writes it via `CAST(@Rol AS rol_usuario)`). Authorization policies defined in `Program.cs`: `AdminOnly`, `AsesorOrAdmin` — apply via `[Authorize(Policy = "...")]` on actions, `[Authorize]` alone at controller level. There is no login endpoint yet, only the JWT validation setup.
+- **Auth**: JWT bearer, roles are `Admin` / `Asesor` (`RolUsuario` enum ↔ native Postgres enum `rol_usuario` with lowercase labels; `UsuarioRepository` reads it via `rol::text` and writes it via `CAST(@Rol AS rol_usuario)`). Authorization policies defined in `Program.cs`: `AdminOnly`, `AsesorOrAdmin` — apply via `[Authorize(Policy = "...")]` on actions, `[Authorize]` alone at controller level. `AuthController` (`api/auth`) exposes `login`, `refresh`, `logout`, `recuperar-password` and `restablecer-password`; `login` returns `{ user, tokens: { accessToken, refreshToken, expiresIn } }`.
 - **Logging**: Serilog, configured in `Program.cs` + `appsettings.json` (`Serilog` section), writes to console and `logs/portal-.log` (daily rolling).
 
 ## Frontend (`FrontEndUrbanos/`)

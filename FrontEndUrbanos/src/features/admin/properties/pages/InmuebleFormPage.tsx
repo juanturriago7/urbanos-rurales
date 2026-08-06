@@ -280,7 +280,7 @@ export function InmuebleFormPage() {
       <form
         onSubmit={handleSubmit(onSubmit, alFallarValidacion)}
         noValidate
-        className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px] lg:items-start"
+        className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[1fr_320px] xl:items-start"
       >
         <fieldset disabled={yaCreado} className="m-0 min-w-0 space-y-6 border-0 p-0">
           {/* ── Identificación ───────────────────────────────────────────────── */}
@@ -366,7 +366,7 @@ export function InmuebleFormPage() {
           {/* ── Ficha técnica ────────────────────────────────────────────────── */}
           <Seccion
             titulo="Ficha técnica"
-            gridClassName="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+            gridClassName="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
           >
             <Input
               label="Área construida (m²)"
@@ -559,15 +559,16 @@ export function InmuebleFormPage() {
             </section>
           )}
 
+        </fieldset>
+
+        {/* ── Sidebar: acción principal + fotos ────────────────────────────── */}
+        <div className="space-y-6 xl:sticky xl:top-6">
           {errors.root && (
             <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-error">
               {errors.root.message}
             </div>
           )}
-        </fieldset>
 
-        {/* ── Sidebar: acción principal + fotos ────────────────────────────── */}
-        <div className="space-y-6 lg:sticky lg:top-6">
           {!yaCreado ? (
             <Button type="submit" isLoading={isPending} className="w-full">
               Crear inmueble

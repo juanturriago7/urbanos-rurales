@@ -64,8 +64,8 @@ public sealed class InmuebleAdminDetalleDto
     public string DireccionExacta { get; init; } = default!;
     public decimal? LatitudExacta { get; init; }
     public decimal? LongitudExacta { get; init; }
-    public decimal LatitudAproximada { get; init; }
-    public decimal LongitudAproximada { get; init; }
+    public decimal? LatitudAproximada { get; init; }
+    public decimal? LongitudAproximada { get; init; }
     public decimal? AreaConstruidaM2 { get; init; }
     public decimal? AreaPrivadaM2 { get; init; }
     public short Habitaciones { get; init; }
