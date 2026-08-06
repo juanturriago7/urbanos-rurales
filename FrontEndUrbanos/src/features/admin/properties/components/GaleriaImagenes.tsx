@@ -57,13 +57,13 @@ export function GaleriaImagenes({ inmuebleId }: GaleriaImagenesProps) {
   }
 
   return (
-    <section className="rounded-[--radius-card] border border-border bg-white p-5 shadow-sm">
+    <section className="border-border rounded-[--radius-card] border bg-white p-5 shadow-sm">
       <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <div>
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-text-secondary">
+          <h3 className="text-text-secondary text-sm font-semibold tracking-wider uppercase">
             Fotos
           </h3>
-          <p className="mt-1 text-xs text-text-secondary">
+          <p className="text-text-secondary mt-1 text-xs">
             Se requiere al menos una para publicar (RF-077). Máximo {MAX_IMAGENES}, JPG/PNG/WEBP.
           </p>
         </div>
@@ -89,7 +89,7 @@ export function GaleriaImagenes({ inmuebleId }: GaleriaImagenesProps) {
       </div>
 
       {error && (
-        <div className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-error">
+        <div className="text-error mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs">
           {error}
         </div>
       )}
@@ -101,7 +101,7 @@ export function GaleriaImagenes({ inmuebleId }: GaleriaImagenesProps) {
       )}
 
       {!isLoading && total === 0 && (
-        <div className="mt-4 rounded-[--radius-card] border border-dashed border-border p-8 text-center text-sm text-text-secondary">
+        <div className="border-border text-text-secondary mt-4 rounded-[--radius-card] border border-dashed p-8 text-center text-sm">
           Todavía no hay fotos. La primera que subas queda como portada.
         </div>
       )}
@@ -111,7 +111,7 @@ export function GaleriaImagenes({ inmuebleId }: GaleriaImagenesProps) {
           {imagenes!.map((imagen) => (
             <div
               key={imagen.id}
-              className="group relative overflow-hidden rounded-[--radius-card] border border-border"
+              className="group border-border relative overflow-hidden rounded-[--radius-card] border"
             >
               <img
                 src={imagen.urlCdn}
@@ -121,7 +121,7 @@ export function GaleriaImagenes({ inmuebleId }: GaleriaImagenesProps) {
               />
 
               {imagen.esPortada && (
-                <span className="absolute top-1.5 left-1.5 rounded bg-brand-600 px-1.5 py-0.5 text-[10px] font-medium text-white">
+                <span className="bg-brand-600 absolute top-1.5 left-1.5 rounded px-1.5 py-0.5 text-[10px] font-medium text-white">
                   Portada
                 </span>
               )}

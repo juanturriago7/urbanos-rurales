@@ -65,10 +65,7 @@ const inmuebleSchema = z
       .refine((v) => !Number.isNaN(v), 'La longitud es obligatoria')
       .refine((v) => v >= -180 && v <= 180, 'Debe estar entre -180 y 180'),
 
-    areaConstruidaM2: numeroOpcional.refine(
-      (v) => v === null || v > 0,
-      'Debe ser mayor que 0',
-    ),
+    areaConstruidaM2: numeroOpcional.refine((v) => v === null || v > 0, 'Debe ser mayor que 0'),
     areaPrivadaM2: numeroOpcional.refine((v) => v === null || v > 0, 'Debe ser mayor que 0'),
 
     habitaciones: numeroRequerido.refine((v) => v >= 0, 'No puede ser negativo'),
@@ -247,7 +244,7 @@ export function InmuebleFormPage() {
 
   if (tipos.isError || ubicaciones.isError) {
     return (
-      <div className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-error">
+      <div className="text-error mt-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm">
         No se pudieron cargar los catálogos. Verifica que el backend esté corriendo.
       </div>
     )
@@ -259,8 +256,8 @@ export function InmuebleFormPage() {
     <div className="w-full">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-text-primary">Nuevo inmueble</h2>
-          <p className="mt-1 text-sm text-text-secondary">
+          <h2 className="text-text-primary text-xl font-semibold">Nuevo inmueble</h2>
+          <p className="text-text-secondary mt-1 text-sm">
             Se crea en estado <strong>borrador</strong>. Podrás publicarlo desde el listado.
           </p>
         </div>
@@ -452,21 +449,21 @@ export function InmuebleFormPage() {
           </Seccion>
 
           {/* ── Operaciones ──────────────────────────────────────────────────── */}
-          <section className="rounded-[--radius-card] border border-border bg-white p-5 shadow-sm">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-text-secondary">
+          <section className="border-border rounded-[--radius-card] border bg-white p-5 shadow-sm">
+            <h3 className="text-text-secondary text-sm font-semibold tracking-wider uppercase">
               Operaciones
             </h3>
-            <p className="mt-1 text-xs text-text-secondary">
+            <p className="text-text-secondary mt-1 text-xs">
               Un inmueble puede estar en venta, en arriendo o en ambas.
             </p>
 
             {errors.tieneVenta?.message && (
-              <p className="mt-2 text-xs text-error">{errors.tieneVenta.message}</p>
+              <p className="text-error mt-2 text-xs">{errors.tieneVenta.message}</p>
             )}
 
             <div className="mt-4 space-y-4">
-              <div className="rounded-lg border border-border p-4">
-                <label className="flex items-center gap-2 text-sm font-medium text-text-primary">
+              <div className="border-border rounded-lg border p-4">
+                <label className="text-text-primary flex items-center gap-2 text-sm font-medium">
                   <input type="checkbox" className="h-4 w-4" {...register('tieneVenta')} />
                   En venta
                 </label>
@@ -491,8 +488,8 @@ export function InmuebleFormPage() {
                 )}
               </div>
 
-              <div className="rounded-lg border border-border p-4">
-                <label className="flex items-center gap-2 text-sm font-medium text-text-primary">
+              <div className="border-border rounded-lg border p-4">
+                <label className="text-text-primary flex items-center gap-2 text-sm font-medium">
                   <input type="checkbox" className="h-4 w-4" {...register('tieneArriendo')} />
                   En arriendo
                 </label>
@@ -513,7 +510,7 @@ export function InmuebleFormPage() {
                       error={errors.adminArriendo?.message}
                       {...register('adminArriendo')}
                     />
-                    <label className="flex items-center gap-2 text-sm text-text-primary sm:col-span-2">
+                    <label className="text-text-primary flex items-center gap-2 text-sm sm:col-span-2">
                       <input
                         type="checkbox"
                         className="h-4 w-4"
@@ -529,19 +526,19 @@ export function InmuebleFormPage() {
 
           {/* ── Características ──────────────────────────────────────────────── */}
           {caracteristicas.data && caracteristicas.data.length > 0 && (
-            <section className="rounded-[--radius-card] border border-border bg-white p-5 shadow-sm">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-text-secondary">
+            <section className="border-border rounded-[--radius-card] border bg-white p-5 shadow-sm">
+              <h3 className="text-text-secondary text-sm font-semibold tracking-wider uppercase">
                 Características
               </h3>
               <div className="mt-4 space-y-5">
                 {caracteristicas.data.map((categoria) => (
                   <div key={categoria.id}>
-                    <p className="text-sm font-medium text-text-primary">{categoria.nombre}</p>
+                    <p className="text-text-primary text-sm font-medium">{categoria.nombre}</p>
                     <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
                       {categoria.caracteristicas.map((c) => (
                         <label
                           key={c.id}
-                          className="flex items-center gap-2 text-sm text-text-secondary"
+                          className="text-text-secondary flex items-center gap-2 text-sm"
                         >
                           <input
                             type="checkbox"
@@ -558,13 +555,12 @@ export function InmuebleFormPage() {
               </div>
             </section>
           )}
-
         </fieldset>
 
         {/* ── Sidebar: acción principal + fotos ────────────────────────────── */}
         <div className="space-y-6 xl:sticky xl:top-6">
           {errors.root && (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-error">
+            <div className="text-error rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm">
               {errors.root.message}
             </div>
           )}
@@ -596,8 +592,8 @@ function Seccion({
   gridClassName?: string
 }) {
   return (
-    <section className="rounded-[--radius-card] border border-border bg-white p-5 shadow-sm">
-      <h3 className="text-sm font-semibold uppercase tracking-wider text-text-secondary">
+    <section className="border-border rounded-[--radius-card] border bg-white p-5 shadow-sm">
+      <h3 className="text-text-secondary text-sm font-semibold tracking-wider uppercase">
         {titulo}
       </h3>
       <div className={`mt-4 ${gridClassName}`}>{children}</div>
