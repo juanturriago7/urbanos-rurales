@@ -46,7 +46,10 @@ export function WhatsAppFab() {
       tabIndex={visible ? 0 : -1}
       aria-hidden={!visible}
       className={[
-        'group fixed right-6 bottom-6 z-50 flex items-center gap-3',
+        // z-30 y no z-50: el drawer movil es z-50 y va antes en el DOM, asi que
+        // con ambos al mismo nivel el FAB se pintaba encima del panel modal.
+        // La jerarquia queda contenido < FAB < header (z-40) < modal (z-50).
+        'group fixed right-6 bottom-6 z-30 flex items-center gap-3',
         'transition-opacity duration-300',
         visible ? 'opacity-100' : 'pointer-events-none opacity-0',
       ].join(' ')}
