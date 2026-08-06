@@ -85,3 +85,6 @@ ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
 .DS_Store
+
+# Subagent-driven-development scratch workspace
+.superpowers/
