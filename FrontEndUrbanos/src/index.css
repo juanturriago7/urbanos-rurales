@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* ─── Design tokens ─────────────────────────────────────────────────────────
    Paleta verde petróleo del documento de UX/UI. La escala se escribe sobre los
@@ -10,57 +10,57 @@
    ────────────────────────────────────────────────────────────────────────── */
 @theme {
   /* Marca — escala derivada de #0D6E6E, el único acento que fija el documento */
-  --color-brand-50:  #F0F7F7;
-  --color-brand-100: #D6E9E9;
-  --color-brand-200: #ADD3D3;
-  --color-brand-300: #6FB3B3;
-  --color-brand-400: #3A9090;
-  --color-brand-500: #1A7E7E;
-  --color-brand-600: #0D6E6E;
-  --color-brand-700: #0A5757;
+  --color-brand-50: #f0f7f7;
+  --color-brand-100: #d6e9e9;
+  --color-brand-200: #add3d3;
+  --color-brand-300: #6fb3b3;
+  --color-brand-400: #3a9090;
+  --color-brand-500: #1a7e7e;
+  --color-brand-600: #0d6e6e;
+  --color-brand-700: #0a5757;
   --color-brand-800: #084545;
   --color-brand-900: #063535;
 
   /* Acento secundario */
-  --color-accent-gold:       #B8960C;
-  --color-accent-gold-hover: #9A7D0A;
+  --color-accent-gold: #b8960c;
+  --color-accent-gold-hover: #9a7d0a;
 
   /* Superficies */
-  --color-surface:        #FFFFFF;
-  --color-surface-muted:  #F5F6FA;
-  --color-surface-card:   #FAFAF8;
-  --color-surface-dark:   #1C1C1E;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f5f6fa;
+  --color-surface-card: #fafaf8;
+  --color-surface-dark: #1c1c1e;
   --color-surface-darker: #111111;
 
   /* Texto */
-  --color-text-primary:       #1C1C1E;
-  --color-text-secondary:     #4A4A4A;
-  --color-text-tertiary:      #6B6B6B;
-  --color-text-disabled:      #9A9A9A;
-  --color-text-inverse:       #FFFFFF;
-  --color-text-muted-inverse: #AAAAAA;
+  --color-text-primary: #1c1c1e;
+  --color-text-secondary: #4a4a4a;
+  --color-text-tertiary: #6b6b6b;
+  --color-text-disabled: #9a9a9a;
+  --color-text-inverse: #ffffff;
+  --color-text-muted-inverse: #aaaaaa;
 
-  --color-border: #E2E2E2;
+  --color-border: #e2e2e2;
 
   /* Semánticos */
-  --color-error:   #D32F2F;
-  --color-success: #388E3C;
-  --color-warning: #F59E0B;
-  --color-info:    #0D6E6E;
+  --color-error: #d32f2f;
+  --color-success: #388e3c;
+  --color-warning: #f59e0b;
+  --color-info: #0d6e6e;
 
   /* Tipografía */
-  --font-sans:  'Inter Variable', 'Inter', system-ui, sans-serif;
+  --font-sans: 'Inter Variable', 'Inter', system-ui, sans-serif;
   --font-serif: 'Playfair Display', Georgia, serif;
 
   /* Radios */
   --radius-control: 4px;
-  --radius-card:    8px;
+  --radius-card: 8px;
 
   /* Sombras — deliberadamente sutiles */
-  --shadow-card:       0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.04);
   --shadow-card-hover: 0 12px 32px rgba(0, 0, 0, 0.08);
-  --shadow-dropdown:   0 8px 24px rgba(0, 0, 0, 0.06);
-  --shadow-header:     0 1px 0 rgba(0, 0, 0, 0.05);
+  --shadow-dropdown: 0 8px 24px rgba(0, 0, 0, 0.06);
+  --shadow-header: 0 1px 0 rgba(0, 0, 0, 0.05);
 
   /* Espaciado extra heredado */
   --spacing-18: 4.5rem;

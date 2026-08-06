@@ -27,16 +27,23 @@ interface EnvolturaProps {
   className?: string
 }
 
-export function Envoltura({ label, error, hint, required, children, className = '' }: EnvolturaProps) {
+export function Envoltura({
+  label,
+  error,
+  hint,
+  required,
+  children,
+  className = '',
+}: EnvolturaProps) {
   return (
     <div className={className}>
-      <label className="block text-sm font-medium text-text-primary">
+      <label className="text-text-primary block text-sm font-medium">
         {label}
-        {required && <span className="ml-0.5 text-error">*</span>}
+        {required && <span className="text-error ml-0.5">*</span>}
       </label>
       {children}
-      {hint && !error && <p className="mt-1 text-xs text-text-secondary">{hint}</p>}
-      {error && <p className="mt-1 text-xs text-error">{error}</p>}
+      {hint && !error && <p className="text-text-secondary mt-1 text-xs">{hint}</p>}
+      {error && <p className="text-error mt-1 text-xs">{error}</p>}
     </div>
   )
 }
