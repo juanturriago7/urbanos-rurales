@@ -27,6 +27,12 @@ export function AnchorLink({ anchor, className = '', onNavigate, children }: Anc
   const navigate = useNavigate()
 
   function manejarClic(evento: MouseEvent<HTMLAnchorElement>) {
+    // Misma guarda que usa el Link de react-router-dom: clic derecho, central,
+    // o con modificador (nueva pestaña/ventana) siguen el comportamiento nativo.
+    const esClicModificado =
+      evento.button !== 0 || evento.ctrlKey || evento.metaKey || evento.shiftKey || evento.altKey
+    if (esClicModificado) return
+
     evento.preventDefault()
     onNavigate?.()
 
