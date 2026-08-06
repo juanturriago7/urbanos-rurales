@@ -90,7 +90,7 @@ export function MobileDrawer({ abierto, onCerrar }: MobileDrawerProps) {
         role="dialog"
         aria-modal="true"
         aria-label="Menú de navegación"
-        className="bg-surface shadow-dropdown absolute top-0 right-0 flex h-full w-[80%] max-w-sm flex-col p-6"
+        className="bg-surface shadow-dropdown animate-drawer-in absolute top-0 right-0 flex h-full w-[80%] max-w-sm flex-col p-6"
       >
         <button
           type="button"

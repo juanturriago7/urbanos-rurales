@@ -65,6 +65,21 @@
   /* Espaciado extra heredado */
   --spacing-18: 4.5rem;
   --spacing-22: 5.5rem;
+
+  /* Animaciones */
+  --animate-drawer-in: drawer-in 0.2s ease-out;
+}
+
+/* Entrada del panel del drawer móvil, solo sobre transform. La velocidad la
+   controla prefers-reduced-motion arriba, que fuerza animation-duration a
+   0.01ms sin tocar esta declaración. */
+@keyframes drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 /* ─── Estilos base ──────────────────────────────────────────────────────── */
