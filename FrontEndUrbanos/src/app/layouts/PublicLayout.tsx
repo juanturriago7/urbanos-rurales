@@ -52,8 +52,12 @@ export function PublicLayout() {
           mientras el drawer está abierto. React 19 lo soporta de forma nativa. */}
       <main
         id="contenido"
+        // El enlace "Saltar al contenido" solo mueve el foco de teclado aqui si
+        // el destino es enfocable: sin tabIndex, el navegador hace scroll pero
+        // el foco se queda donde estaba, y el salto de teclado no sirve de nada.
+        tabIndex={-1}
         inert={drawerAbierto}
-        className={['flex-1', esLanding ? '' : 'pt-20'].join(' ')}
+        className={['flex-1 focus:outline-none', esLanding ? '' : 'pt-20'].join(' ')}
       >
         <Outlet />
       </main>
