@@ -32,6 +32,18 @@ public sealed class ErrorHandlingMiddleware
         {
             await _next(context);
         }
+        catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested)
+        {
+            // El cliente cerró la conexión antes de que terminara la respuesta.
+            // No es un error — es comportamiento normal del browser (navegación,
+            // refetch, cierre de pestaña). Se registra a nivel Debug para no
+            // contaminar los logs de errores reales.
+            _logger.LogDebug("Petición cancelada por el cliente: {Path}", context.Request.Path);
+
+            // 499 es el código no oficial que usan nginx/cloudflare para "client closed request".
+            // No escribimos body porque la conexión ya se cerró.
+            context.Response.StatusCode = 499;
+        }
         catch (ValidationException ex)
         {
             _logger.LogWarning("Validación fallida: {Errors}", ex.Errors);

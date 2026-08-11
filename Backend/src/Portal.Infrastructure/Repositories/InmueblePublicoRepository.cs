@@ -62,10 +62,10 @@ internal sealed class InmueblePublicoRepository : IInmueblePublicoRepository
             "i.estado = 'publicado'"
         };
 
-        // Ubicación jerárquica: cualquier nivel filtra su subárbol completo (zona → barrio)
-        var conUbicacion = filtro.UbicacionId is not null;
-        var prefijoCte = conUbicacion
-            ? """
+            // Ubicación jerárquica: cualquier nivel filtra su subárbol completo (zona → barrio)
+            var conUbicacion = filtro.UbicacionId is not null;
+            var prefijoCte = conUbicacion
+                ? """
               WITH RECURSIVE ubicacion_sub AS (
                   SELECT id FROM ubicaciones WHERE id = @UbicacionId
                   UNION ALL
@@ -73,66 +73,66 @@ internal sealed class InmueblePublicoRepository : IInmueblePublicoRepository
                   INNER JOIN ubicacion_sub s ON u2.padre_id = s.id
               )
               """
-            : string.Empty;
+                : string.Empty;
 
-        if (conUbicacion)
-        {
-            condiciones.Add("i.ubicacion_id IN (SELECT id FROM ubicacion_sub)");
-        }
+            if (conUbicacion)
+            {
+                condiciones.Add("i.ubicacion_id IN (SELECT id FROM ubicacion_sub)");
+            }
 
-        if (filtro.Tipo is not null)
-        {
-            condiciones.Add("ti.slug = @Tipo");
-        }
+            if (filtro.Tipo is not null)
+            {
+                condiciones.Add("ti.slug = @Tipo");
+            }
 
-        // Operación / precio / admin incluida: sobre inmueble_operaciones (índice idx_operaciones_filtro)
-        if (filtro.Operacion is not null || filtro.PrecioMin is not null
-            || filtro.PrecioMax is not null || filtro.AdminIncluida is not null)
-        {
-            var subCondiciones = new List<string>
+            // Operación / precio / admin incluida: sobre inmueble_operaciones (índice idx_operaciones_filtro)
+            if (filtro.Operacion is not null || filtro.PrecioMin is not null
+                || filtro.PrecioMax is not null || filtro.AdminIncluida is not null)
+            {
+                var subCondiciones = new List<string>
             {
                 "o.inmueble_id = i.id",
                 "o.activo = TRUE",
                 "o.estado <> 'cerrado'"
             };
 
-            if (filtro.Operacion is not null)
-                subCondiciones.Add("o.tipo_operacion = CAST(@Operacion AS tipo_operacion)");
-            if (filtro.PrecioMin is not null)
-                subCondiciones.Add("o.precio >= @PrecioMin");
-            if (filtro.PrecioMax is not null)
-                subCondiciones.Add("o.precio <= @PrecioMax");
-            if (filtro.AdminIncluida is not null)
-                subCondiciones.Add("o.admin_incluida = @AdminIncluida");
+                if (filtro.Operacion is not null)
+                    subCondiciones.Add("o.tipo_operacion = CAST(@Operacion AS tipo_operacion)");
+                if (filtro.PrecioMin is not null)
+                    subCondiciones.Add("o.precio >= @PrecioMin");
+                if (filtro.PrecioMax is not null)
+                    subCondiciones.Add("o.precio <= @PrecioMax");
+                if (filtro.AdminIncluida is not null)
+                    subCondiciones.Add("o.admin_incluida = @AdminIncluida");
 
-            condiciones.Add(
-                $"EXISTS (SELECT 1 FROM inmueble_operaciones o WHERE {string.Join(" AND ", subCondiciones)})");
-        }
+                condiciones.Add(
+                    $"EXISTS (SELECT 1 FROM inmueble_operaciones o WHERE {string.Join(" AND ", subCondiciones)})");
+            }
 
-        if (filtro.AreaMin is not null) condiciones.Add("i.area_construida_m2 >= @AreaMin");
-        if (filtro.AreaMax is not null) condiciones.Add("i.area_construida_m2 <= @AreaMax");
-        if (filtro.Habitaciones is not null) condiciones.Add("i.habitaciones >= @Habitaciones");
-        if (filtro.Banos is not null) condiciones.Add("i.banos >= @Banos");
-        if (filtro.Parqueaderos is not null) condiciones.Add("i.parqueaderos >= @Parqueaderos");
-        if (filtro.Estrato is not null) condiciones.Add("i.estrato = @Estrato");
+            if (filtro.AreaMin is not null) condiciones.Add("i.area_construida_m2 >= @AreaMin");
+            if (filtro.AreaMax is not null) condiciones.Add("i.area_construida_m2 <= @AreaMax");
+            if (filtro.Habitaciones is not null) condiciones.Add("i.habitaciones >= @Habitaciones");
+            if (filtro.Banos is not null) condiciones.Add("i.banos >= @Banos");
+            if (filtro.Parqueaderos is not null) condiciones.Add("i.parqueaderos >= @Parqueaderos");
+            if (filtro.Estrato is not null) condiciones.Add("i.estrato = @Estrato");
 
-        if (filtro.Mascotas == true)
-        {
-            condiciones.Add("i.politica_mascotas <> 'no_permitidas'");
-        }
+            if (filtro.Mascotas == true)
+            {
+                condiciones.Add("i.politica_mascotas <> 'no_permitidas'");
+            }
 
-        if (!string.IsNullOrWhiteSpace(filtro.Q))
-        {
-            condiciones.Add("""
+            if (!string.IsNullOrWhiteSpace(filtro.Q))
+            {
+                condiciones.Add("""
                 (i.busqueda_tsv @@ plainto_tsquery('spanish', unaccent(@Q))
                  OR i.codigo_referencia ILIKE @QLike)
                 """);
-        }
+            }
 
-        var where = string.Join(" AND ", condiciones);
-        var orderBy = OrdenSql(filtro.Orden);
+            var where = string.Join(" AND ", condiciones);
+            var orderBy = OrdenSql(filtro.Orden);
 
-        var sql = $"""
+            var sql = $"""
             {prefijoCte}
             {SelectListItem}
             WHERE {where}
@@ -146,34 +146,34 @@ internal sealed class InmueblePublicoRepository : IInmueblePublicoRepository
             WHERE {where};
             """;
 
-        var parametros = new
-        {
-            filtro.UbicacionId,
-            filtro.Tipo,
-            filtro.Operacion,
-            filtro.PrecioMin,
-            filtro.PrecioMax,
-            filtro.AdminIncluida,
-            filtro.AreaMin,
-            filtro.AreaMax,
-            filtro.Habitaciones,
-            filtro.Banos,
-            filtro.Parqueaderos,
-            filtro.Estrato,
-            filtro.Q,
-            QLike = $"%{filtro.Q}%",
-            pagination.PageSize,
-            pagination.Skip
-        };
+            var parametros = new
+            {
+                filtro.UbicacionId,
+                filtro.Tipo,
+                filtro.Operacion,
+                filtro.PrecioMin,
+                filtro.PrecioMax,
+                filtro.AdminIncluida,
+                filtro.AreaMin,
+                filtro.AreaMax,
+                filtro.Habitaciones,
+                filtro.Banos,
+                filtro.Parqueaderos,
+                filtro.Estrato,
+                filtro.Q,
+                QLike = $"%{filtro.Q}%",
+                pagination.PageSize,
+                pagination.Skip
+            };
 
-        using var conn = await _connectionFactory.OpenAsync(ct);
-        using var multi = await conn.QueryMultipleAsync(sql, parametros);
+            using var conn = await _connectionFactory.OpenAsync(ct);
+            using var multi = await conn.QueryMultipleAsync(sql, parametros);
 
-        var items = (await multi.ReadAsync<InmueblePublicoListItemDto>()).ToList();
-        var total = await multi.ReadSingleAsync<int>();
+            var items = (await multi.ReadAsync<InmueblePublicoListItemDto>()).ToList();
+            var total = await multi.ReadSingleAsync<int>();
 
-        return PagedResult<InmueblePublicoListItemDto>.Create(
-            items, pagination.Page, pagination.PageSize, total);
+            return PagedResult<InmueblePublicoListItemDto>.Create(
+                items, pagination.Page, pagination.PageSize, total);
     }
 
     public async Task<InmueblePublicoDetalleDto?> GetDetallePorSlugAsync(

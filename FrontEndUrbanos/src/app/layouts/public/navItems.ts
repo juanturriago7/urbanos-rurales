@@ -15,9 +15,9 @@ export interface NavItem {
 }
 
 export const navItems: readonly NavItem[] = [
-  { label: 'Arrendar', to: '/inmuebles?operacion=arriendo' },
-  { label: 'Comprar', to: '/inmuebles?operacion=venta' },
-  { label: 'Consignar', to: '/', anchor: 'consignar' },
+  { label: 'Inicio', to: '/' },
+  { label: 'Quiénes somos', to: '/', anchor: 'quienes-somos' },
   { label: 'Servicios', to: '/', anchor: 'servicios' },
+  { label: 'Inmuebles', to: '/inmuebles' },
   { label: 'Contacto', to: '/', anchor: 'contacto' },
 ] as const

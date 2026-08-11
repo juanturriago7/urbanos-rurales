@@ -1,426 +1,552 @@
 import { useEffect, useRef } from 'react'
-import { Edificio3D } from '@/features/public/properties/components/Edificio3D'
-import { PublicacionesDestacadas } from '@/features/public/properties/components/PublicacionesDestacadas'
+import { Link } from 'react-router-dom'
+// TODO: re-habilitar cuando el backend esté corriendo en dev
+// import { PublicacionesDestacadas } from '@/features/public/properties/components/PublicacionesDestacadas'
+import { site } from '@/shared/config/site'
 
-function useParallax(factor = 0.12) {
-  const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const fn = () => { el.style.transform = `translateY(${window.scrollY * factor}px)` }
-    window.addEventListener('scroll', fn, { passive: true })
-    return () => window.removeEventListener('scroll', fn)
-  }, [factor])
-  return ref
-}
+/* ── Assets de Figma (SVG icons) ──────────────────────────────── */
+const imgSvgSearch = 'https://www.figma.com/api/mcp/asset/1547ad5a-1fa3-4131-9f4a-a6cb90bda559.svg'
+const imgSvgOps    = 'https://www.figma.com/api/mcp/asset/64b9cf09-2dcb-4532-9337-91623c0aac27.svg'
+const imgSvgYears  = 'https://www.figma.com/api/mcp/asset/52c89b3b-dde2-4db8-b0b5-ee5c2eb72d73.svg'
+const imgSvgClients= 'https://www.figma.com/api/mcp/asset/5d5ae0a1-b195-4e85-bef1-bb8fe3233bc7.svg'
+const imgSvgIso    = 'https://www.figma.com/api/mcp/asset/858f9c53-9924-4d13-ada2-a8f7b1282585.svg'
+const imgSvgNational='https://www.figma.com/api/mcp/asset/ee4e2a61-ca31-4e3c-91dd-237a85c1977d.svg'
+const imgSvgEtica  = 'https://www.figma.com/api/mcp/asset/2b2316b5-4e3d-469b-a59b-a8114fa5dcf8.svg'
+const imgSvgConsult= 'https://www.figma.com/api/mcp/asset/4f0265b6-6aea-4b6d-8922-58cbc03cc562.svg'
+const imgSvgGestion= 'https://www.figma.com/api/mcp/asset/ec4e37ac-7a4e-412e-b4d9-5ba8982551a5.svg'
+const imgSvgAvaluo = 'https://www.figma.com/api/mcp/asset/4abb8b36-5552-4eeb-9cff-fd582a3d79cb.svg'
+const imgSvgTopo   = 'https://www.figma.com/api/mcp/asset/1336a4d6-c65a-4f8c-a8d6-4c3a0ccc49ff.svg'
+const imgSvgComercial='https://www.figma.com/api/mcp/asset/ca5c6b30-5be1-416a-a871-5bc9c39dfaee.svg'
+const imgSvgArrow  = 'https://www.figma.com/api/mcp/asset/6772db8b-d8e0-40c1-acef-4bb608f30a40.svg'
+const imgSvgArrowW = 'https://www.figma.com/api/mcp/asset/e6ef4372-8c7e-4190-bf16-d5233d4d6536.svg'
+const imgSvgCert   = 'https://www.figma.com/api/mcp/asset/460e8e2f-7657-400b-8d80-e0f0d6cb9693.svg'
+const imgSvgMapPin = 'https://www.figma.com/api/mcp/asset/3909ca38-f330-45dc-a812-52967e997f43.svg'
+const imgSvgPhone  = 'https://www.figma.com/api/mcp/asset/0e814cb6-6933-40e7-b1bd-24b2e3e9fd34.svg'
+const imgSvgMail   = 'https://www.figma.com/api/mcp/asset/4ae76a8a-5e35-4c70-80c6-fecd331a38ae.svg'
+const imgSvgClock  = 'https://www.figma.com/api/mcp/asset/e0114568-2df1-4ddd-806d-e8f5c68ca25b.svg'
+const imgSvgWA     = 'https://www.figma.com/api/mcp/asset/6eb253b5-42c2-44b0-9cf4-3ad7d46fcaa9.svg'
 
+/* ── Reveal on scroll ─────────────────────────────────────────── */
 function useReveal() {
   useEffect(() => {
     const io = new IntersectionObserver(
-      (entries) => entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target) } }),
-      { threshold: 0.1 },
+      (entries) => entries.forEach((e) => {
+        if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target) }
+      }),
+      { threshold: 0.08 },
     )
-    document.querySelectorAll('.reveal,.reveal-scale').forEach((t) => io.observe(t))
+    document.querySelectorAll('.reveal').forEach((t) => io.observe(t))
     return () => io.disconnect()
   }, [])
 }
 
-/* ── Íconos SVG profesionales (sin emojis) ──────────────────────── */
-const IconCasa = () => (
-  <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.4" className="h-7 w-7" aria-hidden="true">
-    <path d="M4 13.5L16 3l12 10.5V28a1 1 0 01-1 1H5a1 1 0 01-1-1V13.5z" strokeLinejoin="round"/>
-    <path d="M11 29V19h10v10" strokeLinejoin="round"/>
-  </svg>
-)
-const IconApto = () => (
-  <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.4" className="h-7 w-7" aria-hidden="true">
-    <rect x="3" y="4" width="26" height="25" rx="1"/>
-    <path d="M3 11h26M3 18h26M11 11v18M21 11v18"/>
-  </svg>
-)
-const IconLocal = () => (
-  <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.4" className="h-7 w-7" aria-hidden="true">
-    <path d="M2 12l3-8h22l3 8H2zM2 12v3a3 3 0 006 0v0a3 3 0 006 0v0a3 3 0 006 0v0a3 3 0 006 0v-3"/>
-    <path d="M5 29V18M27 29V18M5 29h22"/>
-    <rect x="12" y="20" width="8" height="9"/>
-  </svg>
-)
-const IconFinca = () => (
-  <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.4" className="h-7 w-7" aria-hidden="true">
-    <path d="M2 28h28M6 28V16l4-4 4 4v12M18 28V12l5-6 5 6v16"/>
-    <path d="M6 20h8M18 16h10"/>
-    <circle cx="10" cy="8" r="3"/>
-  </svg>
-)
-const IconOficina = () => (
-  <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.4" className="h-7 w-7" aria-hidden="true">
-    <rect x="3" y="2" width="26" height="28" rx="1"/>
-    <path d="M3 10h26M10 2v8M22 2v8"/>
-    <rect x="8" y="15" width="5" height="5" rx="0.5"/>
-    <rect x="19" y="15" width="5" height="5" rx="0.5"/>
-    <rect x="8" y="23" width="5" height="7"/>
-    <rect x="19" y="23" width="5" height="7"/>
-  </svg>
-)
-const IconLote = () => (
-  <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.4" className="h-7 w-7" aria-hidden="true">
-    <path d="M3 26L10 6l9 12 5-6 5 14H3z" strokeLinejoin="round"/>
-    <path d="M3 30h26"/>
-    <circle cx="21" cy="9" r="2.5"/>
-  </svg>
-)
-const IconPredial = () => (
-  <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.4" className="h-7 w-7" aria-hidden="true">
-    <rect x="3" y="5" width="26" height="22" rx="1"/>
-    <path d="M3 12h26M10 5v7M22 5v7"/>
-    <path d="M8 17h4M8 21h8M20 17h4"/>
-  </svg>
-)
-const IconAvaluo = () => (
-  <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.4" className="h-7 w-7" aria-hidden="true">
-    <circle cx="16" cy="16" r="13"/>
-    <path d="M16 9v7l4 4" strokeLinecap="round"/>
-    <path d="M10 4.5l2 2M22 4.5l-2 2"/>
-  </svg>
-)
-const IconTopo = () => (
-  <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.4" className="h-7 w-7" aria-hidden="true">
-    <path d="M2 24l7-10 6 6 6-12 9 16H2z" strokeLinejoin="round"/>
-    <circle cx="22" cy="7" r="3"/>
-    <path d="M22 10v3M19.5 8.5l-2 2"/>
-  </svg>
-)
-const IconConsultoria = () => (
-  <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.4" className="h-7 w-7" aria-hidden="true">
-    <circle cx="16" cy="10" r="5"/>
-    <path d="M5 28c0-5.523 4.925-10 11-10s11 4.477 11 10"/>
-    <path d="M21 18l3 3-1.5 6M11 18l-3 3 1.5 6"/>
-  </svg>
-)
-const IconVenta = () => (
-  <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.4" className="h-7 w-7" aria-hidden="true">
-    <path d="M3 16L16 3l13 13v13H20v-8h-8v8H3V16z" strokeLinejoin="round"/>
-    <circle cx="16" cy="21" r="2"/>
-  </svg>
-)
-const IconArrow = () => (
-  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" className="h-3.5 w-3.5" aria-hidden="true">
-    <path d="M2 7h10M7 3l4 4-4 4" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-)
-
-/* ── Datos reales del sitio ─────────────────────────────────────── */
-const SERVICIOS = [
-  { Icon: IconPredial,    titulo: 'Gestión Predial Integral',    sub: 'Adquisición predial para entidades públicas y privadas.',       href: '/inmuebles' },
-  { Icon: IconAvaluo,     titulo: 'Avalúos',                    sub: 'Equipo certificado en todo el territorio nacional.',            href: '/inmuebles' },
-  { Icon: IconTopo,       titulo: 'Topografía',                 sub: 'Levantamientos topográficos y servicios cartográficos.',        href: '/inmuebles' },
-  { Icon: IconConsultoria,titulo: 'Consultoría Predial',        sub: 'Ingeniería, derecho y economía a nivel nacional.',              href: '/inmuebles' },
-  { Icon: IconVenta,      titulo: 'Comercialización',           sub: 'Compra, venta y arriendo con acompañamiento integral.',         href: '/inmuebles' },
-]
-
-const TIPOS_INMUEBLE = [
-  { Icon: IconCasa,    titulo: 'Casas',         sub: 'Espacios amplios para vivir',       href: '/inmuebles?tipo=casa' },
-  { Icon: IconApto,    titulo: 'Apartamentos',  sub: 'Confort urbano en altura',           href: '/inmuebles?tipo=apartamento' },
-  { Icon: IconLocal,   titulo: 'Locales',       sub: 'Estratégicos para tu negocio',       href: '/inmuebles?tipo=local' },
-  { Icon: IconFinca,   titulo: 'Fincas',        sub: 'Paz y naturaleza garantizadas',      href: '/inmuebles?tipo=finca' },
-  { Icon: IconOficina, titulo: 'Oficinas',      sub: 'Espacios modernos para crecer',      href: '/inmuebles?tipo=oficina' },
-  { Icon: IconLote,    titulo: 'Lotes',         sub: 'Construye tu visión',                href: '/inmuebles?tipo=lote' },
-]
-
-const PROYECTOS = [
-  { img: 'https://urbanosrurales.com/wp-content/uploads/elementor/thumbs/IMG_20241121_123448-1-scaled-r3tlic29kcnofbn6q3y74ljhkj7os94iekvt00qk5k.jpg', cliente: 'Compensar', desc: 'Firma consultora para trámites inmobiliarios.' },
-  { img: 'https://urbanosrurales.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-04-03-at-10.48.20-AM-1-r3tlabhta7onf1acj57qd4cz78q056awywlqo2mf7s.jpeg', cliente: 'Grupo Energía Bogotá', desc: 'Saneamiento técnico y jurídico de 1.461 predios en el Embalse de Tominé.' },
-  { img: 'https://urbanosrurales.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2025-04-03-at-10.39.01-AM-r3tl4s811c3v1pbsur2toin99k06tcbtjiasxetvuw.jpeg', cliente: 'Alcaldía Rafael Uribe Uribe', desc: 'Formalización y legalización de títulos de la localidad.' },
-  { img: 'https://urbanosrurales.com/wp-content/uploads/elementor/thumbs/DSC_0119-scaled-qs7w8y3alb3vx27p7te47pmt100ea8c77h8u6v0cy0.jpg', cliente: 'Fondo Nacional del Ahorro', desc: 'Avalúos de inmuebles a nivel nacional para garantías hipotecarias.' },
-  { img: 'https://urbanosrurales.com/wp-content/uploads/elementor/thumbs/2333-qrvw2cba60jtq9yejiuxavduzqe76rr7fj8lhrwpl4.jpg', cliente: 'Universidad El Bosque', desc: 'Inventario y valuación de bienes de propiedad planta y equipo.' },
-  { img: 'https://urbanosrurales.com/wp-content/uploads/elementor/thumbs/QE-qrvvzd5oiwh4yqa1x8jgemfb9t2ct9xt0sv8s8blag.jpg', cliente: 'Secretaría de Educación Distrital', desc: 'Saneamiento predial de 279 inmuebles en 65 sedes educativas.' },
-]
-
+/* ── Marquee clientes ─────────────────────────────────────────── */
 const CLIENTES = [
-  { src: 'https://urbanosrurales.com/wp-content/uploads/2024/07/Logo-compensar-300x75-1.png', alt: 'Compensar' },
-  { src: 'https://urbanosrurales.com/wp-content/uploads/2024/07/logoani.png', alt: 'ANI' },
-  { src: 'https://urbanosrurales.com/wp-content/uploads/2024/07/1526258566-300x158-1.png', alt: 'Cliente' },
-  { src: 'https://urbanosrurales.com/wp-content/uploads/2024/07/articles-60980_img_banner-300x82-1.png', alt: 'Cliente' },
-  { src: 'https://urbanosrurales.com/wp-content/uploads/2024/07/WhatsApp-Image-2020-07-02-at-4.42.11-PM-01-01-300x141-1.png', alt: 'Cliente' },
-  { src: 'https://urbanosrurales.com/wp-content/uploads/2024/07/descarga-46.jpg', alt: 'Cliente' },
-  { src: 'https://urbanosrurales.com/wp-content/uploads/2024/07/descarga-38-1.png', alt: 'Cliente' },
+  'Compensar',
+  'Ministerio de Salud y Protección Social',
+  'Agencia Nacional de Infraestructura · ANI',
+  'Gobernación de Cundinamarca',
+  'Ministerio de Vivienda',
+  'INVÍAS',
+  'Fondo Nacional del Ahorro',
+  'Secretaría de Educación Distrital',
 ]
 
-/* ── Componente principal ───────────────────────────────────────── */
+/* ── Servicios ─────────────────────────────────────────────────── */
+const SERVICIOS = [
+  { num: '01', icon: imgSvgConsult, titulo: 'Consultoría y Asesoría Predial',
+    desc: 'Procesos de consultoría y asesoría en ingeniería, derecho, economía y otras especialidades para entidades públicas y privadas.' },
+  { num: '02', icon: imgSvgGestion, titulo: 'Gestión Predial Integral',
+    desc: 'Acompañamiento estricto en la adquisición predial integral a entidades públicas y privadas, brindando asesoría completa.' },
+  { num: '03', icon: imgSvgAvaluo,  titulo: 'Avalúos',
+    desc: 'Realización de avalúos con un equipo de especialistas altamente calificados y con certificación a lo largo del territorio nacional.' },
+  { num: '04', icon: imgSvgTopo,    titulo: 'Topografía',
+    desc: 'Levantamientos topográficos y servicios cartográficos a entidades privadas y particulares con cobertura nacional.' },
+]
+
+/* ══════════════════════════════════════════════════════════════
+   COMPONENTE PRINCIPAL
+   ══════════════════════════════════════════════════════════════ */
 export function HomePage() {
   useReveal()
-  const parallaxText = useParallax(0.06)
-  const parallaxOrb  = useParallax(0.16)
+  const marqueeRef = useRef<HTMLDivElement>(null)
+
+  /* Auto-scroll marquee */
+  useEffect(() => {
+    const el = marqueeRef.current
+    if (!el) return
+    let frame: number
+    let pos = 0
+    const speed = 0.5
+    const step = () => {
+      pos += speed
+      if (pos >= el.scrollWidth / 2) pos = 0
+      el.style.transform = `translateX(-${pos}px)`
+      frame = requestAnimationFrame(step)
+    }
+    frame = requestAnimationFrame(step)
+    return () => cancelAnimationFrame(frame)
+  }, [])
 
   return (
-    <div className="bg-[#faf8f5]">
+    <div className="bg-white font-['Outfit',sans-serif]">
 
-      {/* ════════════════════════════════════════════════════════
-          HERO — split: texto izquierda, 3D derecha
-          ════════════════════════════════════════════════════════ */}
+      {/* ═══════════════════════════════════════════════════════
+          HERO — fondo azul marino oscuro con gradiente cian
+          ═══════════════════════════════════════════════════════ */}
       <section
-        className="relative min-h-screen overflow-hidden"
-        style={{ background: 'linear-gradient(150deg, #f2ede4 0%, #faf8f5 60%, #ede8df 100%)' }}
+        className="relative min-h-screen overflow-hidden flex items-center justify-center pt-[110px] pb-[100px] px-12"
+        style={{ backgroundColor: '#001124' }}
       >
-        {/* Grano de papel */}
-        <div className="pointer-events-none absolute inset-0 opacity-[0.025]"
-          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`, backgroundSize: '180px' }}
-          aria-hidden="true" />
+        {/* Gradiente cian diagonal */}
+        <div
+          className="absolute top-[-63px] right-[-192px] w-[1248px] h-[1386px] opacity-90 pointer-events-none"
+          style={{ background: 'linear-gradient(135deg, #0071b2 0%, #008ec9 40%, #00b5c5 100%)',
+                   maskImage: 'radial-gradient(ellipse 80% 80% at 70% 50%, black 40%, transparent 70%)' }}
+          aria-hidden="true"
+        />
+        {/* Grid overlay sutil */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ backgroundImage: 'linear-gradient(180deg, rgba(0,181,197,0.06) 1.67%, transparent 1.67%), linear-gradient(90deg, rgba(0,181,197,0.06) 1.67%, transparent 1.67%)' }}
+          aria-hidden="true"
+        />
 
-        {/* Orbe bronce parallax */}
-        <div ref={parallaxOrb}
-          className="pointer-events-none absolute right-0 top-0 h-full w-1/2 opacity-30"
-          style={{ background: 'radial-gradient(ellipse at 70% 40%, #e8d5b7 0%, #c4a882 35%, transparent 70%)' }}
-          aria-hidden="true" />
-
-        {/* Grid — texto + 3D */}
-        <div className="relative z-10 mx-auto grid min-h-screen max-w-350 grid-cols-1 items-center gap-0 px-6 sm:px-10 lg:grid-cols-2">
-
+        <div className="relative z-10 flex gap-20 items-center justify-center w-full max-w-[1200px] mx-auto">
           {/* Columna texto */}
-          <div ref={parallaxText} className="pt-32 pb-16 lg:pb-24 lg:pr-12">
-            <div className="reveal mb-8 flex items-center gap-4" style={{ transitionDelay: '0ms' }}>
-              <span className="h-px w-10 bg-[#8b6f4e]/50" />
-              <span className="text-[9px] font-bold tracking-[4px] uppercase text-[#8b6f4e]">
-                Desde 1996 · Bogotá, Colombia
+          <div className="flex-1 flex flex-col gap-6 min-w-0">
+            {/* Badge */}
+            <div className="reveal flex items-center gap-2 self-start px-[15px] py-[7px] rounded-full border border-[rgba(0,181,197,0.35)] bg-[rgba(0,181,197,0.18)]">
+              <div className="w-[6px] h-[6px] rounded-[3px] bg-[#00b5c5]" />
+              <span className="text-[#6bd8de] text-[12px] font-medium tracking-[1.2px] uppercase whitespace-nowrap">
+                18 años de experiencia territorial
               </span>
             </div>
 
-            <h1 className="reveal font-serif font-bold leading-[1.06] tracking-[-0.02em] text-[#1c1917]"
-              style={{ fontSize: 'clamp(40px, 5.5vw, 80px)', transitionDelay: '80ms' }}>
+            {/* H1 */}
+            <h1 className="reveal font-extrabold text-white leading-[1.08] tracking-[-1.5px]"
+              style={{ fontSize: 'clamp(42px, 5vw, 64px)' }}>
               Conocemos el<br />
-              territorio para<br />
-              <em className="not-italic text-[#8b6f4e]">viabilizar</em><br />
-              sus proyectos.
+              <span className="text-[#00b5c5]">Territorio</span>{' '}para<br />
+              Viabilizar sus<br />
+              Proyectos
             </h1>
 
-            <p className="reveal mt-6 max-w-sm text-[16px] font-light leading-[1.8] text-[#1c1917]/50"
-              style={{ transitionDelay: '160ms' }}>
-              Consultorías, avalúos, gestión predial y comercialización
-              de inmuebles en todo el territorio nacional.
+            <p className="reveal text-[#9cbec9] text-[17px] font-normal leading-[1.65] max-w-[480px]">
+              Empresa especializada en consultoría, gestión predial, avalúos y
+              comercialización de inmuebles a nivel nacional. Confianza y
+              profesionalismo desde 2006.
             </p>
 
-            <div className="reveal mt-9 flex flex-wrap gap-3" style={{ transitionDelay: '240ms' }}>
-              <a href="/inmuebles"
-                className="group inline-flex items-center gap-3 rounded-sm bg-[#1c1917] px-7 py-3.5 text-[10px] font-bold tracking-[2px] uppercase text-[#faf8f5] shadow-[0_4px_20px_rgba(28,25,23,0.18)] transition-all duration-300 hover:bg-[#8b6f4e] hover:shadow-[0_6px_24px_rgba(139,111,78,0.3)] hover:scale-[1.02]">
-                Ver inmuebles
-                <svg className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                  <path d="M3 8h10M9 4l4 4-4 4" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </a>
-              <a href="#consignar"
-                className="inline-flex items-center gap-2 rounded-sm border border-[#1c1917]/20 px-7 py-3.5 text-[10px] font-bold tracking-[2px] uppercase text-[#1c1917]/60 transition-all duration-300 hover:border-[#8b6f4e] hover:text-[#8b6f4e]">
-                Consignar propiedad
+            {/* CTAs */}
+            <div className="reveal flex flex-wrap gap-3 pt-4">
+              <Link to="/inmuebles"
+                className="inline-flex items-center gap-2 bg-[#00b5c5] text-[#001124] font-bold text-[14px] px-7 py-[15px] rounded-[10px] hover:bg-[#00a0b0] transition-colors duration-200">
+                <img src={imgSvgSearch} alt="" className="w-4 h-4" aria-hidden="true" />
+                Buscar Inmueble
+              </Link>
+              <a href="#servicios"
+                className="inline-flex items-center justify-center border border-[rgba(255,255,255,0.25)] text-white font-bold text-[14px] px-7 py-[15px] rounded-[10px] hover:border-[rgba(255,255,255,0.5)] transition-colors duration-200">
+                Ver Servicios
               </a>
             </div>
+          </div>
 
-            {/* Stats */}
-            <div className="reveal mt-12 flex gap-10" style={{ transitionDelay: '320ms' }}>
-              {[{ n: '+18', label: 'Años de experiencia' }, { n: '+500', label: 'Proyectos realizados' }, { n: '32', label: 'Ciudades' }].map(({ n, label }) => (
-                <div key={label}>
-                  <p className="font-serif text-[28px] font-bold leading-none text-[#1c1917]">{n}</p>
-                  <p className="mt-1.5 text-[8.5px] font-semibold tracking-[2px] uppercase text-[#1c1917]/35">{label}</p>
+          {/* Columna stats cards */}
+          <div className="flex-1 min-w-0 flex-col gap-4 hidden lg:flex">
+            {/* 2x2 grid de stats */}
+            <div className="grid grid-cols-2 gap-[14px]">
+              {[
+                { icon: imgSvgOps,     num: '2.717', label: 'Operaciones inmobiliarias' },
+                { icon: imgSvgYears,   num: '18+',   label: 'Años de trayectoria' },
+                { icon: imgSvgClients, num: '50+',   label: 'Clientes satisfechos' },
+                { icon: imgSvgIso,     num: 'ISO',   label: 'Certificación de calidad' },
+              ].map(({ icon, num, label }) => (
+                <div key={label}
+                  className="backdrop-blur-[4px] bg-[rgba(255,255,255,0.07)] border border-[rgba(255,255,255,0.12)] rounded-[16px] p-[25px] flex flex-col gap-[2px]">
+                  <div className="bg-[rgba(0,181,197,0.25)] rounded-[10px] w-10 h-10 flex items-center justify-center mb-3">
+                    <img src={icon} alt="" className="w-5 h-5" aria-hidden="true" />
+                  </div>
+                  <p className="font-extrabold text-[28px] text-white tracking-[-1px] leading-none">{num}</p>
+                  <p className="text-[#82acba] text-[12px] font-normal">{label}</p>
+                </div>
+              ))}
+            </div>
+            {/* Banner cobertura nacional */}
+            <div
+              className="border border-[rgba(0,181,197,0.3)] rounded-[16px] flex gap-5 items-center px-[29px] py-[25px]"
+              style={{ background: 'linear-gradient(135deg, rgba(0,181,197,0.2) 0%, rgba(0,181,197,0.08) 100%)' }}>
+              <div className="bg-[#00b5c5] rounded-[12px] w-[52px] h-[52px] flex items-center justify-center shrink-0">
+                <img src={imgSvgNational} alt="" className="w-5 h-5" aria-hidden="true" />
+              </div>
+              <div>
+                <p className="font-bold text-[20px] text-white leading-none">Cobertura Nacional</p>
+                <p className="text-[#93c1c9] text-[13px] mt-1">Proyectos en todo el territorio colombiano</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          PUBLICACIONES DESTACADAS
+          Requiere backend corriendo en localhost:5095.
+          Re-habilitar descomentando el import y este bloque.
+          ═══════════════════════════════════════════════════════ */}
+      {/* <PublicacionesDestacadas /> */}
+
+      {/* ═══════════════════════════════════════════════════════
+          QUIÉNES SOMOS — fondo blanco roto #f8fafd
+          ═══════════════════════════════════════════════════════ */}
+      <section id="quienes-somos" className="bg-[#f8fafd] py-[100px] px-12">
+        <div className="max-w-[1200px] mx-auto flex gap-20 items-center">
+          {/* Imagen placeholder */}
+          <div className="hidden lg:block shrink-0 rounded-[20px] overflow-hidden"
+            style={{ width: '560px', aspectRatio: '560/420', background: 'linear-gradient(135deg, #004b98 0%, #0071b2 60%, #00b5c5 100%)' }}>
+            <div className="w-full h-full flex items-end p-6">
+              <div className="ml-auto bg-white rounded-[14px] shadow-[0px_8px_16px_rgba(0,17,36,0.2)] flex gap-3 items-center px-5 py-4">
+                <p className="font-extrabold text-[#004b98] text-[28px] leading-none">2006</p>
+                <div>
+                  <p className="text-[#7a8187] text-[11px] font-medium leading-[1.4]">Fundación<br/>de la empresa</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Texto */}
+          <div className="flex-1 flex flex-col gap-3 min-w-0">
+            <div className="reveal self-start bg-[rgba(0,75,152,0.08)] px-[14px] py-[5px] rounded-full">
+              <span className="text-[#004b98] text-[11px] font-semibold tracking-[1.32px] uppercase">Quiénes somos</span>
+            </div>
+            <h2 className="reveal font-extrabold text-[#001124] text-[42px] leading-[1.1] tracking-[-0.8px]">
+              Expertos en gestión<br />predial e inmobiliaria
+            </h2>
+            <p className="reveal text-[#7a8187] text-[15px] leading-[1.75]">
+              Desde 2006, <strong className="text-[#001124] font-bold">Urbanos &amp; Rurales S.A.S</strong> ha desarrollado múltiples proyectos en el
+              campo de la ingeniería y el Derecho, contando con un equipo interdisciplinario de
+              ingenieros, arquitectos, abogados, trabajadores sociales y economistas.
+            </p>
+            <p className="reveal text-[#7a8187] text-[15px] leading-[1.75]">
+              Nos hemos comprometido con el desarrollo del país y la satisfacción de nuestros
+              clientes, brindando asesoría integral en consultoría, gestión predial, avalúos y
+              comercialización de inmuebles.
+            </p>
+            {/* Quote */}
+            <div className="reveal border-l-[3px] border-[#00b5c5] pl-5 py-1 my-1">
+              <p className="text-[#008ec9] text-[15px] font-semibold">
+                "Conocemos el Territorio para Viabilizar sus Proyectos"
+              </p>
+            </div>
+            {/* Tags valores */}
+            <div className="reveal grid grid-cols-2 gap-3 pt-2">
+              {['Ética profesional', 'Atención al cliente', '18 años de experiencia', 'Profesionalismo'].map((v) => (
+                <div key={v} className="flex items-center gap-[10px] bg-[#eff4f8] rounded-[10px] px-4 py-[10px]">
+                  <div className="w-2 h-2 rounded-[4px] bg-[#00b5c5] shrink-0" />
+                  <span className="text-[#001124] text-[13px] font-semibold">{v}</span>
                 </div>
               ))}
             </div>
           </div>
-
-          {/* Columna 3D — Three.js edificio construido con geometrías propias */}
-          <div className="reveal-scale relative hidden min-h-screen items-center justify-center lg:flex" style={{ transitionDelay: '200ms' }}>
-            <Edificio3D />
-          </div>
-        </div>
-
-        {/* Indicador de scroll */}
-        <div className="pointer-events-none absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40" aria-hidden="true">
-          <div className="h-10 w-px bg-[#1c1917]/30" />
-          <span className="text-[8px] font-bold tracking-[3px] uppercase text-[#1c1917]/40">Scroll</span>
         </div>
       </section>
 
-      {/* ════════════════════════════════════════════════════════
-          PUBLICACIONES — directo debajo del hero, sin clic previo
-          ════════════════════════════════════════════════════════ */}
-      <PublicacionesDestacadas />
-
-      {/* ════════════════════════════════════════════════════════
-          TIPOS DE INMUEBLE
-          ════════════════════════════════════════════════════════ */}
-      <section className="py-24 px-6 sm:px-10 max-w-350 mx-auto">
-        <div className="reveal mb-14 flex items-end justify-between gap-4">
-          <div>
-            <span className="text-[9px] font-bold tracking-[4px] uppercase text-[#8b6f4e]">Portafolio</span>
-            <h2 className="mt-2 font-serif text-[34px] font-bold leading-tight text-[#1c1917]">Explora por tipo de inmueble</h2>
-          </div>
-          <a href="/inmuebles" className="hidden sm:inline-flex items-center gap-2 text-[10px] font-bold tracking-[2px] uppercase text-[#8b6f4e] hover:text-[#735840] transition-colors">
-            Ver todo <IconArrow />
-          </a>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-          {TIPOS_INMUEBLE.map(({ Icon, titulo, sub, href }, i) => (
-            <a key={titulo} href={href}
-              className="reveal group flex flex-col items-start gap-4 rounded-sm border border-border bg-white p-6 hover:border-[#8b6f4e]/40 hover:shadow-[0_8px_32px_rgba(28,25,23,0.07)] transition-all duration-300"
-              style={{ transitionDelay: `${i * 50}ms` }}>
-              <span className="text-[#8b6f4e]/70 group-hover:text-[#8b6f4e] transition-colors duration-300">
-                <Icon />
-              </span>
-              <div>
-                <p className="font-serif text-[17px] font-bold leading-tight text-[#1c1917]">{titulo}</p>
-                <p className="mt-1 text-[12px] leading-snug text-[#1c1917]/40">{sub}</p>
+      {/* ═══════════════════════════════════════════════════════
+          VALORES — banda oscura, 4 columnas con separadores
+          ═══════════════════════════════════════════════════════ */}
+      <section className="bg-[#001124]">
+        <div className="max-w-[1200px] mx-auto border-l border-[rgba(255,255,255,0.08)] border-r grid grid-cols-2 sm:grid-cols-4">
+          {[
+            { icon: imgSvgEtica,   title: 'Ética',            desc: 'Actuamos con transparencia e integridad en cada proceso' },
+            { icon: imgSvgClients, title: 'Atención al Cliente', desc: 'Servicio personalizado y dedicado para cada cliente' },
+            { icon: imgSvgYears,   title: 'Experiencia',      desc: 'Más de 18 años ejecutando proyectos a nivel nacional' },
+            { icon: imgSvgIso,     title: 'Profesionalismo',  desc: 'Equipo interdisciplinario con certificación de calidad ISO' },
+          ].map(({ icon, title, desc }, i) => (
+            <div key={title}
+              className={`flex flex-col items-center gap-[6px] py-12 px-8 text-center${i < 3 ? ' border-r border-[rgba(255,255,255,0.08)]' : ''}`}>
+              <div className="bg-[rgba(0,181,197,0.18)] rounded-[14px] w-14 h-14 flex items-center justify-center mb-2">
+                <img src={icon} alt="" className="w-5 h-5" aria-hidden="true" />
               </div>
-            </a>
+              <p className="font-bold text-[15px] text-white">{title}</p>
+              <p className="text-[#6d97a4] text-[12px] leading-[1.5]">{desc}</p>
+            </div>
           ))}
         </div>
       </section>
 
-      {/* ════════════════════════════════════════════════════════
-          QUIÉNES SOMOS — banda oscura de impacto
-          ════════════════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden bg-[#1c1917] py-24 px-6 sm:px-10">
-        <div className="pointer-events-none absolute inset-0 opacity-[0.03]"
-          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`, backgroundSize: '180px' }}
-          aria-hidden="true" />
-        <div className="relative mx-auto max-w-350">
-          <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-20 items-center">
-            <div>
-              <div className="reveal flex items-center gap-4 mb-8">
-                <span className="h-px w-10 bg-[#8b6f4e]/60" />
-                <span className="text-[9px] font-bold tracking-[4px] uppercase text-[#8b6f4e]">Quiénes somos</span>
+      {/* ═══════════════════════════════════════════════════════
+          SERVICIOS — grid 3 cols + tarjeta destacada azul
+          ═══════════════════════════════════════════════════════ */}
+      <section id="servicios" className="bg-[#eff4f8] py-[100px] px-12">
+        <div className="max-w-[1200px] mx-auto flex flex-col gap-14">
+          {/* Header sección */}
+          <div className="reveal flex flex-col gap-3">
+            <div className="self-start bg-[rgba(0,75,152,0.08)] px-[14px] py-[5px] rounded-full">
+              <span className="text-[#004b98] text-[11px] font-semibold tracking-[1.32px] uppercase">Líneas de Servicio</span>
+            </div>
+            <h2 className="font-extrabold text-[#001124] text-[42px] leading-[1.1] tracking-[-0.8px]">
+              Lo que hacemos<br/>por su proyecto
+            </h2>
+          </div>
+
+          {/* Grid servicios */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {SERVICIOS.map(({ num, icon, titulo, desc }) => (
+              <div key={titulo}
+                className="reveal bg-white border border-[#d8dfe4] rounded-[20px] p-[37px] flex flex-col gap-[11px] hover:shadow-[0_8px_32px_rgba(0,17,36,0.08)] hover:-translate-y-1 transition-all duration-300">
+                <span className="text-[#7a8187] text-[11px] font-semibold tracking-[1.1px]">{num}</span>
+                <div className="bg-[rgba(0,75,152,0.08)] rounded-[14px] w-[52px] h-[52px] flex items-center justify-center">
+                  <img src={icon} alt="" className="w-5 h-5" aria-hidden="true" />
+                </div>
+                <p className="font-bold text-[#001124] text-[17px] mt-2">{titulo}</p>
+                <p className="text-[#7a8187] text-[14px] leading-[1.65]">{desc}</p>
+                <a href="#contacto" className="flex items-center gap-[6px] text-[#004b98] text-[13px] font-semibold mt-1 hover:text-[#00b5c5] transition-colors">
+                  Más información
+                  <img src={imgSvgArrow} alt="" className="w-[14px] h-[14px]" aria-hidden="true" />
+                </a>
               </div>
-              <h2 className="reveal font-serif text-[clamp(32px,4vw,56px)] font-bold leading-[1.1] text-[#faf8f5]"
-                style={{ transitionDelay: '80ms' }}>
-                Expertos que conocen<br />el territorio colombiano.
-              </h2>
-              <p className="reveal mt-6 text-[16px] font-light leading-[1.8] text-[#faf8f5]/50 max-w-md"
-                style={{ transitionDelay: '160ms' }}>
-                Desde 1996, URBANOS &amp; RURALES S.A.S trabaja con un equipo interdisciplinario
-                de ingenieros, arquitectos, abogados, trabajadores sociales y economistas,
-                comprometidos con el desarrollo del país.
-              </p>
-              <div className="reveal mt-8 flex flex-wrap gap-6" style={{ transitionDelay: '240ms' }}>
-                {[
-                  { label: 'ISO 9001', sub: 'Certificación de calidad' },
-                  { label: 'ISO 14001', sub: 'Gestión ambiental' },
-                ].map(({ label, sub }) => (
-                  <div key={label} className="flex items-start gap-3">
-                    <div className="mt-0.5 h-5 w-5 shrink-0 rounded-full border border-[#8b6f4e]/60 flex items-center justify-center">
-                      <svg className="h-2.5 w-2.5 text-[#8b6f4e]" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                        <path d="M2 5l2.5 2.5L8 3" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    <div>
-                      <p className="text-[12px] font-bold tracking-[1px] uppercase text-[#faf8f5]/80">{label}</p>
-                      <p className="text-[11px] text-[#faf8f5]/35">{sub}</p>
-                    </div>
-                  </div>
-                ))}
+            ))}
+
+            {/* Tarjeta comercialización — destaca en azul, ocupa 2 cols */}
+            <div
+              className="reveal col-span-1 sm:col-span-2 border border-[#d8dfe4] rounded-[20px] overflow-hidden flex"
+              style={{ background: 'linear-gradient(135deg, #004b98 0%, #0071b2 60%, #008ec9 100%)' }}>
+              <div className="flex-1 p-10 flex flex-col gap-[11px]">
+                <span className="text-[rgba(255,255,255,0.5)] text-[11px] font-semibold tracking-[1.1px]">05</span>
+                <div className="bg-[rgba(255,255,255,0.15)] rounded-[14px] w-[52px] h-[52px] flex items-center justify-center">
+                  <img src={imgSvgComercial} alt="" className="w-5 h-5" aria-hidden="true" />
+                </div>
+                <p className="font-bold text-white text-[22px] mt-2">Comercialización de Inmuebles</p>
+                <p className="text-[rgba(255,255,255,0.7)] text-[14px] leading-[1.65] max-w-[420px]">
+                  Soluciones integrales para la venta y compra de inmuebles, ofreciendo análisis
+                  de rentabilidad, estrategias de marketing, escrituración y compra eficaz del predio.
+                </p>
+                <Link to="/inmuebles" className="flex items-center gap-[6px] text-[#6bd8de] text-[13px] font-semibold mt-1 hover:text-white transition-colors">
+                  Ver portafolio de inmuebles
+                  <img src={imgSvgArrowW} alt="" className="w-[14px] h-[14px]" aria-hidden="true" />
+                </Link>
+              </div>
+              <div className="flex-1 bg-[rgba(39,234,234,0.12)] hidden lg:flex items-center justify-center rounded-r-[20px]">
+                <p className="text-[rgba(255,255,255,0.3)] text-[12px] italic text-center px-5">[ fotografía aérea de proyecto inmobiliario ]</p>
               </div>
             </div>
-            <div className="reveal-scale grid grid-cols-2 gap-4" style={{ transitionDelay: '100ms' }}>
-              {SERVICIOS.map(({ Icon, titulo, sub }, i) => (
-                <div key={titulo}
-                  className={`flex flex-col gap-3 rounded-sm border border-[#faf8f5]/06 bg-[#faf8f5]/03 p-6 hover:border-[#8b6f4e]/30 hover:bg-[#8b6f4e]/05 transition-all duration-300${i === 4 ? ' col-span-2' : ''}`}>
-                  <span className="text-[#8b6f4e]/70"><Icon /></span>
-                  <p className="font-serif text-[15px] font-bold leading-snug text-[#faf8f5]/80">{titulo}</p>
-                  <p className="text-[12px] leading-relaxed text-[#faf8f5]/35">{sub}</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          TRAYECTORIA — número grande + stats secundarios
+          ═══════════════════════════════════════════════════════ */}
+      <section className="bg-white py-[100px] px-12">
+        <div className="max-w-[1200px] mx-auto flex flex-col gap-16 items-center">
+          {/* Header */}
+          <div className="reveal flex flex-col items-center gap-3 text-center">
+            <div className="bg-[rgba(0,75,152,0.08)] px-[14px] py-[5px] rounded-full">
+              <span className="text-[#004b98] text-[11px] font-semibold tracking-[1.32px] uppercase">Trayectoria</span>
+            </div>
+            <h2 className="font-extrabold text-[#001124] text-[42px] leading-[1.1] tracking-[-0.8px]">
+              Resultados que hablan<br/>por sí solos
+            </h2>
+          </div>
+
+          {/* Número grande */}
+          <div className="reveal flex flex-col items-center gap-3 text-center">
+            <p className="font-extrabold text-[#004b98] leading-none tracking-[-4px]"
+              style={{ fontSize: 'clamp(80px, 12vw, 120px)' }}>1.610</p>
+            <p className="text-[#7a8187] text-[18px] tracking-[0.36px]">Operaciones inmobiliarias en 18 años</p>
+          </div>
+
+          {/* Stats secundarios */}
+          <div className="reveal flex flex-wrap items-center justify-center gap-0 w-full max-w-[800px]">
+            {[
+              { num: '19+', label: ['Departamentos', 'con proyectos', 'activos'] },
+              { num: '10+', label: ['Entidades', 'públicas', 'atendidas'] },
+              { num: '31+', label: ['Especialistas en', 'el equipo'] },
+              { num: '15+', label: ['Años de', 'experiencia', 'nacional'] },
+            ].map(({ num, label }, i) => (
+              <div key={num} className="flex items-center">
+                <div className="flex flex-col items-center gap-2 px-5 text-center">
+                  <p className="font-extrabold text-[#001124] text-[48px] leading-none tracking-[-2px]">{num}</p>
+                  <p className="text-[#7a8187] text-[13px] leading-[1.5]">{label.map((l, j) => <span key={j}>{l}{j < label.length - 1 ? <br/> : null}</span>)}</p>
                 </div>
+                {i < 3 && <div className="w-px h-14 bg-[#e0e5e9] shrink-0 mx-2 hidden sm:block" />}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          CLIENTES — marquee infinito
+          ═══════════════════════════════════════════════════════ */}
+      <section className="bg-[#eff4f8] py-[100px] px-12">
+        <div className="max-w-[1200px] mx-auto flex flex-col gap-14">
+          {/* Header */}
+          <div className="reveal flex flex-col items-center gap-3 text-center">
+            <div className="bg-[rgba(0,75,152,0.08)] px-[14px] py-[5px] rounded-full">
+              <span className="text-[#004b98] text-[11px] font-semibold tracking-[1.32px] uppercase">Nuestros Clientes</span>
+            </div>
+            <h2 className="font-extrabold text-[#001124] text-[42px] leading-[1.1] tracking-[-0.8px]">
+              Algunos de nuestros clientes
+            </h2>
+            <p className="text-[#7a8187] text-[16px] leading-[1.7] max-w-[540px]">
+              Instituciones y entidades de alto nivel que confían en nuestra experiencia y calidad de servicio.
+            </p>
+          </div>
+
+          {/* Marquee */}
+          <div className="relative overflow-hidden h-[87px]">
+            <div ref={marqueeRef} className="flex gap-5 items-stretch absolute left-0 top-0">
+              {[...CLIENTES, ...CLIENTES].map((cliente, i) => (
+                <div key={i}
+                  className="bg-white border border-[#d8dfe4] rounded-[14px] flex items-center justify-center px-9 py-6 min-w-[180px] shrink-0">
+                  <p className="font-bold text-[#004b98] text-[14px] text-center tracking-[0.28px] leading-[1.3]">{cliente}</p>
+                </div>
+              ))}
+            </div>
+            {/* Fade edges */}
+            <div className="absolute inset-y-0 left-0 w-[120px] bg-gradient-to-r from-[#eff4f8] to-transparent pointer-events-none z-10" />
+            <div className="absolute inset-y-0 right-0 w-[120px] bg-gradient-to-l from-[#eff4f8] to-transparent pointer-events-none z-10" />
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          CERTIFICACIONES — banda oscura
+          ═══════════════════════════════════════════════════════ */}
+      <section className="bg-[#001124] py-20 px-12">
+        <div className="max-w-[1200px] mx-auto flex gap-16 items-center">
+          {/* Ícono cert */}
+          <div className="shrink-0 flex flex-col items-center gap-3">
+            <div className="bg-white rounded-[20px] w-[120px] h-[120px] flex items-center justify-center shadow-[0px_12px_20px_rgba(0,0,0,0.3)]">
+              <img src={imgSvgCert} alt="Certificación ISO" className="w-14 h-14" />
+            </div>
+            <p className="text-[#7aa7b0] text-[12px] font-semibold tracking-[0.96px] uppercase text-center">Certificados</p>
+          </div>
+          {/* Texto */}
+          <div className="flex-1 flex flex-col gap-4 min-w-0">
+            <h3 className="reveal font-bold text-white text-[26px] leading-tight">
+              Certificación en Calidad y Gestión Ambiental
+            </h3>
+            <p className="reveal text-[#7ca6b4] text-[15px] leading-[1.7] max-w-[580px]">
+              Estamos certificados en las normas ISO 9001 e ISO 14001, certificaciones que nos
+              consolidan como una empresa comprometida con la calidad y el medio ambiente en
+              cada uno de nuestros procesos de consultoría y gestión predial integral.
+            </p>
+            <div className="reveal flex flex-wrap gap-3">
+              {['ISO 9001 — Gestión de Calidad', 'ISO 14001 — Gestión Ambiental', 'ITICOL Certificado'].map((tag) => (
+                <span key={tag}
+                  className="border border-[rgba(255,255,255,0.15)] bg-[rgba(255,255,255,0.08)] text-[#6bd8de] text-[12px] font-semibold tracking-[0.6px] px-[17px] py-2 rounded-full">
+                  {tag}
+                </span>
               ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* ════════════════════════════════════════════════════════
-          PROYECTOS REALIZADOS — imágenes reales
-          ════════════════════════════════════════════════════════ */}
-      <section className="py-24 px-6 sm:px-10">
-        <div className="mx-auto max-w-350">
-          <div className="reveal mb-14 flex items-end justify-between gap-4">
-            <div>
-              <span className="text-[9px] font-bold tracking-[4px] uppercase text-[#8b6f4e]">Trayectoria</span>
-              <h2 className="mt-2 font-serif text-[34px] font-bold leading-tight text-[#1c1917]">Proyectos realizados</h2>
+      {/* ═══════════════════════════════════════════════════════
+          CONTACTO — form + datos + mapa placeholder
+          ═══════════════════════════════════════════════════════ */}
+      <section id="contacto" className="bg-white py-[100px] px-12">
+        <div className="max-w-[1200px] mx-auto flex flex-col gap-14">
+          {/* Header */}
+          <div className="reveal flex flex-col gap-3">
+            <div className="self-start bg-[rgba(0,75,152,0.08)] px-[14px] py-[5px] rounded-full">
+              <span className="text-[#004b98] text-[11px] font-semibold tracking-[1.32px] uppercase">Contacto</span>
             </div>
-            <a href="https://urbanosrurales.com/proyecto" target="_blank" rel="noopener noreferrer"
-              className="hidden sm:inline-flex items-center gap-2 text-[10px] font-bold tracking-[2px] uppercase text-[#8b6f4e] hover:text-[#735840] transition-colors">
-              Ver todos <IconArrow />
-            </a>
+            <h2 className="font-extrabold text-[#001124] text-[42px] leading-[1.1] tracking-[-0.8px]">
+              Hablemos de<br/>su proyecto
+            </h2>
           </div>
 
-          {/* Mosaico asimétrico */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {PROYECTOS.map(({ img, cliente, desc }, i) => (
-              <div key={cliente}
-                className={`reveal group relative overflow-hidden rounded-sm bg-[#1c1917]${i === 0 ? ' sm:row-span-2 sm:col-span-1' : ''}`}
-                style={{ transitionDelay: `${i * 70}ms`, minHeight: i === 0 ? '480px' : '220px' }}>
-                <img src={img} alt={cliente} loading="lazy"
-                  className="absolute inset-0 h-full w-full object-cover opacity-60 group-hover:opacity-40 group-hover:scale-105 transition-all duration-700" />
-                <div className="absolute inset-0 bg-linear-to-t from-[#1c1917]/90 via-[#1c1917]/20 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <p className="text-[9px] font-bold tracking-[2.5px] uppercase text-accent-gold/80 mb-1">{cliente}</p>
-                  <p className="text-[14px] font-light leading-snug text-[#faf8f5]/80">{desc}</p>
+          <div className="flex gap-20 items-start">
+            {/* Datos de contacto + mapa */}
+            <div className="flex-1 flex flex-col gap-6 min-w-0">
+              {[
+                { icon: imgSvgMapPin, label: 'Dirección', lines: ['Av Kr 15 #98-42 Oficina M02', 'Edificio Office Point · Barrio Chicó, Bogotá D.C.'] },
+                { icon: imgSvgPhone,  label: 'Teléfonos', lines: [site.contacto.telefono, site.contacto.whatsappVisible] },
+                { icon: imgSvgMail,   label: 'Correo electrónico', lines: [site.contacto.email] },
+                { icon: imgSvgClock,  label: 'Horario de atención', lines: ['Lunes a Viernes: 8:00 am – 6:00 pm', 'Sábados: 9:00 am – 1:00 pm'] },
+              ].map(({ icon, label, lines }) => (
+                <div key={label} className="reveal flex gap-[14px] items-start">
+                  <div className="bg-[rgba(0,75,152,0.08)] rounded-[10px] w-10 h-10 flex items-center justify-center shrink-0 mt-[2px]">
+                    <img src={icon} alt="" className="w-[18px] h-[18px]" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <p className="text-[#001124] text-[13px] font-semibold">{label}</p>
+                    {lines.map((l) => <p key={l} className="text-[#7a8187] text-[14px] leading-[1.5]">{l}</p>)}
+                  </div>
                 </div>
+              ))}
+              {/* Mapa placeholder */}
+              <div
+                className="reveal bg-[#e0e5e9] rounded-[16px] flex items-center justify-center px-5 mt-2"
+                style={{ aspectRatio: '560/315' }}>
+                <p className="text-[#7a8187] text-[12px] text-center">[ mapa — Edificio Office Point, Chicó, Bogotá ]</p>
               </div>
-            ))}
+            </div>
+
+            {/* Formulario */}
+            <div className="flex-1 flex flex-col gap-6 min-w-0">
+              <p className="font-bold text-[#001124] text-[22px]">Envíenos un mensaje</p>
+              <form className="flex flex-col gap-[14px]" onSubmit={(e) => e.preventDefault()}>
+                <div className="flex gap-[14px]">
+                  {[
+                    { id: 'nombre', label: 'Nombre completo', placeholder: 'Su nombre', type: 'text' },
+                    { id: 'telefono', label: 'Teléfono', placeholder: '+57 300 000 0000', type: 'tel' },
+                  ].map(({ id, label, placeholder, type }) => (
+                    <div key={id} className="flex-1 flex flex-col gap-[6px]">
+                      <label htmlFor={id} className="text-[#41596a] text-[12px] font-semibold tracking-[0.6px] uppercase">{label}</label>
+                      <input id={id} type={type} placeholder={placeholder}
+                        className="bg-[#eff4f8] border border-[#d2d8dd] rounded-[10px] px-[17px] py-[13px] text-[14px] text-[#0d1c27] placeholder:text-[#757575] outline-none focus:border-[#004b98] focus:bg-white transition-colors" />
+                    </div>
+                  ))}
+                </div>
+                <div className="flex flex-col gap-[6px]">
+                  <label htmlFor="email" className="text-[#41596a] text-[12px] font-semibold tracking-[0.6px] uppercase">Correo electrónico</label>
+                  <input id="email" type="email" placeholder="correo@empresa.com"
+                    className="bg-[#eff4f8] border border-[#d2d8dd] rounded-[10px] px-[17px] py-[13px] text-[14px] text-[#0d1c27] placeholder:text-[#757575] outline-none focus:border-[#004b98] focus:bg-white transition-colors" />
+                </div>
+                <div className="flex flex-col gap-[6px]">
+                  <label htmlFor="servicio" className="text-[#41596a] text-[12px] font-semibold tracking-[0.6px] uppercase">Servicio de interés</label>
+                  <select id="servicio"
+                    className="bg-[#eff4f8] border border-[#d2d8dd] rounded-[10px] px-[17px] py-[14px] text-[14px] text-[#0d1c27] outline-none focus:border-[#004b98] focus:bg-white transition-colors appearance-none cursor-pointer">
+                    <option value="">Seleccione un servicio...</option>
+                    <option>Consultoría y Asesoría Predial</option>
+                    <option>Gestión Predial Integral</option>
+                    <option>Avalúos</option>
+                    <option>Topografía</option>
+                    <option>Comercialización de Inmuebles</option>
+                  </select>
+                </div>
+                <div className="flex flex-col gap-[6px]">
+                  <label htmlFor="mensaje" className="text-[#41596a] text-[12px] font-semibold tracking-[0.6px] uppercase">Mensaje</label>
+                  <textarea id="mensaje" rows={4} placeholder="Cuéntenos sobre su proyecto..."
+                    className="bg-[#eff4f8] border border-[#d2d8dd] rounded-[10px] px-[17px] py-[13px] text-[14px] text-[#0d1c27] placeholder:text-[#757575] outline-none focus:border-[#004b98] focus:bg-white transition-colors resize-none" />
+                </div>
+                <div className="flex gap-3">
+                  <button type="submit"
+                    className="flex-1 bg-[#004b98] text-white font-bold text-[14px] py-[14px] rounded-[10px] hover:bg-[#003b7a] transition-colors duration-200">
+                    Enviar mensaje
+                  </button>
+                  <button type="button"
+                    className="border border-[#004b98] text-[#004b98] font-semibold text-[13px] px-[21px] py-[15px] rounded-[10px] hover:bg-[rgba(0,75,152,0.05)] transition-colors duration-200">
+                    Generar PQR
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ════════════════════════════════════════════════════════
-          CLIENTES — logos reales
-          ════════════════════════════════════════════════════════ */}
-      <section className="border-y border-border bg-white py-16 px-6 sm:px-10">
-        <div className="mx-auto max-w-350">
-          <p className="reveal mb-10 text-center text-[9px] font-bold tracking-[4px] uppercase text-[#1c1917]/30">
-            Algunos de nuestros clientes
-          </p>
-          <div className="reveal flex flex-wrap items-center justify-center gap-10 opacity-60"
-            style={{ transitionDelay: '80ms' }}>
-            {CLIENTES.map(({ src, alt }) => (
-              <img key={alt + src} src={src} alt={alt} loading="lazy"
-                className="h-8 w-auto max-w-25 object-contain grayscale hover:grayscale-0 transition-all duration-300" />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ════════════════════════════════════════════════════════
-          CTA CONSIGNAR
-          ════════════════════════════════════════════════════════ */}
-      <section id="consignar" className="py-28 px-6 sm:px-10">
-        <div className="mx-auto max-w-200 text-center">
-          <div className="reveal flex justify-center mb-8">
-            <span className="h-px w-12 bg-[#8b6f4e]/40 self-center mr-4" />
-            <span className="text-[9px] font-bold tracking-[4px] uppercase text-[#8b6f4e]">Consignar</span>
-            <span className="h-px w-12 bg-[#8b6f4e]/40 self-center ml-4" />
-          </div>
-          <h2 className="reveal font-serif text-[clamp(32px,4.5vw,60px)] font-bold leading-[1.1] text-[#1c1917]"
-            style={{ transitionDelay: '80ms' }}>
-            ¿Tienes una propiedad<br />para vender o arrendar?
-          </h2>
-          <p className="reveal mt-5 text-[16px] font-light leading-[1.8] text-[#1c1917]/50"
-            style={{ transitionDelay: '160ms' }}>
-            Te acompañamos en todo el proceso: avalúo, estrategia de marketing,
-            escrituración y cierre. Con más de 18 años de experiencia en el mercado colombiano.
-          </p>
-          <div className="reveal mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
-            style={{ transitionDelay: '240ms' }}>
-            <a href="https://urbanosrurales.com/contacto" target="_blank" rel="noopener noreferrer"
-              className="group inline-flex items-center gap-3 rounded-sm bg-[#1c1917] px-8 py-4 text-[10px] font-bold tracking-[2px] uppercase text-[#faf8f5] shadow-[0_4px_20px_rgba(28,25,23,0.18)] transition-all duration-300 hover:bg-[#8b6f4e] hover:scale-[1.02]">
-              Contactar ahora
-              <svg className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                <path d="M3 8h10M9 4l4 4-4 4" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </a>
-            <a href="tel:+5714557844"
-              className="inline-flex items-center gap-2 text-[10px] font-bold tracking-[2px] uppercase text-[#1c1917]/50 hover:text-[#8b6f4e] transition-colors">
-              <svg className="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-                <path d="M3 5a2 2 0 012-2h1.5a1 1 0 01.95.68l1 3a1 1 0 01-.23 1.05L7 8.9a11 11 0 004.1 4.1l1.17-1.22a1 1 0 011.05-.23l3 1a1 1 0 01.68.95V15a2 2 0 01-2 2C7.163 17 3 12.837 3 7V5z" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              +57 (1) 455 7844
-            </a>
-          </div>
-        </div>
-      </section>
+      {/* WhatsApp FAB */}
+      <a href={`https://wa.me/${site.contacto.whatsapp}`}
+        target="_blank" rel="noopener noreferrer"
+        aria-label="Contactar por WhatsApp"
+        className="fixed bottom-6 right-7 z-50 w-[52px] h-[52px] bg-[#25d366] rounded-[26px] flex items-center justify-center shadow-[0px_4px_10px_rgba(37,211,102,0.5)] hover:scale-110 transition-transform duration-200">
+        <img src={imgSvgWA} alt="" className="w-[26px] h-[26px]" aria-hidden="true" />
+      </a>
 
     </div>
   )

@@ -57,14 +57,14 @@ export function PublicLayout() {
         // el foco se queda donde estaba, y el salto de teclado no sirve de nada.
         tabIndex={-1}
         inert={drawerAbierto}
-        className={['flex-1 focus:outline-none', esLanding ? '' : 'pt-20'].join(' ')}
+        className={['flex-1 focus:outline-none', esLanding ? '' : 'pt-[102px]'].join(' ')}
       >
         <Outlet />
       </main>
 
       <div inert={drawerAbierto}>
         <Footer />
-        <WhatsAppFab />
+        {!esLanding && <WhatsAppFab />}
       </div>
     </div>
   )

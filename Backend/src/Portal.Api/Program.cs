@@ -63,7 +63,7 @@ try
         options.AddPolicy("AsesorOrAdmin", p => p.RequireRole("Admin", "Asesor"));
     });
 
-    // ─── Controllers + OpenAPI / Swagger ─────────────────────────────────────
+    // ─── Controllers + OpenAPI ───────────────────────────────────────────────
     builder.Services.AddControllers();
     builder.Services.AddOpenApi();
 
@@ -111,7 +111,7 @@ try
 
     if (app.Environment.IsDevelopment())
     {
-        app.MapOpenApi();
+        app.MapOpenApi(); // → http://localhost:5095/openapi/v1.json
     }
 
     app.UseAuthentication();

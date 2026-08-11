@@ -1,123 +1,145 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { AnchorLink } from '@/app/layouts/public/AnchorLink'
 import { MobileDrawer } from '@/app/layouts/public/MobileDrawer'
-import { NavLinks } from '@/app/layouts/public/NavLinks'
 import { Container } from '@/shared/components/ui/Container'
-import { Logo } from '@/shared/components/ui/Logo'
+import { site } from '@/shared/config/site'
 
-/**
- * Header premium — paleta crema/carbón/bronce.
- *
- * · En landing: arranca completamente transparente (flota sobre el hero).
- *   Al scrollear > 40px: transición a panel crema #faf8f5 con sombra sutil.
- * · En otras rutas: sólido desde el primer píxel.
- * · Links: hover con underline bronce deslizante.
- * · CTA "Consignar": fondo carbón, sin colores llamativos.
- */
+const imgMapPin = 'https://www.figma.com/api/mcp/asset/3909ca38-f330-45dc-a812-52967e997f43.svg'
+const imgPhone  = 'https://www.figma.com/api/mcp/asset/0e814cb6-6933-40e7-b1bd-24b2e3e9fd34.svg'
+const imgMail   = 'https://www.figma.com/api/mcp/asset/4ae76a8a-5e35-4c70-80c6-fecd331a38ae.svg'
+
 interface HeaderProps {
   drawerAbierto: boolean
   onAbrirDrawer: () => void
   onCerrarDrawer: () => void
 }
 
-const UMBRAL_SCROLL = 50
+const NAV_ITEMS = [
+  { label: 'Inicio',        to: '/' },
+  { label: 'Quiénes somos', anchor: 'quienes-somos' },
+  { label: 'Servicios',     anchor: 'servicios' },
+  { label: 'Inmuebles',     to: '/inmuebles' },
+  { label: 'Contacto',      anchor: 'contacto' },
+] as const
 
 export function Header({ drawerAbierto, onAbrirDrawer, onCerrarDrawer }: HeaderProps) {
   const location = useLocation()
-  const [scrolleado, setScrolleado] = useState(false)
-
-  const esLanding = location.pathname === '/'
+  const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
-    const alScroll = () => setScrolleado(window.scrollY > UMBRAL_SCROLL)
-    alScroll()
-    window.addEventListener('scroll', alScroll, { passive: true })
-    return () => window.removeEventListener('scroll', alScroll)
+    const fn = () => setScrolled(window.scrollY > 10)
+    fn()
+    window.addEventListener('scroll', fn, { passive: true })
+    return () => window.removeEventListener('scroll', fn)
   }, [])
 
   useEffect(() => { onCerrarDrawer() }, [location.pathname, onCerrarDrawer])
 
-  // El hero es siempre claro/crema — nunca oscuro — así que los links
-  // son SIEMPRE carbón. Solo cambia el fondo del header al scrollear.
-  const solido = !esLanding || scrolleado
-
-  const claseEnlace = [
-    'relative pb-px text-[10.5px] font-semibold tracking-[2px] uppercase',
-    'transition-colors duration-300',
-    'text-[#1c1917]/50 hover:text-[#1c1917]',
-    'after:absolute after:bottom-0 after:left-0 after:h-px after:w-0',
-    'after:bg-[#8b6f4e] after:transition-[width] after:duration-300',
-    'hover:after:w-full',
-  ].join(' ')
+  function handleAnchorClick(anchor: string) {
+    onCerrarDrawer()
+    if (location.pathname === '/') {
+      document.getElementById(anchor)?.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
 
   return (
     <>
-      <header
-        className={[
-          'fixed top-0 right-0 left-0 z-40',
-          'transition-all duration-400',
-          solido
-            ? 'bg-[#faf8f5]/97 backdrop-blur-md border-b border-[#1c1917]/07 shadow-[0_4px_24px_rgba(28,25,23,0.06)]'
-            : 'bg-transparent',
-          scrolleado ? 'py-3' : 'py-5',
-        ].join(' ')}
-      >
-        <Container width="wide">
-          <div className="flex items-center justify-between gap-8">
+      <header className="fixed top-0 left-0 right-0 z-40 flex flex-col">
+        {/* ── Top bar información de contacto ── */}
+        <div className="bg-[#001124] hidden md:flex">
+          <Container width="wide">
+            <div className="flex items-center gap-8 py-[10px]">
+              <div className="flex items-center gap-[6px]">
+                <img src={imgMapPin} alt="" className="w-3 h-3" aria-hidden="true" />
+                <span className="text-[#a1c5cc] text-[12px] tracking-[0.24px]">
+                  Av Kr 15 #98-42 Of. M02, Edificio Office Point, Barrio Chicó, Bogotá
+                </span>
+              </div>
+              <div className="flex items-center gap-[6px]">
+                <img src={imgPhone} alt="" className="w-3 h-3" aria-hidden="true" />
+                <span className="text-[#a1c5cc] text-[12px] tracking-[0.24px]">
+                  {site.contacto.telefono} &nbsp;·&nbsp; {site.contacto.whatsappVisible}
+                </span>
+              </div>
+              <div className="flex items-center gap-[6px]">
+                <img src={imgMail} alt="" className="w-3 h-3" aria-hidden="true" />
+                <span className="text-[#a1c5cc] text-[12px] tracking-[0.24px]">
+                  {site.contacto.email}
+                </span>
+              </div>
+            </div>
+          </Container>
+        </div>
 
-            <Link
-              to="/"
-              aria-label="Urbanos & Rurales — Inicio"
-              className="shrink-0 transition-opacity duration-200 hover:opacity-70"
-            >
-              <Logo variant="dark" />
-            </Link>
-
-            {/* Nav desktop */}
-            <nav className="hidden items-center gap-8 md:flex">
-              <NavLinks claseEnlace={claseEnlace} />
-            </nav>
-
-            {/* Acciones desktop */}
-            <div className="hidden items-center gap-5 md:flex">
-              <Link
-                to="/inmuebles?operacion=arriendo"
-                className="text-[10.5px] font-semibold tracking-[2px] uppercase text-[#1c1917]/50 hover:text-[#8b6f4e] transition-colors duration-300"
-              >
-                Buscar inmueble
+        {/* ── Navbar principal ── */}
+        <div
+          className={[
+            'bg-[rgba(255,255,255,0.96)] backdrop-blur-[6px] border-b border-[#d8dfe4]',
+            'transition-shadow duration-300',
+            scrolled ? 'shadow-[0px_2px_24px_rgba(0,75,152,0.12)]' : '',
+          ].join(' ')}
+        >
+          <Container width="wide">
+            <div className="flex h-16 items-center justify-between gap-8">
+              {/* Logo */}
+              <Link to="/" aria-label="Urbanos & Rurales — Inicio" className="flex items-center gap-3 shrink-0">
+                <div className="bg-[#004b98] rounded-[8px] w-11 h-11 flex items-center justify-center">
+                  <span className="font-extrabold text-white text-[14px] tracking-[-0.5px]">U&amp;R</span>
+                </div>
+                <div className="flex flex-col leading-none">
+                  <span className="font-bold text-[#001124] text-[15px] tracking-[-0.3px]">Urbanos &amp; Rurales</span>
+                  <span className="text-[#7a8187] text-[10px] tracking-[0.8px] uppercase mt-[2px]">Gestión Inmobiliaria · S.A.S</span>
+                </div>
               </Link>
 
-              <span className="h-3.5 w-px bg-[#1c1917]/12" aria-hidden="true" />
+              {/* Nav desktop */}
+              <nav className="hidden md:flex items-center gap-1">
+                {NAV_ITEMS.map((item) => {
+                  const isActive = 'to' in item && location.pathname === item.to
+                  const base = 'px-4 py-2 rounded-[8px] text-[14px] font-medium transition-colors duration-200'
+                  const active = 'bg-[rgba(0,75,152,0.08)] text-[#004b98]'
+                  const normal = 'text-[#0d1c27] hover:bg-[rgba(0,75,152,0.05)] hover:text-[#004b98]'
 
-              <AnchorLink
-                anchor="consignar"
-                className={[
-                  'inline-flex items-center px-5 py-2.5 text-[10.5px] font-semibold tracking-[2px] uppercase',
-                  'rounded-sm bg-[#1c1917] text-[#faf8f5]',
-                  'hover:bg-[#8b6f4e] shadow-[0_2px_12px_rgba(28,25,23,0.15)]',
-                  'transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]',
-                ].join(' ')}
-              >
-                Consignar
-              </AnchorLink>
+                  if ('anchor' in item) {
+                    return (
+                      <button key={item.label} onClick={() => handleAnchorClick(item.anchor)}
+                        className={`${base} ${normal} cursor-pointer`}>
+                        {item.label}
+                      </button>
+                    )
+                  }
+                  return (
+                    <Link key={item.label} to={item.to}
+                      className={`${base} ${isActive ? active : normal}`}>
+                      {item.label}
+                    </Link>
+                  )
+                })}
+              </nav>
+
+              {/* CTA desktop */}
+              <div className="hidden md:flex items-center gap-3 shrink-0">
+                <Link to="/inmuebles"
+                  className="text-[13px] font-semibold text-[#0d1c27] hover:text-[#004b98] transition-colors duration-200">
+                  Buscar inmueble
+                </Link>
+                <Link to="/inmuebles"
+                  className="bg-[#004b98] text-white text-[13px] font-semibold tracking-[0.13px] px-[22px] py-[10px] rounded-[8px] hover:bg-[#003b7a] transition-colors duration-200">
+                  Contáctanos
+                </Link>
+              </div>
+
+              {/* Hamburger mobile */}
+              <button type="button" onClick={onAbrirDrawer} aria-label="Abrir menú"
+                aria-expanded={drawerAbierto}
+                className="p-2 text-[#001124]/50 hover:text-[#001124] transition-colors duration-200 md:hidden">
+                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                  <path d="M4 6h16M4 12h10M4 18h16" strokeLinecap="round" />
+                </svg>
+              </button>
             </div>
-
-            {/* Hamburger mobile */}
-            <button
-              type="button"
-              onClick={onAbrirDrawer}
-              aria-label="Abrir menú"
-              aria-expanded={drawerAbierto}
-              className="p-2 text-[#1c1917]/50 hover:text-[#1c1917] transition-colors duration-200 md:hidden"
-            >
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-                <path d="M4 6h16M4 12h10M4 18h16" strokeLinecap="round" />
-              </svg>
-            </button>
-
-          </div>
-        </Container>
+          </Container>
+        </div>
       </header>
 
       <MobileDrawer abierto={drawerAbierto} onCerrar={onCerrarDrawer} />
