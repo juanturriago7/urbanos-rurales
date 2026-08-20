@@ -6,6 +6,7 @@ import { AuthGuard } from '@/app/router/AuthGuard'
 // ─── Páginas públicas ─────────────────────────────────────────────────────────
 import { HomePage } from '@/features/public/properties/pages/HomePage'
 import { InmueblesListPage } from '@/features/public/properties/pages/InmueblesListPage'
+import { InmuebleDetallePage } from '@/features/public/properties/pages/InmuebleDetallePage'
 
 // ─── Páginas admin ────────────────────────────────────────────────────────────
 import { LoginPage } from '@/features/admin/auth/pages/LoginPage'
@@ -21,6 +22,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: 'inmuebles', element: <InmueblesListPage /> },
+      { path: 'inmuebles/:slug', element: <InmuebleDetallePage /> },
       { path: 'properties', element: <div className="p-8">Propiedades — próximamente</div> },
       { path: 'search', element: <div className="p-8">Búsqueda — próximamente</div> },
     ],

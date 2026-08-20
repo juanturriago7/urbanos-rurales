@@ -47,3 +47,82 @@ export const buscarInmuebles = async (
   })
   return data
 }
+
+/**
+ * Ficha pública completa (GET /api/inmuebles/{slug}). Nunca trae dirección
+ * exacta ni lat/long precisas (RF-044).
+ */
+
+export interface UbicacionRefDto {
+  id: number
+  tipo: string
+  nombre: string
+  slug: string
+}
+
+export interface OperacionDto {
+  id: number
+  tipoOperacion: 'venta' | 'arriendo' | string
+  precio: number
+  cuotaAdministracion: number | null
+  adminIncluida: boolean
+  estado: string
+  activo: boolean
+}
+
+export interface CaracteristicaValorDto {
+  caracteristicaId: number
+  nombre: string
+  categoria: string
+  valor: string | null
+}
+
+export interface ImagenDto {
+  id: number
+  urlCdn: string
+  urlThumbnail: string | null
+  formato: string
+  orden: number
+  esPortada: boolean
+  textoAlt: string | null
+}
+
+export interface InmueblePublicoDetalleDto {
+  id: number
+  slug: string
+  codigoReferencia: string
+  titulo: string
+  descripcion: string | null
+  tipoInmueble: string
+  tipoInmuebleId: number
+  ubicacionId: number
+  latitudAproximada: number | null
+  longitudAproximada: number | null
+  areaConstruidaM2: number | null
+  areaPrivadaM2: number | null
+  habitaciones: number
+  banos: number
+  parqueaderos: number
+  piso: number | null
+  pisosEdificio: number | null
+  estrato: number | null
+  antiguedad: string | null
+  orientacion: string | null
+  politicaMascotas: string
+  amoblado: string | null
+  destacado: boolean
+  metaTitulo: string | null
+  metaDescripcion: string | null
+  creadoEn: string
+  ubicacion: UbicacionRefDto[]
+  operaciones: OperacionDto[]
+  caracteristicas: CaracteristicaValorDto[]
+  imagenes: ImagenDto[]
+}
+
+export const obtenerInmueblePorSlug = async (slug: string): Promise<InmueblePublicoDetalleDto> => {
+  const { data } = await apiClient.get<InmueblePublicoDetalleDto>(
+    `/api/inmuebles/${encodeURIComponent(slug)}`,
+  )
+  return data
+}

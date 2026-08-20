@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { usePublicaciones } from '@/features/public/properties/hooks/usePublicaciones'
 import type {
   FiltroInmueblesPublico,
@@ -46,67 +46,73 @@ function TarjetaInmueble({ inmueble }: { inmueble: InmueblePublicoListItemDto })
   const badgeTxt  = esArriendo ? 'text-white' : 'text-[#001124]'
 
   return (
-    <article className="group bg-white border border-[#d8dfe4] rounded-[18px] overflow-hidden p-px flex flex-col hover:shadow-[0_8px_32px_rgba(0,17,36,0.10)] hover:-translate-y-0.5 transition-all duration-300">
-      {/* Imagen */}
-      <div className="relative shrink-0 overflow-hidden rounded-t-[17px]" style={{ aspectRatio: '382/286.5' }}>
-        {inmueble.imagenPortada ? (
-          <img src={inmueble.imagenPortada} alt={inmueble.titulo} loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #004b98 0%, #0071b2 60%, #00b5c5 100%)' }}>
-            <span className="text-[rgba(255,255,255,0.4)] text-[11px] text-center px-4">Sin fotografía disponible</span>
-          </div>
-        )}
-        {/* Badge operación */}
-        <span className={`absolute top-3.5 left-3.5 ${badgeBg} ${badgeTxt} text-[11px] font-bold tracking-[0.33px] px-3 py-1.5 rounded-full`}>
-          {operacion}
-        </span>
-        {/* Botón favorito */}
-        <button type="button" aria-label="Guardar en favoritos"
-          className="absolute top-3.5 right-3.5 w-8 h-8 rounded-2xl bg-[rgba(255,255,255,0.85)] flex items-center justify-center hover:bg-white transition-colors">
-          <img src={imgHeart} alt="" className="w-[15px] h-[15px]" aria-hidden="true" />
-        </button>
-      </div>
-
-      {/* Info */}
-      <div className="flex flex-col gap-1 p-5">
-        {/* Precio */}
-        <p className="font-extrabold text-[#004b98] text-[20px] tracking-[-0.5px] leading-none">
-          {formatPrice(inmueble)}
-        </p>
-        {/* Título */}
-        <p className="font-bold text-[#001124] text-[15px] leading-snug mt-0.5 line-clamp-2">
-          {inmueble.titulo}
-        </p>
-        {/* Ubicación */}
-        <div className="flex items-center gap-[5px] pb-2.5">
-          <img src={imgPin} alt="" className="w-[13px] h-[13px] shrink-0" aria-hidden="true" />
-          <span className="text-[#7a8187] text-[13px] truncate">{inmueble.ubicacion}</span>
-        </div>
-        {/* Separador + specs */}
-        <div className="border-t border-[#e0e5e9] pt-[15px] flex flex-wrap gap-x-[14px] gap-y-1 items-center">
-          {inmueble.areaConstruidaM2 && (
-            <span className="flex items-center gap-[5px]">
-              <img src={imgArea} alt="" className="w-[13px] h-[13px]" aria-hidden="true" />
-              <span className="text-[#7a8187] text-[12px] font-medium">{inmueble.areaConstruidaM2} m²</span>
-            </span>
+    <article className="group relative bg-white border border-[#d8dfe4] rounded-[18px] overflow-hidden p-px flex flex-col hover:shadow-[0_8px_32px_rgba(0,17,36,0.10)] hover:-translate-y-0.5 transition-all duration-300">
+      {/* El Link envuelve imagen + info; el botón favorito queda fuera para no anidar
+          <button> dentro de <a>, que es HTML inválido. `contents` lo saca del flujo
+          para que la grilla flex de arriba (imagen/info) no se rompa. */}
+      <Link to={`/inmuebles/${inmueble.slug}`} className="contents">
+        {/* Imagen */}
+        <div className="relative shrink-0 overflow-hidden rounded-t-[17px]" style={{ aspectRatio: '382/286.5' }}>
+          {inmueble.imagenPortada ? (
+            <img src={inmueble.imagenPortada} alt={inmueble.titulo} loading="lazy"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center"
+              style={{ background: 'linear-gradient(135deg, #004b98 0%, #0071b2 60%, #00b5c5 100%)' }}>
+              <span className="text-[rgba(255,255,255,0.4)] text-[11px] text-center px-4">Sin fotografía disponible</span>
+            </div>
           )}
-          {inmueble.habitaciones > 0 && (
-            <span className="flex items-center gap-[5px]">
-              <img src={imgBed} alt="" className="w-[13px] h-[13px]" aria-hidden="true" />
-              <span className="text-[#7a8187] text-[12px] font-medium">{inmueble.habitaciones} hab</span>
-            </span>
-          )}
-          <span className="flex items-center gap-[5px]">
-            <img src={imgType} alt="" className="w-[13px] h-[13px]" aria-hidden="true" />
-            <span className="text-[#7a8187] text-[12px] font-medium capitalize">{inmueble.tipoInmueble}</span>
+          {/* Badge operación */}
+          <span className={`absolute top-3.5 left-3.5 ${badgeBg} ${badgeTxt} text-[11px] font-bold tracking-[0.33px] px-3 py-1.5 rounded-full`}>
+            {operacion}
           </span>
-          {inmueble.estrato && (
-            <span className="text-[#7a8187] text-[12px] font-medium">Estrato {inmueble.estrato}</span>
-          )}
         </div>
-      </div>
+
+        {/* Info */}
+        <div className="flex flex-col gap-1 p-5">
+          {/* Precio */}
+          <p className="font-extrabold text-[#004b98] text-[20px] tracking-[-0.5px] leading-none">
+            {formatPrice(inmueble)}
+          </p>
+          {/* Título */}
+          <p className="font-bold text-[#001124] text-[15px] leading-snug mt-0.5 line-clamp-2">
+            {inmueble.titulo}
+          </p>
+          {/* Ubicación */}
+          <div className="flex items-center gap-[5px] pb-2.5">
+            <img src={imgPin} alt="" className="w-[13px] h-[13px] shrink-0" aria-hidden="true" />
+            <span className="text-[#7a8187] text-[13px] truncate">{inmueble.ubicacion}</span>
+          </div>
+          {/* Separador + specs */}
+          <div className="border-t border-[#e0e5e9] pt-[15px] flex flex-wrap gap-x-[14px] gap-y-1 items-center">
+            {inmueble.areaConstruidaM2 && (
+              <span className="flex items-center gap-[5px]">
+                <img src={imgArea} alt="" className="w-[13px] h-[13px]" aria-hidden="true" />
+                <span className="text-[#7a8187] text-[12px] font-medium">{inmueble.areaConstruidaM2} m²</span>
+              </span>
+            )}
+            {inmueble.habitaciones > 0 && (
+              <span className="flex items-center gap-[5px]">
+                <img src={imgBed} alt="" className="w-[13px] h-[13px]" aria-hidden="true" />
+                <span className="text-[#7a8187] text-[12px] font-medium">{inmueble.habitaciones} hab</span>
+              </span>
+            )}
+            <span className="flex items-center gap-[5px]">
+              <img src={imgType} alt="" className="w-[13px] h-[13px]" aria-hidden="true" />
+              <span className="text-[#7a8187] text-[12px] font-medium capitalize">{inmueble.tipoInmueble}</span>
+            </span>
+            {inmueble.estrato && (
+              <span className="text-[#7a8187] text-[12px] font-medium">Estrato {inmueble.estrato}</span>
+            )}
+          </div>
+        </div>
+      </Link>
+
+      {/* Botón favorito (fuera del Link a propósito, ver comentario arriba) */}
+      <button type="button" aria-label="Guardar en favoritos"
+        className="absolute top-3.5 right-3.5 w-8 h-8 rounded-2xl bg-[rgba(255,255,255,0.85)] flex items-center justify-center hover:bg-white transition-colors">
+        <img src={imgHeart} alt="" className="w-[15px] h-[15px]" aria-hidden="true" />
+      </button>
     </article>
   )
 }
