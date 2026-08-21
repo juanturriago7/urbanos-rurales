@@ -21,6 +21,7 @@ import { BlogAdminListPage } from '@/features/admin/blog/pages/BlogAdminListPage
 import { BlogAdminFormPage } from '@/features/admin/blog/pages/BlogAdminFormPage'
 import { BlogListPage } from '@/features/public/blog/pages/BlogListPage'
 import { BlogDetallePage } from '@/features/public/blog/pages/BlogDetallePage'
+import { QuienesSomosPage } from '@/features/public/institucional/pages/QuienesSomosPage'
 
 const router = createBrowserRouter([
   // ─── Rutas públicas ──────────────────────────────────────────────────────
@@ -32,6 +33,7 @@ const router = createBrowserRouter([
       { path: 'inmuebles/:slug', element: <InmuebleDetallePage /> },
       { path: 'blog', element: <BlogListPage /> },
       { path: 'blog/:slug', element: <BlogDetallePage /> },
+      { path: 'quienes-somos', element: <QuienesSomosPage /> },
       { path: 'properties', element: <div className="p-8">Propiedades — próximamente</div> },
       { path: 'search', element: <div className="p-8">Búsqueda — próximamente</div> },
     ],

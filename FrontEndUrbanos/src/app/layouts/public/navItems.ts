@@ -14,7 +14,7 @@ export interface NavItem {
 
 export const navItems: readonly NavItem[] = [
   { label: 'Inicio', to: '/' },
-  { label: 'Quiénes somos', to: '/', anchor: 'quienes-somos' },
+  { label: 'Quiénes somos', to: '/quienes-somos' },
   { label: 'Servicios', to: '/', anchor: 'servicios' },
   { label: 'Inmuebles', to: '/inmuebles' },
   { label: 'Blog', to: '/blog' },
