@@ -993,6 +993,12 @@ namespace Portal.Infrastructure.Migrations
                         .HasDefaultValue(true)
                         .HasColumnName("activo");
 
+                    b.Property<bool>("EsPropiedadHorizontal")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("es_propiedad_horizontal");
+
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasMaxLength(60)
@@ -1026,6 +1032,7 @@ namespace Portal.Infrastructure.Migrations
                         {
                             Id = 1,
                             Activo = true,
+                            EsPropiedadHorizontal = true,
                             Nombre = "Apartamento",
                             Orden = (short)1,
                             Slug = "apartamento"
@@ -1034,6 +1041,7 @@ namespace Portal.Infrastructure.Migrations
                         {
                             Id = 2,
                             Activo = true,
+                            EsPropiedadHorizontal = false,
                             Nombre = "Casa",
                             Orden = (short)2,
                             Slug = "casa"
@@ -1042,6 +1050,7 @@ namespace Portal.Infrastructure.Migrations
                         {
                             Id = 3,
                             Activo = true,
+                            EsPropiedadHorizontal = true,
                             Nombre = "Apartaestudio",
                             Orden = (short)3,
                             Slug = "apartaestudio"
@@ -1050,6 +1059,7 @@ namespace Portal.Infrastructure.Migrations
                         {
                             Id = 4,
                             Activo = true,
+                            EsPropiedadHorizontal = true,
                             Nombre = "Local",
                             Orden = (short)4,
                             Slug = "local"
@@ -1058,6 +1068,7 @@ namespace Portal.Infrastructure.Migrations
                         {
                             Id = 5,
                             Activo = true,
+                            EsPropiedadHorizontal = true,
                             Nombre = "Oficina",
                             Orden = (short)5,
                             Slug = "oficina"
@@ -1066,6 +1077,7 @@ namespace Portal.Infrastructure.Migrations
                         {
                             Id = 6,
                             Activo = true,
+                            EsPropiedadHorizontal = false,
                             Nombre = "Bodega",
                             Orden = (short)6,
                             Slug = "bodega"
@@ -1074,9 +1086,19 @@ namespace Portal.Infrastructure.Migrations
                         {
                             Id = 7,
                             Activo = true,
+                            EsPropiedadHorizontal = false,
                             Nombre = "Lote",
                             Orden = (short)7,
                             Slug = "lote"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Activo = true,
+                            EsPropiedadHorizontal = false,
+                            Nombre = "Edificio",
+                            Orden = (short)8,
+                            Slug = "edificio"
                         });
                 });
 

@@ -79,9 +79,10 @@ internal sealed class CatalogoRepository : ICatalogoRepository
     {
         const string sql = """
             SELECT
-                id     AS Id,
-                nombre AS Nombre,
-                slug   AS Slug
+                id                       AS Id,
+                nombre                   AS Nombre,
+                slug                     AS Slug,
+                es_propiedad_horizontal  AS EsPropiedadHorizontal
             FROM tipos_inmueble
             WHERE activo = TRUE
             ORDER BY orden, nombre

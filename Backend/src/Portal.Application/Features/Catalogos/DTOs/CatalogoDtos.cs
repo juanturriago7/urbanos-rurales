@@ -1,15 +1,7 @@
 namespace Portal.Application.Features.Catalogos.DTOs;
 
-public sealed record TipoInmuebleDto(int Id, string Nombre, string Slug);
-
-public sealed record CaracteristicaDto(
-    int Id, string Nombre, string? Icono, string TipoValor, bool Filtrable);
-
-/// <summary>Fila plana característica + categoría, para agrupar en el handler.</summary>
-public sealed record CaracteristicaPlanaDto(
-    int Id, string Nombre, string? Icono, string TipoValor, bool Filtrable,
-    int CategoriaId, string CategoriaNombre);
-
-/// <summary>Categoría con sus características (GET /api/catalogos/caracteristicas).</summary>
-public sealed record CategoriaCaracteristicasDto(
-    int Id, string Nombre, IReadOnlyList<CaracteristicaDto> Caracteristicas);
+// Tipos de inmueble y características se movieron a archivos propios
+// (`TiposInmuebleDtos.cs` y `CaracteristicasDtos.cs`) por las reglas de
+// no-conflicto del lote 2026-08-21 (ver Task/Specs/00-overview.md).
+// Este archivo queda intencionalmente vacío — quien mergee segundo borra
+// la reasignación con `git rm`.
