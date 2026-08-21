@@ -11,12 +11,19 @@ export interface TipoInmuebleDto {
 /**
  * Árbol zona → localidad → upz. Los barrios no viajan aquí (son miles una vez
  * cargado el dato real de Bogotá): se resuelven por nombre con `buscarUbicaciones`.
+ *
+ * `padreId` y `activo` los expone el backend; el árbol público solo trae activos,
+ * pero el tipo los modela desde el inicio para que el panel admin (que reutiliza
+ * este shape vía el endpoint `GET /api/admin/catalogos/ubicaciones`) pueda ver y
+ * operar nodos desactivados sin un segundo tipo paralelo.
  */
 export interface UbicacionDto {
   id: number
   tipo: 'zona' | 'localidad' | 'upz' | 'barrio'
   nombre: string
   slug: string
+  padreId: number | null
+  activo: boolean
   hijos: UbicacionDto[]
 }
 
