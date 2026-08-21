@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Portal.Application.Features.Catalogos.Ubicaciones.Commands.ActualizarUbicacion;
 using Portal.Application.Features.Catalogos.Ubicaciones.Commands.CrearUbicacion;
+using Portal.Application.Features.Catalogos.Ubicaciones.Commands.DesactivarUbicacion;
 
 namespace Portal.Api.Controllers;
 
@@ -39,6 +40,15 @@ public sealed class AdminUbicacionesController : ControllerBase
         if (id != command.Id) return BadRequest(Problema("El id de la ruta no coincide con el del cuerpo."));
 
         var result = await _mediator.Send(command, ct);
+        return result.IsSuccess ? NoContent() : BadRequest(Problema(result.Error));
+    }
+
+    [HttpDelete("{id:long}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Desactivar(long id, CancellationToken ct)
+    {
+        var result = await _mediator.Send(new DesactivarUbicacionCommand(id), ct);
         return result.IsSuccess ? NoContent() : BadRequest(Problema(result.Error));
     }
 
