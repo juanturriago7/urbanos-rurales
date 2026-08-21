@@ -5,7 +5,7 @@ public sealed record CaracteristicaDto(
 
 /// <summary>Fila plana característica + categoría, para agrupar en el handler.</summary>
 public sealed record CaracteristicaPlanaDto(
-    int Id, string Nombre, string? Icono, string TipoValor, bool Filtrable,
+    int Id, string Nombre, string? Icono, string TipoValor, bool Filtrable, bool Activo,
     int CategoriaId, string CategoriaNombre);
 
 /// <summary>Categoría con sus características (GET /api/catalogos/caracteristicas).</summary>
