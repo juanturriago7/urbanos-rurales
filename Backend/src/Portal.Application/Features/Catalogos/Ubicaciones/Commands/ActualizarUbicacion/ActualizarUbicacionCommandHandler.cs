@@ -1,6 +1,7 @@
 using MediatR;
 using Portal.Application.Common;
 using Portal.Application.Interfaces;
+using Portal.Domain.Enums;
 
 namespace Portal.Application.Features.Catalogos.Ubicaciones.Commands.ActualizarUbicacion;
 
@@ -19,6 +20,14 @@ public sealed class ActualizarUbicacionCommandHandler : IRequestHandler<Actualiz
         if (ubicacion is null)
         {
             return Result.Failure("La ubicación no existe.");
+        }
+
+        // Toda ubicación que no sea de tipo 'zona' requiere un padre. El Tipo
+        // es inmutable post-creación (no viaja en el Command), así que se lee
+        // del propio agregado ya cargado, no del request.
+        if (ubicacion.Tipo != TipoUbicacion.Zona && request.PadreId is null)
+        {
+            return Result.Failure("Toda ubicación que no sea de tipo 'zona' requiere un padre.");
         }
 
         // Anti-ciclo: si se está reubicando, el nuevo padre no puede ser
