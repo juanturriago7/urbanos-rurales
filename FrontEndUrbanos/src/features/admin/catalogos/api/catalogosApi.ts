@@ -6,6 +6,14 @@ export interface TipoInmuebleDto {
   id: number
   nombre: string
   slug: string
+  /**
+   * Si true, el tipo es una unidad dentro de un edificio/conjunto con áreas
+   * comunes administradas (apartamento, oficina, local). La spec 03 lo usa
+   * para mostrar/ocultar el campo "área de terreno" en la ficha del inmueble.
+   */
+  esPropiedadHorizontal: boolean
+  /** Si false, el tipo existe pero no se ofrece en selectores públicos. */
+  activo: boolean
 }
 
 /**
@@ -42,6 +50,8 @@ export interface CaracteristicaDto {
   icono: string | null
   tipoValor: 'booleano' | 'numero' | 'texto'
   filtrable: boolean
+  /** Si false, la característica existe pero no se ofrece en selectores públicos. */
+  activo: boolean
 }
 
 export interface CategoriaCaracteristicaDto {

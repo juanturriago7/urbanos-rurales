@@ -9,6 +9,8 @@ const navItems = [
   { to: '/admin/media', label: 'Multimedia' },
   { to: '/admin/users', label: 'Usuarios' },
   { to: '/admin/catalogos/ubicaciones', label: 'Ubicaciones' },
+  { to: '/admin/catalogos/tipos-inmueble', label: 'Tipos de inmueble' },
+  { to: '/admin/catalogos/caracteristicas', label: 'Características' },
 ]
 
 /**

@@ -16,17 +16,22 @@ internal sealed class TipoInmuebleConfiguration : IEntityTypeConfiguration<TipoI
         builder.Property(t => t.Slug).HasColumnName("slug").HasMaxLength(70).IsRequired();
         builder.Property(t => t.Activo).HasColumnName("activo").IsRequired().HasDefaultValue(true);
         builder.Property(t => t.Orden).HasColumnName("orden").IsRequired().HasDefaultValue((short)0);
+        builder.Property(t => t.EsPropiedadHorizontal)
+            .HasColumnName("es_propiedad_horizontal")
+            .IsRequired()
+            .HasDefaultValue(true);
 
         builder.HasIndex(t => t.Nombre).IsUnique();
         builder.HasIndex(t => t.Slug).IsUnique();
 
         builder.HasData(
-            new { Id = 1, Nombre = "Apartamento", Slug = "apartamento", Activo = true, Orden = (short)1 },
-            new { Id = 2, Nombre = "Casa", Slug = "casa", Activo = true, Orden = (short)2 },
-            new { Id = 3, Nombre = "Apartaestudio", Slug = "apartaestudio", Activo = true, Orden = (short)3 },
-            new { Id = 4, Nombre = "Local", Slug = "local", Activo = true, Orden = (short)4 },
-            new { Id = 5, Nombre = "Oficina", Slug = "oficina", Activo = true, Orden = (short)5 },
-            new { Id = 6, Nombre = "Bodega", Slug = "bodega", Activo = true, Orden = (short)6 },
-            new { Id = 7, Nombre = "Lote", Slug = "lote", Activo = true, Orden = (short)7 });
+            new { Id = 1, Nombre = "Apartamento", Slug = "apartamento", Activo = true, Orden = (short)1, EsPropiedadHorizontal = true },
+            new { Id = 2, Nombre = "Casa", Slug = "casa", Activo = true, Orden = (short)2, EsPropiedadHorizontal = false },
+            new { Id = 3, Nombre = "Apartaestudio", Slug = "apartaestudio", Activo = true, Orden = (short)3, EsPropiedadHorizontal = true },
+            new { Id = 4, Nombre = "Local", Slug = "local", Activo = true, Orden = (short)4, EsPropiedadHorizontal = true },
+            new { Id = 5, Nombre = "Oficina", Slug = "oficina", Activo = true, Orden = (short)5, EsPropiedadHorizontal = true },
+            new { Id = 6, Nombre = "Bodega", Slug = "bodega", Activo = true, Orden = (short)6, EsPropiedadHorizontal = false },
+            new { Id = 7, Nombre = "Lote", Slug = "lote", Activo = true, Orden = (short)7, EsPropiedadHorizontal = false },
+            new { Id = 8, Nombre = "Edificio", Slug = "edificio", Activo = true, Orden = (short)8, EsPropiedadHorizontal = false });
     }
 }

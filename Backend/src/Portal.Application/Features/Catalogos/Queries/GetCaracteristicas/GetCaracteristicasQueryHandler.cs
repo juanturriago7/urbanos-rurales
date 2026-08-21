@@ -24,7 +24,7 @@ public sealed class GetCaracteristicasQueryHandler
             .Select(g => new CategoriaCaracteristicasDto(
                 g.Key.CategoriaId,
                 g.Key.CategoriaNombre,
-                g.Select(f => new CaracteristicaDto(f.Id, f.Nombre, f.Icono, f.TipoValor, f.Filtrable))
+                g.Select(f => new CaracteristicaDto(f.Id, f.Nombre, f.Icono, f.TipoValor, f.Filtrable, f.Activo))
                  .ToList()))
             .ToList();
     }
