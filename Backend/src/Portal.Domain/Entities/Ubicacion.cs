@@ -58,4 +58,15 @@ public sealed class Ubicacion
     public void Activar() => Activo = true;
 
     public void Desactivar() => Activo = false;
+
+    public void Reubicar(long? nuevoPadreId)
+    {
+        if (Tipo != TipoUbicacion.Zona && nuevoPadreId is null)
+        {
+            throw new ArgumentException(
+                $"Una ubicación de tipo '{Tipo}' requiere una ubicación padre.", nameof(nuevoPadreId));
+        }
+
+        PadreId = nuevoPadreId;
+    }
 }

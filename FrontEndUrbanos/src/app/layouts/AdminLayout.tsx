@@ -8,6 +8,7 @@ const navItems = [
   { to: '/admin/leads', label: 'Leads' },
   { to: '/admin/media', label: 'Multimedia' },
   { to: '/admin/users', label: 'Usuarios' },
+  { to: '/admin/catalogos/ubicaciones', label: 'Ubicaciones' },
 ]
 
 /**

@@ -2,23 +2,22 @@ using MediatR;
 using Portal.Application.Features.Catalogos.DTOs;
 using Portal.Application.Interfaces;
 
-namespace Portal.Application.Features.Catalogos.Queries.GetUbicaciones;
+namespace Portal.Application.Features.Catalogos.Queries.GetUbicacionesAdmin;
 
-/// <summary>Arma el árbol zona → localidad → upz → barrio a partir de las filas planas.</summary>
-public sealed class GetUbicacionesQueryHandler
-    : IRequestHandler<GetUbicacionesQuery, IReadOnlyList<UbicacionNodoDto>>
+public sealed class GetUbicacionesAdminQueryHandler
+    : IRequestHandler<GetUbicacionesAdminQuery, IReadOnlyList<UbicacionNodoDto>>
 {
-    private readonly ICatalogoRepository _catalogos;
+    private readonly IUbicacionAdminRepository _repo;
 
-    public GetUbicacionesQueryHandler(ICatalogoRepository catalogos)
+    public GetUbicacionesAdminQueryHandler(IUbicacionAdminRepository repo)
     {
-        _catalogos = catalogos;
+        _repo = repo;
     }
 
     public async Task<IReadOnlyList<UbicacionNodoDto>> Handle(
-        GetUbicacionesQuery request, CancellationToken ct)
+        GetUbicacionesAdminQuery request, CancellationToken ct)
     {
-        var filas = await _catalogos.GetUbicacionesAsync(ct);
+        var filas = await _repo.GetAllNoBarrioAsync(ct);
 
         var nodos = filas.ToDictionary(
             f => f.Id,

@@ -27,7 +27,8 @@ internal sealed class CatalogoRepository : ICatalogoRepository
                 tipo::text AS Tipo,
                 nombre     AS Nombre,
                 slug       AS Slug,
-                padre_id   AS PadreId
+                padre_id   AS PadreId,
+                activo     AS Activo
             FROM ubicaciones
             WHERE activo = TRUE AND tipo <> 'barrio'
             ORDER BY tipo, nombre
