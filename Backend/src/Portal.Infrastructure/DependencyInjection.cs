@@ -35,6 +35,7 @@ public static class DependencyInjection
         services.AddScoped<ITipoInmuebleAdminRepository, TipoInmuebleAdminRepository>();
         services.AddScoped<ICaracteristicaAdminRepository, CaracteristicaAdminRepository>();
         services.AddScoped<IArticuloBlogRepository, ArticuloBlogRepository>();
+        services.AddScoped<IPostulacionLaboralRepository, PostulacionLaboralRepository>();
         services.AddScoped<IInmuebleRepository, InmuebleRepository>();
         services.AddScoped<IInmueblePublicoRepository, InmueblePublicoRepository>();
         services.AddScoped<ILeadRepository, LeadRepository>();
