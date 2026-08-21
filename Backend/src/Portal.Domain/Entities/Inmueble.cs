@@ -18,15 +18,20 @@ public sealed class Inmueble
     public int TipoInmuebleId { get; private set; }
     public long UbicacionId { get; private set; }
 
-    // Dirección pública aproximada vs. privada exacta (RF-044)
+    // Dirección privada del admin (RF-044); el público ve la cadena de ubicación
+    // jerárquica, nunca esta dirección exacta.
     public string DireccionExacta { get; private set; } = default!;
-    public decimal? LatitudExacta { get; private set; }
-    public decimal? LongitudExacta { get; private set; }
-    public decimal? LatitudAproximada { get; private set; }
-    public decimal? LongitudAproximada { get; private set; }
 
+    /// <summary>Obligatoria si el tipo no es propiedad horizontal (spec 03).</summary>
+    public decimal? AreaTerrenoM2 { get; private set; }
     public decimal? AreaConstruidaM2 { get; private set; }
     public decimal? AreaPrivadaM2 { get; private set; }
+
+    /// <summary>URL de YouTube (recorrido virtual / dron / etc.) — spec 03.</summary>
+    public string? YoutubeUrl { get; private set; }
+
+    /// <summary>URL de embed de Google Maps (https://www.google.com/maps/embed...) — spec 03.</summary>
+    public string? MapaEmbedUrl { get; private set; }
     public short Habitaciones { get; private set; }
     public short Banos { get; private set; }
     public short Parqueaderos { get; private set; }
@@ -67,8 +72,11 @@ public sealed class Inmueble
         int tipoInmuebleId,
         long ubicacionId,
         string direccionExacta,
-        decimal? latitudAproximada = null,
-        decimal? longitudAproximada = null,
+        decimal? areaTerrenoM2 = null,
+        decimal? areaConstruidaM2 = null,
+        decimal? areaPrivadaM2 = null,
+        string? youtubeUrl = null,
+        string? mapaEmbedUrl = null,
         long? asesorId = null,
         long? creadoPor = null)
     {
@@ -90,8 +98,11 @@ public sealed class Inmueble
             TipoInmuebleId = tipoInmuebleId,
             UbicacionId = ubicacionId,
             DireccionExacta = direccionExacta.Trim(),
-            LatitudAproximada = latitudAproximada,
-            LongitudAproximada = longitudAproximada,
+            AreaTerrenoM2 = areaTerrenoM2,
+            AreaConstruidaM2 = areaConstruidaM2,
+            AreaPrivadaM2 = areaPrivadaM2,
+            YoutubeUrl = youtubeUrl?.Trim(),
+            MapaEmbedUrl = mapaEmbedUrl?.Trim(),
             PoliticaMascotas = PoliticaMascotas.NoPermitidas,
             Amoblado = "no",
             Estado = EstadoInmueble.Borrador,
@@ -110,12 +121,11 @@ public sealed class Inmueble
         int tipoInmuebleId,
         long ubicacionId,
         string direccionExacta,
-        decimal? latitudAproximada,
-        decimal? longitudAproximada,
-        decimal? latitudExacta,
-        decimal? longitudExacta,
+        decimal? areaTerrenoM2,
         decimal? areaConstruidaM2,
         decimal? areaPrivadaM2,
+        string? youtubeUrl,
+        string? mapaEmbedUrl,
         short habitaciones,
         short banos,
         short parqueaderos,
@@ -144,12 +154,11 @@ public sealed class Inmueble
         TipoInmuebleId = tipoInmuebleId;
         UbicacionId = ubicacionId;
         DireccionExacta = direccionExacta.Trim();
-        LatitudAproximada = latitudAproximada;
-        LongitudAproximada = longitudAproximada;
-        LatitudExacta = latitudExacta;
-        LongitudExacta = longitudExacta;
+        AreaTerrenoM2 = areaTerrenoM2;
         AreaConstruidaM2 = areaConstruidaM2;
         AreaPrivadaM2 = areaPrivadaM2;
+        YoutubeUrl = youtubeUrl?.Trim();
+        MapaEmbedUrl = mapaEmbedUrl?.Trim();
         Habitaciones = habitaciones;
         Banos = banos;
         Parqueaderos = parqueaderos;

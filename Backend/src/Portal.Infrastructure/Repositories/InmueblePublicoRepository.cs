@@ -25,6 +25,7 @@ internal sealed class InmueblePublicoRepository : IInmueblePublicoRepository
             i.habitaciones        AS Habitaciones,
             i.banos               AS Banos,
             i.parqueaderos        AS Parqueaderos,
+            i.area_terreno_m2     AS AreaTerrenoM2,
             i.area_construida_m2  AS AreaConstruidaM2,
             i.estrato             AS Estrato,
             i.destacado           AS Destacado,
@@ -38,9 +39,7 @@ internal sealed class InmueblePublicoRepository : IInmueblePublicoRepository
                                   AS PrecioArriendo,
             (SELECT im.url_cdn FROM imagenes im
              WHERE im.inmueble_id = i.id AND im.es_portada = TRUE LIMIT 1)
-                                  AS ImagenPortada,
-            i.latitud_aproximada  AS LatitudAproximada,
-            i.longitud_aproximada AS LongitudAproximada
+                                  AS ImagenPortada
         FROM inmuebles i
         INNER JOIN tipos_inmueble ti ON ti.id = i.tipo_inmueble_id
         INNER JOIN ubicaciones u ON u.id = i.ubicacion_id
@@ -205,11 +204,13 @@ internal sealed class InmueblePublicoRepository : IInmueblePublicoRepository
                 i.descripcion            AS Descripcion,
                 ti.nombre                AS TipoInmueble,
                 i.tipo_inmueble_id       AS TipoInmuebleId,
+                ti.es_propiedad_horizontal AS EsPropiedadHorizontal,
                 i.ubicacion_id           AS UbicacionId,
-                i.latitud_aproximada     AS LatitudAproximada,
-                i.longitud_aproximada    AS LongitudAproximada,
+                i.area_terreno_m2        AS AreaTerrenoM2,
                 i.area_construida_m2     AS AreaConstruidaM2,
                 i.area_privada_m2        AS AreaPrivadaM2,
+                i.youtube_url            AS YoutubeUrl,
+                i.mapa_embed_url         AS MapaEmbedUrl,
                 i.habitaciones           AS Habitaciones,
                 i.banos                  AS Banos,
                 i.parqueaderos           AS Parqueaderos,

@@ -216,6 +216,16 @@ export function InmuebleDetallePage() {
 
               {/* Specs */}
               <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 rounded-[16px] border border-[#d8dfe4] bg-white px-6 py-5">
+                {/* Spec 03 — área de terreno si no es PH; área construida si es PH.
+                    Backend garantiza que el campo correcto viene poblado. */}
+                {!inmueble.esPropiedadHorizontal && inmueble.areaTerrenoM2 && (
+                  <span className="flex items-center gap-[7px] text-[#001124]">
+                    <Ruler className="h-4 w-4" aria-hidden="true" />
+                    <span className="text-[13px] font-medium text-[#001124]">
+                      {inmueble.areaTerrenoM2} m² de terreno
+                    </span>
+                  </span>
+                )}
                 {inmueble.areaConstruidaM2 && (
                   <span className="flex items-center gap-[7px] text-[#001124]">
                     <Ruler className="h-4 w-4" aria-hidden="true" />
@@ -253,6 +263,52 @@ export function InmuebleDetallePage() {
                   <p className="mt-3 text-[14px] leading-[1.75] whitespace-pre-line text-[#44403c]">
                     {inmueble.descripcion}
                   </p>
+                </div>
+              )}
+
+              {/* Spec 03 — video (YouTube embebido) */}
+              {inmueble.youtubeUrl && (() => {
+                // Acepta watch?v=, youtu.be/, /embed/, /shorts/. Extrae el ID.
+                const id = (() => {
+                  try {
+                    const u = new URL(inmueble.youtubeUrl)
+                    if (u.hostname.includes('youtu.be')) return u.pathname.slice(1)
+                    if (u.pathname.startsWith('/embed/')) return u.pathname.slice(7)
+                    if (u.pathname.startsWith('/shorts/')) return u.pathname.slice(8)
+                    return u.searchParams.get('v') ?? ''
+                  } catch { return '' }
+                })()
+                if (!id) return null
+                return (
+                  <div className="mt-8">
+                    <h2 className="text-[17px] font-bold text-[#001124]">Video</h2>
+                    <div className="relative mt-3 overflow-hidden rounded-[16px] border border-[#d8dfe4] bg-white"
+                      style={{ aspectRatio: '16/9' }}>
+                      <iframe
+                        src={`https://www.youtube.com/embed/${id}`}
+                        title="Video del inmueble"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="absolute inset-0 h-full w-full"
+                      />
+                    </div>
+                  </div>
+                )
+              })()}
+
+              {/* Spec 03 — ubicación en mapa (Google Maps embed) */}
+              {inmueble.mapaEmbedUrl && (
+                <div className="mt-8">
+                  <h2 className="text-[17px] font-bold text-[#001124]">Ubicación</h2>
+                  <div className="relative mt-3 overflow-hidden rounded-[16px] border border-[#d8dfe4] bg-white"
+                    style={{ aspectRatio: '16/9' }}>
+                    <iframe
+                      src={inmueble.mapaEmbedUrl}
+                      title="Ubicación del inmueble"
+                      loading="lazy"
+                      className="absolute inset-0 h-full w-full"
+                    />
+                  </div>
                 </div>
               )}
 

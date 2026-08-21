@@ -16,14 +16,13 @@ export interface InmueblePublicoListItemDto {
   habitaciones: number
   banos: number
   parqueaderos: number
+  areaTerrenoM2: number | null
   areaConstruidaM2: number | null
   estrato: number | null
   destacado: boolean
   precioVenta: number | null
   precioArriendo: number | null
   imagenPortada: string | null
-  latitudAproximada: number | null
-  longitudAproximada: number | null
 }
 
 export interface FiltroInmueblesPublico {
@@ -100,11 +99,18 @@ export interface InmueblePublicoDetalleDto {
   descripcion: string | null
   tipoInmueble: string
   tipoInmuebleId: number
+  /**
+   * Spec 03 — el frontend público lo usa para decidir si muestra
+   * areaTerrenoM2 o areaConstruidaM2 sin tener que cargar el catálogo
+   * de tipos.
+   */
+  esPropiedadHorizontal: boolean
   ubicacionId: number
-  latitudAproximada: number | null
-  longitudAproximada: number | null
+  areaTerrenoM2: number | null
   areaConstruidaM2: number | null
   areaPrivadaM2: number | null
+  youtubeUrl: string | null
+  mapaEmbedUrl: string | null
   habitaciones: number
   banos: number
   parqueaderos: number
