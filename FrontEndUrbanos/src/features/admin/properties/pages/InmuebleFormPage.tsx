@@ -58,15 +58,27 @@ const inmuebleSchema = z
       .min(1, 'La dirección es obligatoria')
       .max(200, 'Máximo 200 caracteres'),
 
-    latitudAproximada: numeroRequerido
-      .refine((v) => !Number.isNaN(v), 'La latitud es obligatoria')
-      .refine((v) => v >= -90 && v <= 90, 'Debe estar entre -90 y 90'),
-    longitudAproximada: numeroRequerido
-      .refine((v) => !Number.isNaN(v), 'La longitud es obligatoria')
-      .refine((v) => v >= -180 && v <= 180, 'Debe estar entre -180 y 180'),
-
+    // Spec 03 — lat/long eliminados; el mapa ahora es un embed de Google Maps.
+    areaTerrenoM2: numeroOpcional.refine((v) => v === null || v > 0, 'Debe ser mayor que 0'),
     areaConstruidaM2: numeroOpcional.refine((v) => v === null || v > 0, 'Debe ser mayor que 0'),
     areaPrivadaM2: numeroOpcional.refine((v) => v === null || v > 0, 'Debe ser mayor que 0'),
+
+    youtubeUrl: z
+      .string()
+      .trim()
+      .optional()
+      .refine(
+        (v) => !v || v.includes('youtube.com') || v.includes('youtu.be'),
+        'El link debe ser una URL de YouTube.',
+      ),
+    mapaEmbedUrl: z
+      .string()
+      .trim()
+      .optional()
+      .refine(
+        (v) => !v || v.startsWith('https://www.google.com/maps/embed'),
+        'Debe ser una URL de embed de Google Maps (https://www.google.com/maps/embed...).',
+      ),
 
     habitaciones: numeroRequerido.refine((v) => v >= 0, 'No puede ser negativo'),
     banos: numeroRequerido.refine((v) => v >= 0, 'No puede ser negativo'),
@@ -184,10 +196,11 @@ export function InmuebleFormPage() {
       tipoInmuebleId: datos.tipoInmuebleId,
       ubicacionId: datos.ubicacionId,
       direccionExacta: datos.direccionExacta,
-      latitudAproximada: datos.latitudAproximada,
-      longitudAproximada: datos.longitudAproximada,
+      areaTerrenoM2: datos.areaTerrenoM2,
       areaConstruidaM2: datos.areaConstruidaM2,
       areaPrivadaM2: datos.areaPrivadaM2,
+      youtubeUrl: datos.youtubeUrl,
+      mapaEmbedUrl: datos.mapaEmbedUrl,
       habitaciones: datos.habitaciones,
       banos: datos.banos,
       parqueaderos: datos.parqueaderos,
@@ -330,7 +343,7 @@ export function InmuebleFormPage() {
           </Seccion>
 
           {/* ── Ubicación física ─────────────────────────────────────────────── */}
-          <Seccion titulo="Dirección y coordenadas">
+          <Seccion titulo="Dirección y ubicación en mapa">
             <Input
               label="Dirección exacta"
               required
@@ -341,22 +354,12 @@ export function InmuebleFormPage() {
               {...register('direccionExacta')}
             />
             <Input
-              label="Latitud aproximada"
-              required
-              type="number"
-              step="any"
-              placeholder="4.6486"
-              error={errors.latitudAproximada?.message}
-              {...register('latitudAproximada')}
-            />
-            <Input
-              label="Longitud aproximada"
-              required
-              type="number"
-              step="any"
-              placeholder="-74.0628"
-              error={errors.longitudAproximada?.message}
-              {...register('longitudAproximada')}
+              label="URL de embed de Google Maps"
+              placeholder="https://www.google.com/maps/embed?pb=..."
+              wrapperClassName="sm:col-span-2"
+              hint='En Google Maps: Compartir → Insertar un mapa → copia el link que empieza por https://www.google.com/maps/embed...'
+              error={errors.mapaEmbedUrl?.message}
+              {...register('mapaEmbedUrl')}
             />
           </Seccion>
 
@@ -365,6 +368,19 @@ export function InmuebleFormPage() {
             titulo="Ficha técnica"
             gridClassName="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
           >
+            {/* Spec 03 — campo "Área de terreno" primero; el backend exige este
+                campo si el tipo no es PH. La UI lo muestra siempre; la regla
+                cruzada (PH → terreno requerido) vive en el backend por
+                simplicidad (el validator no tiene acceso a tipos_inmueble). */}
+            <Input
+              label="Área de terreno (m²)"
+              type="number"
+              step="0.01"
+              placeholder="0"
+              hint="Obligatoria para tipos no-PH (casa, lote, edificio)."
+              error={errors.areaTerrenoM2?.message}
+              {...register('areaTerrenoM2')}
+            />
             <Input
               label="Área construida (m²)"
               type="number"
@@ -378,6 +394,13 @@ export function InmuebleFormPage() {
               step="0.01"
               error={errors.areaPrivadaM2?.message}
               {...register('areaPrivadaM2')}
+            />
+            <Input
+              label="Link de YouTube (recorrido virtual)"
+              placeholder="https://www.youtube.com/watch?v=..."
+              wrapperClassName="sm:col-span-2"
+              error={errors.youtubeUrl?.message}
+              {...register('youtubeUrl')}
             />
             <Input
               label="Habitaciones"

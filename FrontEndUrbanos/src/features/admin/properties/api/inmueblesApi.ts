@@ -45,12 +45,12 @@ export interface InmuebleDatosInput {
   tipoInmuebleId: number
   ubicacionId: number
   direccionExacta: string
-  latitudExacta?: number | null
-  longitudExacta?: number | null
-  latitudAproximada?: number | null
-  longitudAproximada?: number | null
+  /** Spec 03 — obligatoria si el tipo no es PH (validación cruzada en backend). */
+  areaTerrenoM2?: number | null
   areaConstruidaM2?: number | null
   areaPrivadaM2?: number | null
+  youtubeUrl?: string | null
+  mapaEmbedUrl?: string | null
   habitaciones: number
   banos: number
   parqueaderos: number
