@@ -76,5 +76,6 @@ public sealed record InmueblesFiltro(
     bool? Mascotas,           // true = permitidas o con restricciones
     short? Estrato,
     bool? AdminIncluida,
+    IReadOnlyList<int>? CaracteristicaIds,  // AND: el inmueble debe tenerlas todas
     string? Q,                // texto libre (RF-025)
     string? Orden);           // reciente | precio_asc | precio_desc | area_asc | area_desc

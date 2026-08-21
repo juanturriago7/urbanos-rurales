@@ -43,6 +43,7 @@ public sealed class InmueblesController : ControllerBase
         [FromQuery] bool? mascotas,
         [FromQuery] short? estrato,
         [FromQuery(Name = "admin_incluida")] bool? adminIncluida,
+        [FromQuery(Name = "caracteristica_ids")] int[]? caracteristicaIds,
         [FromQuery] string? q,
         [FromQuery] string? orden,
         [FromQuery] int page = 1,
@@ -51,7 +52,9 @@ public sealed class InmueblesController : ControllerBase
     {
         var filtro = new InmueblesFiltro(
             operacion, tipo, ubicacionId, precioMin, precioMax, areaMin, areaMax,
-            habitaciones, banos, parqueaderos, mascotas, estrato, adminIncluida, q, orden);
+            habitaciones, banos, parqueaderos, mascotas, estrato, adminIncluida,
+            caracteristicaIds is { Length: > 0 } ? caracteristicaIds : null,
+            q, orden);
 
         return Ok(await _mediator.Send(
             new BuscarInmueblesQuery(filtro, new PaginationParams(page, pageSize)), ct));

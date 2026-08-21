@@ -30,5 +30,7 @@ public sealed class BuscarInmueblesQueryValidator : AbstractValidator<BuscarInmu
             .InclusiveBetween((short)1, (short)6)
             .When(x => x.Filtro.Estrato is not null);
         RuleFor(x => x.Filtro.Q).MaximumLength(200);
+        RuleForEach(x => x.Filtro.CaracteristicaIds).GreaterThan(0)
+            .When(x => x.Filtro.CaracteristicaIds is not null);
     }
 }

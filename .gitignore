@@ -88,3 +88,6 @@ $RECYCLE.BIN/
 
 # Subagent-driven-development scratch workspace
 .superpowers/
+
+# Worktrees de Claude Code (ramas aisladas en .claude/worktrees/<slug>)
+.claude/worktrees/
