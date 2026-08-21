@@ -62,12 +62,11 @@ public sealed class InmuebleAdminDetalleDto
     public int TipoInmuebleId { get; init; }
     public long UbicacionId { get; init; }
     public string DireccionExacta { get; init; } = default!;
-    public decimal? LatitudExacta { get; init; }
-    public decimal? LongitudExacta { get; init; }
-    public decimal? LatitudAproximada { get; init; }
-    public decimal? LongitudAproximada { get; init; }
+    public decimal? AreaTerrenoM2 { get; init; }
     public decimal? AreaConstruidaM2 { get; init; }
     public decimal? AreaPrivadaM2 { get; init; }
+    public string? YoutubeUrl { get; init; }
+    public string? MapaEmbedUrl { get; init; }
     public short Habitaciones { get; init; }
     public short Banos { get; init; }
     public short Parqueaderos { get; init; }

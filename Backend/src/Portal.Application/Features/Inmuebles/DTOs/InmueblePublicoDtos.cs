@@ -12,14 +12,13 @@ public sealed record InmueblePublicoListItemDto(
     short Habitaciones,
     short Banos,
     short Parqueaderos,
+    decimal? AreaTerrenoM2,
     decimal? AreaConstruidaM2,
     short? Estrato,
     bool Destacado,
     decimal? PrecioVenta,
     decimal? PrecioArriendo,
-    string? ImagenPortada,
-    decimal? LatitudAproximada,
-    decimal? LongitudAproximada);
+    string? ImagenPortada);
 
 /// <summary>Nivel de la jerarquía de ubicación para el breadcrumb (zona → … → barrio).</summary>
 public sealed record UbicacionRefDto(long Id, string Tipo, string Nombre, string Slug);
@@ -33,11 +32,13 @@ public sealed class InmueblePublicoDetalleDto
     public string? Descripcion { get; init; }
     public string TipoInmueble { get; init; } = default!;
     public int TipoInmuebleId { get; init; }
+    public bool EsPropiedadHorizontal { get; init; }
     public long UbicacionId { get; init; }
-    public decimal? LatitudAproximada { get; init; }
-    public decimal? LongitudAproximada { get; init; }
+    public decimal? AreaTerrenoM2 { get; init; }
     public decimal? AreaConstruidaM2 { get; init; }
     public decimal? AreaPrivadaM2 { get; init; }
+    public string? YoutubeUrl { get; init; }
+    public string? MapaEmbedUrl { get; init; }
     public short Habitaciones { get; init; }
     public short Banos { get; init; }
     public short Parqueaderos { get; init; }
