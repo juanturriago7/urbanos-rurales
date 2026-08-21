@@ -1,30 +1,29 @@
+import {
+  ArrowRight,
+  Award,
+  Briefcase,
+  Building2,
+  Calculator,
+  Calendar,
+  ClipboardList,
+  Clock,
+  Compass,
+  Handshake,
+  Mail,
+  Map,
+  MapPin,
+  Phone,
+  Scale,
+  Search,
+  ShieldCheck,
+  Users,
+} from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 // TODO: re-habilitar cuando el backend esté corriendo en dev
 // import { PublicacionesDestacadas } from '@/features/public/properties/components/PublicacionesDestacadas'
+import { WhatsAppIcon } from '@/shared/components/icons/WhatsAppIcon'
 import { site } from '@/shared/config/site'
-
-/* ── Assets de Figma (SVG icons) ──────────────────────────────── */
-const imgSvgSearch = 'https://www.figma.com/api/mcp/asset/1547ad5a-1fa3-4131-9f4a-a6cb90bda559.svg'
-const imgSvgOps    = 'https://www.figma.com/api/mcp/asset/64b9cf09-2dcb-4532-9337-91623c0aac27.svg'
-const imgSvgYears  = 'https://www.figma.com/api/mcp/asset/52c89b3b-dde2-4db8-b0b5-ee5c2eb72d73.svg'
-const imgSvgClients= 'https://www.figma.com/api/mcp/asset/5d5ae0a1-b195-4e85-bef1-bb8fe3233bc7.svg'
-const imgSvgIso    = 'https://www.figma.com/api/mcp/asset/858f9c53-9924-4d13-ada2-a8f7b1282585.svg'
-const imgSvgNational='https://www.figma.com/api/mcp/asset/ee4e2a61-ca31-4e3c-91dd-237a85c1977d.svg'
-const imgSvgEtica  = 'https://www.figma.com/api/mcp/asset/2b2316b5-4e3d-469b-a59b-a8114fa5dcf8.svg'
-const imgSvgConsult= 'https://www.figma.com/api/mcp/asset/4f0265b6-6aea-4b6d-8922-58cbc03cc562.svg'
-const imgSvgGestion= 'https://www.figma.com/api/mcp/asset/ec4e37ac-7a4e-412e-b4d9-5ba8982551a5.svg'
-const imgSvgAvaluo = 'https://www.figma.com/api/mcp/asset/4abb8b36-5552-4eeb-9cff-fd582a3d79cb.svg'
-const imgSvgTopo   = 'https://www.figma.com/api/mcp/asset/1336a4d6-c65a-4f8c-a8d6-4c3a0ccc49ff.svg'
-const imgSvgComercial='https://www.figma.com/api/mcp/asset/ca5c6b30-5be1-416a-a871-5bc9c39dfaee.svg'
-const imgSvgArrow  = 'https://www.figma.com/api/mcp/asset/6772db8b-d8e0-40c1-acef-4bb608f30a40.svg'
-const imgSvgArrowW = 'https://www.figma.com/api/mcp/asset/e6ef4372-8c7e-4190-bf16-d5233d4d6536.svg'
-const imgSvgCert   = 'https://www.figma.com/api/mcp/asset/460e8e2f-7657-400b-8d80-e0f0d6cb9693.svg'
-const imgSvgMapPin = 'https://www.figma.com/api/mcp/asset/3909ca38-f330-45dc-a812-52967e997f43.svg'
-const imgSvgPhone  = 'https://www.figma.com/api/mcp/asset/0e814cb6-6933-40e7-b1bd-24b2e3e9fd34.svg'
-const imgSvgMail   = 'https://www.figma.com/api/mcp/asset/4ae76a8a-5e35-4c70-80c6-fecd331a38ae.svg'
-const imgSvgClock  = 'https://www.figma.com/api/mcp/asset/e0114568-2df1-4ddd-806d-e8f5c68ca25b.svg'
-const imgSvgWA     = 'https://www.figma.com/api/mcp/asset/6eb253b5-42c2-44b0-9cf4-3ad7d46fcaa9.svg'
 
 /* ── Reveal on scroll ─────────────────────────────────────────── */
 function useReveal() {
@@ -54,13 +53,13 @@ const CLIENTES = [
 
 /* ── Servicios ─────────────────────────────────────────────────── */
 const SERVICIOS = [
-  { num: '01', icon: imgSvgConsult, titulo: 'Consultoría y Asesoría Predial',
+  { num: '01', Icon: ClipboardList, titulo: 'Consultoría y Asesoría Predial',
     desc: 'Procesos de consultoría y asesoría en ingeniería, derecho, economía y otras especialidades para entidades públicas y privadas.' },
-  { num: '02', icon: imgSvgGestion, titulo: 'Gestión Predial Integral',
+  { num: '02', Icon: Briefcase, titulo: 'Gestión Predial Integral',
     desc: 'Acompañamiento estricto en la adquisición predial integral a entidades públicas y privadas, brindando asesoría completa.' },
-  { num: '03', icon: imgSvgAvaluo,  titulo: 'Avalúos',
+  { num: '03', Icon: Calculator,  titulo: 'Avalúos',
     desc: 'Realización de avalúos con un equipo de especialistas altamente calificados y con certificación a lo largo del territorio nacional.' },
-  { num: '04', icon: imgSvgTopo,    titulo: 'Topografía',
+  { num: '04', Icon: Compass,    titulo: 'Topografía',
     desc: 'Levantamientos topográficos y servicios cartográficos a entidades privadas y particulares con cobertura nacional.' },
 ]
 
@@ -142,7 +141,7 @@ export function HomePage() {
             <div className="reveal flex flex-wrap gap-3 pt-4">
               <Link to="/inmuebles"
                 className="inline-flex items-center gap-2 bg-[#00b5c5] text-[#001124] font-bold text-[14px] px-7 py-[15px] rounded-[10px] hover:bg-[#00a0b0] transition-colors duration-200">
-                <img src={imgSvgSearch} alt="" className="w-4 h-4" aria-hidden="true" />
+                <Search className="w-4 h-4" aria-hidden="true" />
                 Buscar Inmueble
               </Link>
               <a href="#servicios"
@@ -157,15 +156,15 @@ export function HomePage() {
             {/* 2x2 grid de stats */}
             <div className="grid grid-cols-2 gap-[14px]">
               {[
-                { icon: imgSvgOps,     num: '2.717', label: 'Operaciones inmobiliarias' },
-                { icon: imgSvgYears,   num: '18+',   label: 'Años de trayectoria' },
-                { icon: imgSvgClients, num: '50+',   label: 'Clientes satisfechos' },
-                { icon: imgSvgIso,     num: 'ISO',   label: 'Certificación de calidad' },
-              ].map(({ icon, num, label }) => (
+                { Icon: Handshake, num: '2.717', label: 'Operaciones inmobiliarias' },
+                { Icon: Calendar,  num: '18+',   label: 'Años de trayectoria' },
+                { Icon: Users,     num: '50+',   label: 'Clientes satisfechos' },
+                { Icon: ShieldCheck, num: 'ISO',   label: 'Certificación de calidad' },
+              ].map(({ Icon, num, label }) => (
                 <div key={label}
                   className="backdrop-blur-[4px] bg-[rgba(255,255,255,0.07)] border border-[rgba(255,255,255,0.12)] rounded-[16px] p-[25px] flex flex-col gap-[2px]">
-                  <div className="bg-[rgba(0,181,197,0.25)] rounded-[10px] w-10 h-10 flex items-center justify-center mb-3">
-                    <img src={icon} alt="" className="w-5 h-5" aria-hidden="true" />
+                  <div className="bg-[rgba(0,181,197,0.25)] rounded-[10px] w-10 h-10 flex items-center justify-center mb-3 text-white">
+                    <Icon className="w-5 h-5" aria-hidden="true" />
                   </div>
                   <p className="font-extrabold text-[28px] text-white tracking-[-1px] leading-none">{num}</p>
                   <p className="text-[#82acba] text-[12px] font-normal">{label}</p>
@@ -176,8 +175,8 @@ export function HomePage() {
             <div
               className="border border-[rgba(0,181,197,0.3)] rounded-[16px] flex gap-5 items-center px-[29px] py-[25px]"
               style={{ background: 'linear-gradient(135deg, rgba(0,181,197,0.2) 0%, rgba(0,181,197,0.08) 100%)' }}>
-              <div className="bg-[#00b5c5] rounded-[12px] w-[52px] h-[52px] flex items-center justify-center shrink-0">
-                <img src={imgSvgNational} alt="" className="w-5 h-5" aria-hidden="true" />
+              <div className="bg-[#00b5c5] rounded-[12px] w-[52px] h-[52px] flex items-center justify-center shrink-0 text-white">
+                <Map className="w-5 h-5" aria-hidden="true" />
               </div>
               <div>
                 <p className="font-bold text-[20px] text-white leading-none">Cobertura Nacional</p>
@@ -256,15 +255,15 @@ export function HomePage() {
       <section className="bg-[#001124]">
         <div className="max-w-[1200px] mx-auto border-l border-[rgba(255,255,255,0.08)] border-r grid grid-cols-2 sm:grid-cols-4">
           {[
-            { icon: imgSvgEtica,   title: 'Ética',            desc: 'Actuamos con transparencia e integridad en cada proceso' },
-            { icon: imgSvgClients, title: 'Atención al Cliente', desc: 'Servicio personalizado y dedicado para cada cliente' },
-            { icon: imgSvgYears,   title: 'Experiencia',      desc: 'Más de 18 años ejecutando proyectos a nivel nacional' },
-            { icon: imgSvgIso,     title: 'Profesionalismo',  desc: 'Equipo interdisciplinario con certificación de calidad ISO' },
-          ].map(({ icon, title, desc }, i) => (
+            { Icon: Scale,   title: 'Ética',            desc: 'Actuamos con transparencia e integridad en cada proceso' },
+            { Icon: Users,   title: 'Atención al Cliente', desc: 'Servicio personalizado y dedicado para cada cliente' },
+            { Icon: Calendar,   title: 'Experiencia',      desc: 'Más de 18 años ejecutando proyectos a nivel nacional' },
+            { Icon: ShieldCheck, title: 'Profesionalismo',  desc: 'Equipo interdisciplinario con certificación de calidad ISO' },
+          ].map(({ Icon, title, desc }, i) => (
             <div key={title}
               className={`flex flex-col items-center gap-[6px] py-12 px-8 text-center${i < 3 ? ' border-r border-[rgba(255,255,255,0.08)]' : ''}`}>
-              <div className="bg-[rgba(0,181,197,0.18)] rounded-[14px] w-14 h-14 flex items-center justify-center mb-2">
-                <img src={icon} alt="" className="w-5 h-5" aria-hidden="true" />
+              <div className="bg-[rgba(0,181,197,0.18)] rounded-[14px] w-14 h-14 flex items-center justify-center mb-2 text-white">
+                <Icon className="w-5 h-5" aria-hidden="true" />
               </div>
               <p className="font-bold text-[15px] text-white">{title}</p>
               <p className="text-[#6d97a4] text-[12px] leading-[1.5]">{desc}</p>
@@ -290,18 +289,18 @@ export function HomePage() {
 
           {/* Grid servicios */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {SERVICIOS.map(({ num, icon, titulo, desc }) => (
+            {SERVICIOS.map(({ num, Icon, titulo, desc }) => (
               <div key={titulo}
                 className="reveal bg-white border border-[#d8dfe4] rounded-[20px] p-[37px] flex flex-col gap-[11px] hover:shadow-[0_8px_32px_rgba(0,17,36,0.08)] hover:-translate-y-1 transition-all duration-300">
                 <span className="text-[#7a8187] text-[11px] font-semibold tracking-[1.1px]">{num}</span>
-                <div className="bg-[rgba(0,75,152,0.08)] rounded-[14px] w-[52px] h-[52px] flex items-center justify-center">
-                  <img src={icon} alt="" className="w-5 h-5" aria-hidden="true" />
+                <div className="bg-[rgba(0,75,152,0.08)] rounded-[14px] w-[52px] h-[52px] flex items-center justify-center text-[#004b98]">
+                  <Icon className="w-5 h-5" aria-hidden="true" />
                 </div>
                 <p className="font-bold text-[#001124] text-[17px] mt-2">{titulo}</p>
                 <p className="text-[#7a8187] text-[14px] leading-[1.65]">{desc}</p>
                 <a href="#contacto" className="flex items-center gap-[6px] text-[#004b98] text-[13px] font-semibold mt-1 hover:text-[#00b5c5] transition-colors">
                   Más información
-                  <img src={imgSvgArrow} alt="" className="w-[14px] h-[14px]" aria-hidden="true" />
+                  <ArrowRight className="w-[14px] h-[14px]" aria-hidden="true" />
                 </a>
               </div>
             ))}
@@ -312,8 +311,8 @@ export function HomePage() {
               style={{ background: 'linear-gradient(135deg, #004b98 0%, #0071b2 60%, #008ec9 100%)' }}>
               <div className="flex-1 p-10 flex flex-col gap-[11px]">
                 <span className="text-[rgba(255,255,255,0.5)] text-[11px] font-semibold tracking-[1.1px]">05</span>
-                <div className="bg-[rgba(255,255,255,0.15)] rounded-[14px] w-[52px] h-[52px] flex items-center justify-center">
-                  <img src={imgSvgComercial} alt="" className="w-5 h-5" aria-hidden="true" />
+                <div className="bg-[rgba(255,255,255,0.15)] rounded-[14px] w-[52px] h-[52px] flex items-center justify-center text-white">
+                  <Building2 className="w-5 h-5" aria-hidden="true" />
                 </div>
                 <p className="font-bold text-white text-[22px] mt-2">Comercialización de Inmuebles</p>
                 <p className="text-[rgba(255,255,255,0.7)] text-[14px] leading-[1.65] max-w-[420px]">
@@ -322,7 +321,7 @@ export function HomePage() {
                 </p>
                 <Link to="/inmuebles" className="flex items-center gap-[6px] text-[#6bd8de] text-[13px] font-semibold mt-1 hover:text-white transition-colors">
                   Ver portafolio de inmuebles
-                  <img src={imgSvgArrowW} alt="" className="w-[14px] h-[14px]" aria-hidden="true" />
+                  <ArrowRight className="w-[14px] h-[14px]" aria-hidden="true" />
                 </Link>
               </div>
               <div className="flex-1 bg-[rgba(39,234,234,0.12)] hidden lg:flex items-center justify-center rounded-r-[20px]">
@@ -417,8 +416,8 @@ export function HomePage() {
         <div className="max-w-[1200px] mx-auto flex gap-16 items-center">
           {/* Ícono cert */}
           <div className="shrink-0 flex flex-col items-center gap-3">
-            <div className="bg-white rounded-[20px] w-[120px] h-[120px] flex items-center justify-center shadow-[0px_12px_20px_rgba(0,0,0,0.3)]">
-              <img src={imgSvgCert} alt="Certificación ISO" className="w-14 h-14" />
+            <div className="bg-white rounded-[20px] w-[120px] h-[120px] flex items-center justify-center text-[#004b98] shadow-[0px_12px_20px_rgba(0,0,0,0.3)]">
+              <Award className="w-14 h-14" aria-label="Certificación ISO" />
             </div>
             <p className="text-[#7aa7b0] text-[12px] font-semibold tracking-[0.96px] uppercase text-center">Certificados</p>
           </div>
@@ -463,14 +462,14 @@ export function HomePage() {
             {/* Datos de contacto + mapa */}
             <div className="flex-1 flex flex-col gap-6 min-w-0">
               {[
-                { icon: imgSvgMapPin, label: 'Dirección', lines: ['Av Kr 15 #98-42 Oficina M02', 'Edificio Office Point · Barrio Chicó, Bogotá D.C.'] },
-                { icon: imgSvgPhone,  label: 'Teléfonos', lines: [site.contacto.telefono, site.contacto.whatsappVisible] },
-                { icon: imgSvgMail,   label: 'Correo electrónico', lines: [site.contacto.email] },
-                { icon: imgSvgClock,  label: 'Horario de atención', lines: ['Lunes a Viernes: 8:00 am – 6:00 pm', 'Sábados: 9:00 am – 1:00 pm'] },
-              ].map(({ icon, label, lines }) => (
+                { Icon: MapPin, label: 'Dirección', lines: ['Av Kr 15 #98-42 Oficina M02', 'Edificio Office Point · Barrio Chicó, Bogotá D.C.'] },
+                { Icon: Phone,  label: 'Teléfonos', lines: [site.contacto.telefono, site.contacto.whatsappVisible] },
+                { Icon: Mail,   label: 'Correo electrónico', lines: [site.contacto.email] },
+                { Icon: Clock,  label: 'Horario de atención', lines: ['Lunes a Viernes: 8:00 am – 6:00 pm', 'Sábados: 9:00 am – 1:00 pm'] },
+              ].map(({ Icon, label, lines }) => (
                 <div key={label} className="reveal flex gap-[14px] items-start">
-                  <div className="bg-[rgba(0,75,152,0.08)] rounded-[10px] w-10 h-10 flex items-center justify-center shrink-0 mt-[2px]">
-                    <img src={icon} alt="" className="w-[18px] h-[18px]" aria-hidden="true" />
+                  <div className="bg-[rgba(0,75,152,0.08)] rounded-[10px] w-10 h-10 flex items-center justify-center shrink-0 mt-[2px] text-[#004b98]">
+                    <Icon className="w-[18px] h-[18px]" aria-hidden="true" />
                   </div>
                   <div>
                     <p className="text-[#001124] text-[13px] font-semibold">{label}</p>
@@ -544,8 +543,8 @@ export function HomePage() {
       <a href={`https://wa.me/${site.contacto.whatsapp}`}
         target="_blank" rel="noopener noreferrer"
         aria-label="Contactar por WhatsApp"
-        className="fixed bottom-6 right-7 z-50 w-[52px] h-[52px] bg-[#25d366] rounded-[26px] flex items-center justify-center shadow-[0px_4px_10px_rgba(37,211,102,0.5)] hover:scale-110 transition-transform duration-200">
-        <img src={imgSvgWA} alt="" className="w-[26px] h-[26px]" aria-hidden="true" />
+        className="fixed bottom-6 right-7 z-50 w-[52px] h-[52px] bg-[#25d366] rounded-[26px] flex items-center justify-center text-white shadow-[0px_4px_10px_rgba(37,211,102,0.5)] hover:scale-110 transition-transform duration-200">
+        <WhatsAppIcon className="w-[26px] h-[26px]" />
       </a>
 
     </div>

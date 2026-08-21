@@ -1,12 +1,9 @@
+import { Mail, MapPin, Phone } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { MobileDrawer } from '@/app/layouts/public/MobileDrawer'
 import { Container } from '@/shared/components/ui/Container'
 import { site } from '@/shared/config/site'
-
-const imgMapPin = 'https://www.figma.com/api/mcp/asset/3909ca38-f330-45dc-a812-52967e997f43.svg'
-const imgPhone  = 'https://www.figma.com/api/mcp/asset/0e814cb6-6933-40e7-b1bd-24b2e3e9fd34.svg'
-const imgMail   = 'https://www.figma.com/api/mcp/asset/4ae76a8a-5e35-4c70-80c6-fecd331a38ae.svg'
 
 interface HeaderProps {
   drawerAbierto: boolean
@@ -49,20 +46,20 @@ export function Header({ drawerAbierto, onAbrirDrawer, onCerrarDrawer }: HeaderP
         <div className="bg-[#001124] hidden md:flex">
           <Container width="wide">
             <div className="flex items-center gap-8 py-[10px]">
-              <div className="flex items-center gap-[6px]">
-                <img src={imgMapPin} alt="" className="w-3 h-3" aria-hidden="true" />
+              <div className="flex items-center gap-[6px] text-[#a1c5cc]">
+                <MapPin className="w-3 h-3" aria-hidden="true" />
                 <span className="text-[#a1c5cc] text-[12px] tracking-[0.24px]">
                   Av Kr 15 #98-42 Of. M02, Edificio Office Point, Barrio Chicó, Bogotá
                 </span>
               </div>
-              <div className="flex items-center gap-[6px]">
-                <img src={imgPhone} alt="" className="w-3 h-3" aria-hidden="true" />
+              <div className="flex items-center gap-[6px] text-[#a1c5cc]">
+                <Phone className="w-3 h-3" aria-hidden="true" />
                 <span className="text-[#a1c5cc] text-[12px] tracking-[0.24px]">
                   {site.contacto.telefono} &nbsp;·&nbsp; {site.contacto.whatsappVisible}
                 </span>
               </div>
-              <div className="flex items-center gap-[6px]">
-                <img src={imgMail} alt="" className="w-3 h-3" aria-hidden="true" />
+              <div className="flex items-center gap-[6px] text-[#a1c5cc]">
+                <Mail className="w-3 h-3" aria-hidden="true" />
                 <span className="text-[#a1c5cc] text-[12px] tracking-[0.24px]">
                   {site.contacto.email}
                 </span>

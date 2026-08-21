@@ -1,10 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Container } from '@/shared/components/ui/Container'
+import { FacebookIcon, InstagramIcon, LinkedinIcon } from '@/shared/components/icons/SocialIcons'
 import { site } from '@/shared/config/site'
-
-const imgFacebook  = 'https://www.figma.com/api/mcp/asset/9b988c9f-0a56-4130-ad33-7b29b86e45e4.svg'
-const imgInstagram = 'https://www.figma.com/api/mcp/asset/995df407-aba2-4d39-bc5c-c2f136e8bc49.svg'
-const imgLinkedin  = 'https://www.figma.com/api/mcp/asset/c020e669-392e-43e7-b30c-1c56e548181f.svg'
 
 export function Footer() {
   return (
@@ -47,14 +44,14 @@ export function Footer() {
           {/* Redes sociales */}
           <div className="flex items-center gap-[10px]">
             {[
-              { href: site.redes.facebook,  icon: imgFacebook,  label: 'Facebook' },
-              { href: site.redes.instagram, icon: imgInstagram, label: 'Instagram' },
-              { href: site.redes.linkedin,  icon: imgLinkedin,  label: 'LinkedIn' },
-            ].map(({ href, icon, label }) => (
+              { href: site.redes.facebook,  Icon: FacebookIcon,  label: 'Facebook' },
+              { href: site.redes.instagram, Icon: InstagramIcon, label: 'Instagram' },
+              { href: site.redes.linkedin,  Icon: LinkedinIcon,  label: 'LinkedIn' },
+            ].map(({ href, Icon, label }) => (
               <a key={label} href={href} target="_blank" rel="noopener noreferrer"
                 aria-label={label}
-                className="bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.12)] rounded-[8px] w-9 h-9 flex items-center justify-center hover:bg-[rgba(255,255,255,0.15)] transition-colors duration-200">
-                <img src={icon} alt="" className="w-[15px] h-[15px]" aria-hidden="true" />
+                className="bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.12)] rounded-[8px] w-9 h-9 flex items-center justify-center text-white hover:bg-[rgba(255,255,255,0.15)] transition-colors duration-200">
+                <Icon className="w-[15px] h-[15px]" />
               </a>
             ))}
           </div>

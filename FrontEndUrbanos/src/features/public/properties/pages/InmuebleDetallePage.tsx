@@ -1,3 +1,4 @@
+import { BedDouble, House, MapPin, Ruler } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useInmuebleDetalle } from '@/features/public/properties/hooks/usePublicaciones'
@@ -6,14 +7,8 @@ import type {
   ImagenDto,
   OperacionDto,
 } from '@/features/public/properties/api/inmueblesPublicApi'
+import { WhatsAppIcon } from '@/shared/components/icons/WhatsAppIcon'
 import { site } from '@/shared/config/site'
-
-/* ── Figma SVG icons (mismos assets que InmueblesListPage) ─────── */
-const imgPin  = 'https://www.figma.com/api/mcp/asset/cb2a93d0-e797-4218-b0f9-55b5dc9ebc03.svg'
-const imgArea = 'https://www.figma.com/api/mcp/asset/21f20c79-2624-4998-a65e-b58e3e7b4952.svg'
-const imgBed  = 'https://www.figma.com/api/mcp/asset/7787ec0a-f26c-4415-992b-28194a4ac0a2.svg'
-const imgType = 'https://www.figma.com/api/mcp/asset/3372854b-3079-4041-8ba2-6a435753576d.svg'
-const imgWA   = 'https://www.figma.com/api/mcp/asset/40923193-b42d-45fd-8f68-f13e7eaa257b.svg'
 
 /* ── Helpers ─────────────────────────────────────────────────── */
 const formatoPesos = new Intl.NumberFormat('es-CO', {
@@ -212,8 +207,8 @@ export function InmuebleDetallePage() {
                   <h1 className="mt-1 text-[28px] leading-tight font-extrabold tracking-[-0.5px] text-[#001124]">
                     {inmueble.titulo}
                   </h1>
-                  <div className="mt-2 flex items-center gap-[6px]">
-                    <img src={imgPin} alt="" className="h-[14px] w-[14px] shrink-0" aria-hidden="true" />
+                  <div className="mt-2 flex items-center gap-[6px] text-[#7a8187]">
+                    <MapPin className="h-[14px] w-[14px] shrink-0" aria-hidden="true" />
                     <span className="text-[14px] text-[#7a8187]">{ubicacionTexto || 'Ubicación no especificada'}</span>
                   </div>
                 </div>
@@ -222,14 +217,14 @@ export function InmuebleDetallePage() {
               {/* Specs */}
               <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 rounded-[16px] border border-[#d8dfe4] bg-white px-6 py-5">
                 {inmueble.areaConstruidaM2 && (
-                  <span className="flex items-center gap-[7px]">
-                    <img src={imgArea} alt="" className="h-4 w-4" aria-hidden="true" />
+                  <span className="flex items-center gap-[7px] text-[#001124]">
+                    <Ruler className="h-4 w-4" aria-hidden="true" />
                     <span className="text-[13px] font-medium text-[#001124]">{inmueble.areaConstruidaM2} m² construidos</span>
                   </span>
                 )}
                 {inmueble.habitaciones > 0 && (
-                  <span className="flex items-center gap-[7px]">
-                    <img src={imgBed} alt="" className="h-4 w-4" aria-hidden="true" />
+                  <span className="flex items-center gap-[7px] text-[#001124]">
+                    <BedDouble className="h-4 w-4" aria-hidden="true" />
                     <span className="text-[13px] font-medium text-[#001124]">{inmueble.habitaciones} habitaciones</span>
                   </span>
                 )}
@@ -242,8 +237,8 @@ export function InmuebleDetallePage() {
                 {inmueble.parqueaderos > 0 && (
                   <span className="text-[13px] font-medium text-[#001124]">{inmueble.parqueaderos} parqueaderos</span>
                 )}
-                <span className="flex items-center gap-[7px]">
-                  <img src={imgType} alt="" className="h-4 w-4" aria-hidden="true" />
+                <span className="flex items-center gap-[7px] text-[#001124]">
+                  <House className="h-4 w-4" aria-hidden="true" />
                   <span className="text-[13px] font-medium text-[#001124] capitalize">{inmueble.tipoInmueble}</span>
                 </span>
                 {inmueble.estrato && (
@@ -355,7 +350,7 @@ export function InmuebleDetallePage() {
 
             <a href={urlWA} target="_blank" rel="noopener noreferrer"
               className="flex w-full items-center justify-center gap-3 rounded-[12px] bg-[#25d366] px-6 py-4 text-[15px] font-bold text-white transition-colors hover:bg-[#1ebc59]">
-              <img src={imgWA} alt="" className="h-5 w-5" aria-hidden="true" />
+              <WhatsAppIcon className="h-5 w-5" />
               Contactar
             </a>
             <p className="mt-3 text-center text-[12px] text-[#7a8187]">

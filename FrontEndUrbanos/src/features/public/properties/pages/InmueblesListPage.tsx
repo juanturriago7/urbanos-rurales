@@ -1,3 +1,4 @@
+import { BedDouble, Heart, House, MapPin, Ruler, Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { usePublicaciones } from '@/features/public/properties/hooks/usePublicaciones'
@@ -5,16 +6,8 @@ import type {
   FiltroInmueblesPublico,
   InmueblePublicoListItemDto,
 } from '@/features/public/properties/api/inmueblesPublicApi'
+import { WhatsAppIcon } from '@/shared/components/icons/WhatsAppIcon'
 import { site } from '@/shared/config/site'
-
-/* ── Figma SVG icons ─────────────────────────────────────────── */
-const imgSearch  = 'https://www.figma.com/api/mcp/asset/364f4e8f-57a5-42f7-92c0-57772918b733.svg'
-const imgPin     = 'https://www.figma.com/api/mcp/asset/cb2a93d0-e797-4218-b0f9-55b5dc9ebc03.svg'
-const imgArea    = 'https://www.figma.com/api/mcp/asset/21f20c79-2624-4998-a65e-b58e3e7b4952.svg'
-const imgBed     = 'https://www.figma.com/api/mcp/asset/7787ec0a-f26c-4415-992b-28194a4ac0a2.svg'
-const imgType    = 'https://www.figma.com/api/mcp/asset/3372854b-3079-4041-8ba2-6a435753576d.svg'
-const imgHeart   = 'https://www.figma.com/api/mcp/asset/b9925bc4-cb82-4abf-8278-3128cd162c3b.svg'
-const imgWA      = 'https://www.figma.com/api/mcp/asset/40923193-b42d-45fd-8f68-f13e7eaa257b.svg'
 
 /* ── Helpers ─────────────────────────────────────────────────── */
 const formatoPesos = new Intl.NumberFormat('es-CO', {
@@ -79,26 +72,26 @@ function TarjetaInmueble({ inmueble }: { inmueble: InmueblePublicoListItemDto })
             {inmueble.titulo}
           </p>
           {/* Ubicación */}
-          <div className="flex items-center gap-[5px] pb-2.5">
-            <img src={imgPin} alt="" className="w-[13px] h-[13px] shrink-0" aria-hidden="true" />
+          <div className="flex items-center gap-[5px] pb-2.5 text-[#7a8187]">
+            <MapPin className="w-[13px] h-[13px] shrink-0" aria-hidden="true" />
             <span className="text-[#7a8187] text-[13px] truncate">{inmueble.ubicacion}</span>
           </div>
           {/* Separador + specs */}
           <div className="border-t border-[#e0e5e9] pt-[15px] flex flex-wrap gap-x-[14px] gap-y-1 items-center">
             {inmueble.areaConstruidaM2 && (
-              <span className="flex items-center gap-[5px]">
-                <img src={imgArea} alt="" className="w-[13px] h-[13px]" aria-hidden="true" />
+              <span className="flex items-center gap-[5px] text-[#7a8187]">
+                <Ruler className="w-[13px] h-[13px]" aria-hidden="true" />
                 <span className="text-[#7a8187] text-[12px] font-medium">{inmueble.areaConstruidaM2} m²</span>
               </span>
             )}
             {inmueble.habitaciones > 0 && (
-              <span className="flex items-center gap-[5px]">
-                <img src={imgBed} alt="" className="w-[13px] h-[13px]" aria-hidden="true" />
+              <span className="flex items-center gap-[5px] text-[#7a8187]">
+                <BedDouble className="w-[13px] h-[13px]" aria-hidden="true" />
                 <span className="text-[#7a8187] text-[12px] font-medium">{inmueble.habitaciones} hab</span>
               </span>
             )}
-            <span className="flex items-center gap-[5px]">
-              <img src={imgType} alt="" className="w-[13px] h-[13px]" aria-hidden="true" />
+            <span className="flex items-center gap-[5px] text-[#7a8187]">
+              <House className="w-[13px] h-[13px]" aria-hidden="true" />
               <span className="text-[#7a8187] text-[12px] font-medium capitalize">{inmueble.tipoInmueble}</span>
             </span>
             {inmueble.estrato && (
@@ -110,8 +103,8 @@ function TarjetaInmueble({ inmueble }: { inmueble: InmueblePublicoListItemDto })
 
       {/* Botón favorito (fuera del Link a propósito, ver comentario arriba) */}
       <button type="button" aria-label="Guardar en favoritos"
-        className="absolute top-3.5 right-3.5 w-8 h-8 rounded-2xl bg-[rgba(255,255,255,0.85)] flex items-center justify-center hover:bg-white transition-colors">
-        <img src={imgHeart} alt="" className="w-[15px] h-[15px]" aria-hidden="true" />
+        className="absolute top-3.5 right-3.5 w-8 h-8 rounded-2xl bg-[rgba(255,255,255,0.85)] flex items-center justify-center text-[#7a8187] hover:bg-white transition-colors">
+        <Heart className="w-[15px] h-[15px]" aria-hidden="true" />
       </button>
     </article>
   )
@@ -261,8 +254,8 @@ export function InmueblesListPage() {
           {/* Barra de búsqueda */}
           <form onSubmit={handleBuscar}
             className="bg-white rounded-2xl shadow-[0px_16px_24px_rgba(0,17,36,0.18)] flex items-center gap-2 p-2 -mt-[31px] relative z-10 mb-6">
-            <div className="flex items-center pl-2 shrink-0">
-              <img src={imgSearch} alt="" className="w-[18px] h-[18px] opacity-40" aria-hidden="true" />
+            <div className="flex items-center pl-2 shrink-0 text-[#0d1c27] opacity-40">
+              <Search className="w-[18px] h-[18px]" aria-hidden="true" />
             </div>
             <input
               type="search"
@@ -273,7 +266,7 @@ export function InmueblesListPage() {
             />
             <button type="submit"
               className="flex items-center gap-2 bg-[#004b98] text-white font-bold text-[14px] px-[26px] py-[14px] rounded-[10px] hover:bg-[#003b7a] transition-colors shrink-0">
-              <img src={imgSearch} alt="" className="w-[15px] h-[15px] invert" aria-hidden="true" />
+              <Search className="w-[15px] h-[15px]" aria-hidden="true" />
               Buscar
             </button>
           </form>
@@ -402,8 +395,8 @@ export function InmueblesListPage() {
       <a href={`https://wa.me/${site.contacto.whatsapp}`}
         target="_blank" rel="noopener noreferrer"
         aria-label="Contactar por WhatsApp"
-        className="fixed bottom-7 right-7 z-50 w-[52px] h-[52px] bg-[#25d366] rounded-[26px] flex items-center justify-center shadow-[0px_4px_10px_rgba(37,211,102,0.5)] hover:scale-110 transition-transform duration-200">
-        <img src={imgWA} alt="" className="w-[26px] h-[26px]" aria-hidden="true" />
+        className="fixed bottom-7 right-7 z-50 w-[52px] h-[52px] bg-[#25d366] rounded-[26px] flex items-center justify-center text-white shadow-[0px_4px_10px_rgba(37,211,102,0.5)] hover:scale-110 transition-transform duration-200">
+        <WhatsAppIcon className="w-[26px] h-[26px]" />
       </a>
 
     </div>
