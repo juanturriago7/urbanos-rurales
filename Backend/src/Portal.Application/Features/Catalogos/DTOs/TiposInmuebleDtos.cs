@@ -5,4 +5,5 @@ public sealed record TipoInmuebleDto(
     int Id,
     string Nombre,
     string Slug,
-    bool EsPropiedadHorizontal);
+    bool EsPropiedadHorizontal,
+    bool Activo);

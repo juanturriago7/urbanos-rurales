@@ -1,7 +1,7 @@
 namespace Portal.Application.Features.Catalogos.DTOs;
 
 public sealed record CaracteristicaDto(
-    int Id, string Nombre, string? Icono, string TipoValor, bool Filtrable);
+    int Id, string Nombre, string? Icono, string TipoValor, bool Filtrable, bool Activo);
 
 /// <summary>Fila plana característica + categoría, para agrupar en el handler.</summary>
 public sealed record CaracteristicaPlanaDto(

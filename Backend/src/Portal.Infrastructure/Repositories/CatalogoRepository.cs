@@ -77,14 +77,17 @@ internal sealed class CatalogoRepository : ICatalogoRepository
     public async Task<IReadOnlyList<TipoInmuebleDto>> GetTiposInmuebleAsync(
         CancellationToken ct = default)
     {
+        // Sin filtro de activo: el admin panel usa este endpoint y necesita ver
+        // también los inactivos para poder reactivarlos. Los selectores públicos
+        // (formulario de inmueble, filtros) filtran localmente por activo.
         const string sql = """
             SELECT
                 id                       AS Id,
                 nombre                   AS Nombre,
                 slug                     AS Slug,
-                es_propiedad_horizontal  AS EsPropiedadHorizontal
+                es_propiedad_horizontal  AS EsPropiedadHorizontal,
+                activo                   AS Activo
             FROM tipos_inmueble
-            WHERE activo = TRUE
             ORDER BY orden, nombre
             """;
 
@@ -96,6 +99,8 @@ internal sealed class CatalogoRepository : ICatalogoRepository
     public async Task<IReadOnlyList<CaracteristicaPlanaDto>> GetCaracteristicasAsync(
         CancellationToken ct = default)
     {
+        // Sin filtro de activo por la misma razón que GetTiposInmuebleAsync:
+        // el admin panel necesita ver inactivas para reactivarlas.
         const string sql = """
             SELECT
                 c.id         AS Id,
@@ -103,11 +108,11 @@ internal sealed class CatalogoRepository : ICatalogoRepository
                 c.icono      AS Icono,
                 c.tipo_valor AS TipoValor,
                 c.filtrable  AS Filtrable,
+                c.activo     AS Activo,
                 cc.id        AS CategoriaId,
                 cc.nombre    AS CategoriaNombre
             FROM caracteristicas c
             INNER JOIN categorias_caracteristica cc ON cc.id = c.categoria_id
-            WHERE c.activo = TRUE
             ORDER BY cc.orden, cc.nombre, c.nombre
             """;
 
