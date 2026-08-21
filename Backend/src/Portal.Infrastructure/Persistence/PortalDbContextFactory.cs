@@ -66,5 +66,6 @@ public sealed class PortalDbContextFactory : IDesignTimeDbContextFactory<PortalD
         npgsql.MapEnum<TipoOperacion>("tipo_operacion");
         npgsql.MapEnum<EstadoOperacion>("estado_operacion");
         npgsql.MapEnum<EstadoLead>("estado_lead");
+        npgsql.MapEnum<EstadoArticuloBlog>("estado_articulo_blog");
     }
 }
