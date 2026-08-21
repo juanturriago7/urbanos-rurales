@@ -19,7 +19,7 @@ internal sealed class UbicacionAdminRepository : IUbicacionAdminRepository
     {
         const string sql = """
             INSERT INTO ubicaciones (tipo, nombre, slug, padre_id, activo, creado_en)
-            VALUES (@Tipo, @Nombre, @Slug, @PadreId, @Activo, @CreadoEn)
+            VALUES (CAST(@Tipo AS tipo_ubicacion), @Nombre, @Slug, @PadreId, @Activo, @CreadoEn)
             RETURNING id
             """;
 
@@ -38,7 +38,7 @@ internal sealed class UbicacionAdminRepository : IUbicacionAdminRepository
     public async Task<Ubicacion?> GetByIdAsync(long id, CancellationToken ct = default)
     {
         const string sql = """
-            SELECT id AS Id, tipo AS Tipo, nombre AS Nombre, slug AS Slug,
+            SELECT id AS Id, tipo::text AS Tipo, nombre AS Nombre, slug AS Slug,
                    padre_id AS PadreId, activo AS Activo, creado_en AS CreadoEn
             FROM ubicaciones
             WHERE id = @Id
