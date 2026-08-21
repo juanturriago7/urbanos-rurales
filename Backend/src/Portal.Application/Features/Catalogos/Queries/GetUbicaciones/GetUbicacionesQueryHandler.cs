@@ -22,7 +22,7 @@ public sealed class GetUbicacionesQueryHandler
 
         var nodos = filas.ToDictionary(
             f => f.Id,
-            f => new UbicacionNodoDto { Id = f.Id, Tipo = f.Tipo, Nombre = f.Nombre, Slug = f.Slug });
+            f => new UbicacionNodoDto { Id = f.Id, Tipo = f.Tipo, Nombre = f.Nombre, Slug = f.Slug, Activo = f.Activo });
 
         var raices = new List<UbicacionNodoDto>();
 
