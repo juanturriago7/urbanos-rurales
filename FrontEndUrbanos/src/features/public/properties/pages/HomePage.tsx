@@ -63,6 +63,13 @@ const SERVICIOS = [
     desc: 'Levantamientos topográficos y servicios cartográficos a entidades privadas y particulares con cobertura nacional.' },
 ]
 
+/* ── Certificaciones (spec 08 — plantilla a completar con datos reales) ── */
+const CERTIFICACIONES_PLANTILLA = [
+  'ISO 9001 — Gestión de Calidad',
+  'ISO 14001 — Gestión Ambiental',
+  'ITICOL Certificado',
+]
+
 /* ══════════════════════════════════════════════════════════════
    COMPONENTE PRINCIPAL
    ══════════════════════════════════════════════════════════════ */
@@ -410,29 +417,32 @@ export function HomePage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════
-          CERTIFICACIONES — banda oscura
+          CERTIFICACIONES — banda oscura (spec 08: plantilla lista para
+          completar con las certificaciones reales del cliente; nombres y
+          párrafos de abajo son contenido de referencia a editar).
           ═══════════════════════════════════════════════════════ */}
       <section className="bg-[#001124] py-20 px-12">
         <div className="max-w-[1200px] mx-auto flex gap-16 items-center">
           {/* Ícono cert */}
           <div className="shrink-0 flex flex-col items-center gap-3">
             <div className="bg-white rounded-[20px] w-[120px] h-[120px] flex items-center justify-center text-[#004b98] shadow-[0px_12px_20px_rgba(0,0,0,0.3)]">
-              <Award className="w-14 h-14" aria-label="Certificación ISO" />
+              <Award className="w-14 h-14" aria-label="Certificación" />
             </div>
-            <p className="text-[#7aa7b0] text-[12px] font-semibold tracking-[0.96px] uppercase text-center">Certificados</p>
+            <p className="text-[#7aa7b0] text-[12px] font-semibold tracking-[0.96px] uppercase text-center">Certificaciones</p>
           </div>
           {/* Texto */}
           <div className="flex-1 flex flex-col gap-4 min-w-0">
             <h3 className="reveal font-bold text-white text-[26px] leading-tight">
-              Certificación en Calidad y Gestión Ambiental
+              Certificaciones y respaldos
             </h3>
             <p className="reveal text-[#7ca6b4] text-[15px] leading-[1.7] max-w-[580px]">
-              Estamos certificados en las normas ISO 9001 e ISO 14001, certificaciones que nos
-              consolidan como una empresa comprometida con la calidad y el medio ambiente en
-              cada uno de nuestros procesos de consultoría y gestión predial integral.
+              Contamos con certificaciones que respaldan nuestros procesos de consultoría
+              y gestión predial. Esta sección es una plantilla: reemplaza el texto y
+              los sellos de abajo con las certificaciones reales de la empresa cuando
+              estén listas.
             </p>
             <div className="reveal flex flex-wrap gap-3">
-              {['ISO 9001 — Gestión de Calidad', 'ISO 14001 — Gestión Ambiental', 'ITICOL Certificado'].map((tag) => (
+              {CERTIFICACIONES_PLANTILLA.map((tag) => (
                 <span key={tag}
                   className="border border-[rgba(255,255,255,0.15)] bg-[rgba(255,255,255,0.08)] text-[#6bd8de] text-[12px] font-semibold tracking-[0.6px] px-[17px] py-2 rounded-full">
                   {tag}
