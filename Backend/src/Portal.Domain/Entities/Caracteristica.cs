@@ -63,4 +63,19 @@ public sealed class Caracteristica
     public void Activar() => Activo = true;
 
     public void Desactivar() => Activo = false;
+
+    public void Actualizar(string nombre, string tipoValor, bool filtrable, string? icono)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(nombre);
+        if (!TiposValor.EsValido(tipoValor))
+        {
+            throw new ArgumentException(
+                $"Tipo de valor no soportado: '{tipoValor}'. Use booleano, numero o texto.",
+                nameof(tipoValor));
+        }
+        Nombre = nombre.Trim();
+        TipoValor = tipoValor;
+        Filtrable = filtrable;
+        Icono = icono;
+    }
 }
