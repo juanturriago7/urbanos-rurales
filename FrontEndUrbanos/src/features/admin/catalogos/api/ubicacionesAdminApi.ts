@@ -15,10 +15,10 @@ export interface ActualizarUbicacionInput {
 }
 
 export async function crearUbicacion(input: CrearUbicacionInput): Promise<{ id: number }> {
-  const { data } = await apiClient.post('/admin/catalogos/ubicaciones', input)
+  const { data } = await apiClient.post('/api/admin/catalogos/ubicaciones', input)
   return data
 }
 
 export async function actualizarUbicacion(input: ActualizarUbicacionInput): Promise<void> {
-  await apiClient.put(`/admin/catalogos/ubicaciones/${input.id}`, input)
+  await apiClient.put(`/api/admin/catalogos/ubicaciones/${input.id}`, input)
 }
