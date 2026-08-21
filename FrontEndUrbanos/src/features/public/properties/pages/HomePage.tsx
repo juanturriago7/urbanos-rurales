@@ -20,8 +20,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-// TODO: re-habilitar cuando el backend esté corriendo en dev
-// import { PublicacionesDestacadas } from '@/features/public/properties/components/PublicacionesDestacadas'
+import { PublicacionesDestacadas } from '@/features/public/properties/components/PublicacionesDestacadas'
 import { WhatsAppIcon } from '@/shared/components/icons/WhatsAppIcon'
 import { site } from '@/shared/config/site'
 
@@ -195,11 +194,9 @@ export function HomePage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════
-          PUBLICACIONES DESTACADAS
-          Requiere backend corriendo en localhost:5095.
-          Re-habilitar descomentando el import y este bloque.
+          PUBLICACIONES DESTACADAS (spec 05)
           ═══════════════════════════════════════════════════════ */}
-      {/* <PublicacionesDestacadas /> */}
+      <PublicacionesDestacadas />
 
       {/* ═══════════════════════════════════════════════════════
           QUIÉNES SOMOS — fondo blanco roto #f8fafd
