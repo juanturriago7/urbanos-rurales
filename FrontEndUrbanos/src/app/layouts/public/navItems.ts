@@ -1,9 +1,7 @@
 /**
  * Menú del sitio público.
  *
- * Arriendos va primero porque es el foco declarado del producto. "Blog" no
- * aparece: no hay contenido, y un item que lleva a una página vacía es peor
- * que un item ausente.
+ * Arriendos va primero porque es el foco declarado del producto.
  *
  * Los items con `anchor` no tienen ruta propia; hacen scroll a una sección de
  * la landing vía `AnchorLink`.
@@ -19,5 +17,6 @@ export const navItems: readonly NavItem[] = [
   { label: 'Quiénes somos', to: '/', anchor: 'quienes-somos' },
   { label: 'Servicios', to: '/', anchor: 'servicios' },
   { label: 'Inmuebles', to: '/inmuebles' },
+  { label: 'Blog', to: '/blog' },
   { label: 'Contacto', to: '/', anchor: 'contacto' },
 ] as const

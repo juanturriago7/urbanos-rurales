@@ -53,6 +53,7 @@ public sealed class PortalDbContext : DbContext
         modelBuilder.HasPostgresEnum<TipoOperacion>();
         modelBuilder.HasPostgresEnum<EstadoOperacion>();
         modelBuilder.HasPostgresEnum<EstadoLead>();
+        modelBuilder.HasPostgresEnum<EstadoArticuloBlog>();
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(PortalDbContext).Assembly);
 

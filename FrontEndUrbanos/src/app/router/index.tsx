@@ -17,6 +17,10 @@ import { InmuebleFormPage } from '@/features/admin/properties/pages/InmuebleForm
 import { UbicacionesAdminPage } from '@/features/admin/catalogos/pages/UbicacionesAdminPage'
 import { TiposInmuebleAdminPage } from '@/features/admin/catalogos/pages/TiposInmuebleAdminPage'
 import { CaracteristicasAdminPage } from '@/features/admin/catalogos/pages/CaracteristicasAdminPage'
+import { BlogAdminListPage } from '@/features/admin/blog/pages/BlogAdminListPage'
+import { BlogAdminFormPage } from '@/features/admin/blog/pages/BlogAdminFormPage'
+import { BlogListPage } from '@/features/public/blog/pages/BlogListPage'
+import { BlogDetallePage } from '@/features/public/blog/pages/BlogDetallePage'
 
 const router = createBrowserRouter([
   // ─── Rutas públicas ──────────────────────────────────────────────────────
@@ -26,6 +30,8 @@ const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: 'inmuebles', element: <InmueblesListPage /> },
       { path: 'inmuebles/:slug', element: <InmuebleDetallePage /> },
+      { path: 'blog', element: <BlogListPage /> },
+      { path: 'blog/:slug', element: <BlogDetallePage /> },
       { path: 'properties', element: <div className="p-8">Propiedades — próximamente</div> },
       { path: 'search', element: <div className="p-8">Búsqueda — próximamente</div> },
     ],
@@ -55,6 +61,9 @@ const router = createBrowserRouter([
           { path: 'catalogos/ubicaciones', element: <UbicacionesAdminPage /> },
           { path: 'catalogos/tipos-inmueble', element: <TiposInmuebleAdminPage /> },
           { path: 'catalogos/caracteristicas', element: <CaracteristicasAdminPage /> },
+          { path: 'blog', element: <BlogAdminListPage /> },
+          { path: 'blog/nuevo', element: <BlogAdminFormPage /> },
+          { path: 'blog/:id/editar', element: <BlogAdminFormPage /> },
         ],
       },
     ],
