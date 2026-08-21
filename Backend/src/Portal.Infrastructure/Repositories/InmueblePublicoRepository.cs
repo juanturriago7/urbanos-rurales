@@ -129,6 +129,22 @@ internal sealed class InmueblePublicoRepository : IInmueblePublicoRepository
                 """);
             }
 
+            // Características: AND — el inmueble debe tener TODAS las seleccionadas.
+            // Semántica explícita con doble NOT EXISTS sobre `unnest()` para no depender
+            // del orden ni de cardinalidad de la tabla puente.
+            if (filtro.CaracteristicaIds is { Count: > 0 })
+            {
+                condiciones.Add("""
+                NOT EXISTS (
+                    SELECT 1 FROM unnest(@CaracteristicaIds) AS req(id)
+                    WHERE NOT EXISTS (
+                        SELECT 1 FROM inmueble_caracteristicas ic
+                        WHERE ic.inmueble_id = i.id AND ic.caracteristica_id = req.id
+                    )
+                )
+                """);
+            }
+
             var where = string.Join(" AND ", condiciones);
             var orderBy = OrdenSql(filtro.Orden);
 
@@ -160,6 +176,7 @@ internal sealed class InmueblePublicoRepository : IInmueblePublicoRepository
                 filtro.Banos,
                 filtro.Parqueaderos,
                 filtro.Estrato,
+                CaracteristicaIds = filtro.CaracteristicaIds?.ToArray(),
                 filtro.Q,
                 QLike = $"%{filtro.Q}%",
                 pagination.PageSize,
