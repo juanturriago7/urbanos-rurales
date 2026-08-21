@@ -11,6 +11,7 @@ const navItems = [
   { to: '/admin/catalogos/ubicaciones', label: 'Ubicaciones' },
   { to: '/admin/catalogos/tipos-inmueble', label: 'Tipos de inmueble' },
   { to: '/admin/catalogos/caracteristicas', label: 'Características' },
+  { to: '/admin/blog', label: 'Blog' },
 ]
 
 /**
