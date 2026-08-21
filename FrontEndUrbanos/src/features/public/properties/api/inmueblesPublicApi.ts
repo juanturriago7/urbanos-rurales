@@ -35,6 +35,11 @@ export interface FiltroInmueblesPublico {
   areaMax?: number
   habitaciones?: number
   banos?: number
+  /**
+   * Filtro AND: el inmueble debe tener TODAS las características seleccionadas.
+   * Vacío o undefined = sin filtro.
+   */
+  caracteristicaIds?: number[]
   page?: number
   pageSize?: number
 }

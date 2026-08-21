@@ -1,7 +1,8 @@
-import { BedDouble, Heart, House, MapPin, Ruler, Search } from 'lucide-react'
+import { BedDouble, House, MapPin, Ruler, Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { usePublicaciones } from '@/features/public/properties/hooks/usePublicaciones'
+import { useCaracteristicas } from '@/features/admin/catalogos/hooks/useCatalogos'
 import type {
   FiltroInmueblesPublico,
   InmueblePublicoListItemDto,
@@ -29,6 +30,18 @@ function numeroOVacio(v: string | null): number | undefined {
   if (!v) return undefined
   const n = Number(v)
   return Number.isFinite(n) ? n : undefined
+}
+/**
+ * Parsea `?caracteristicas=9,10,13` a `number[]`. Ignora valores no numéricos
+ * silenciosamente — un valor corrupto en la URL no debe romper el filtro entero.
+ */
+function idsCaracteristicas(v: string | null): number[] | undefined {
+  if (!v) return undefined
+  const ids = v
+    .split(',')
+    .map((s) => Number(s.trim()))
+    .filter((n) => Number.isFinite(n) && n > 0)
+  return ids.length > 0 ? ids : undefined
 }
 
 /* ── Tarjeta de inmueble ─────────────────────────────────────── */
@@ -100,12 +113,6 @@ function TarjetaInmueble({ inmueble }: { inmueble: InmueblePublicoListItemDto })
           </div>
         </div>
       </Link>
-
-      {/* Botón favorito (fuera del Link a propósito, ver comentario arriba) */}
-      <button type="button" aria-label="Guardar en favoritos"
-        className="absolute top-3.5 right-3.5 w-8 h-8 rounded-2xl bg-[rgba(255,255,255,0.85)] flex items-center justify-center text-[#7a8187] hover:bg-white transition-colors">
-        <Heart className="w-[15px] h-[15px]" aria-hidden="true" />
-      </button>
     </article>
   )
 }
@@ -193,32 +200,54 @@ export function InmueblesListPage() {
     operacion: operacionValida(searchParams.get('operacion')),
     tipo:      searchParams.get('tipo') ?? undefined,
     areaMin:   numeroOVacio(searchParams.get('area_min')),
+    caracteristicaIds: idsCaracteristicas(searchParams.get('caracteristicas')),
     page:      numeroOVacio(searchParams.get('page')) ?? 1,
     pageSize:  12,
   }), [searchParams])
 
   const { data, isLoading, isError } = usePublicaciones(filtros)
+  const { data: categoriasCaracteristicas } = useCaracteristicas()
 
   const setFiltro = (key: string, val: string) => {
     const next = new URLSearchParams(searchParams)
-    val ? next.set(key, val) : next.delete(key)
+    if (val) next.set(key, val)
+    else next.delete(key)
     next.delete('page')
     setSearchParams(next)
+  }
+
+  /**
+   * Toggle de un id de característica en el filtro `caracteristicas=1,2,3`.
+   * Vacío = sin filtro.
+   */
+  const toggleCaracteristica = (id: number) => {
+    const actuales = idsCaracteristicas(searchParams.get('caracteristicas')) ?? []
+    const siguientes = actuales.includes(id)
+      ? actuales.filter((x) => x !== id)
+      : [...actuales, id].sort((a, b) => a - b)
+    setFiltro('caracteristicas', siguientes.join(','))
   }
 
   const limpiar = () => setSearchParams(new URLSearchParams())
 
   const cambiarPagina = (p: number) => {
     const next = new URLSearchParams(searchParams)
-    p === 1 ? next.delete('page') : next.set('page', String(p))
+    if (p === 1) next.delete('page')
+    else next.set('page', String(p))
     setSearchParams(next)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const hayFiltros = useMemo(() =>
     !!(searchParams.get('operacion') || searchParams.get('tipo') ||
-       searchParams.get('area_min') || searchParams.get('q')),
+       searchParams.get('area_min') || searchParams.get('q') ||
+       searchParams.get('caracteristicas')),
     [searchParams])
+
+  const caracteristicasSeleccionadas = useMemo(
+    () => new Set(idsCaracteristicas(searchParams.get('caracteristicas')) ?? []),
+    [searchParams],
+  )
 
   const handleBuscar = (e: React.FormEvent) => {
     e.preventDefault()
@@ -306,6 +335,50 @@ export function InmueblesListPage() {
               </button>
             )}
           </div>
+
+          {/* Características (genérico por categoría) */}
+          {categoriasCaracteristicas && categoriasCaracteristicas.length > 0 && (
+            <div className="bg-white border border-[#d8dfe4] rounded-[20px] px-8 py-6 mb-5">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-[#001124] text-[15px] font-bold">Características</h3>
+                {caracteristicasSeleccionadas.size > 0 && (
+                  <button type="button"
+                    onClick={() => setFiltro('caracteristicas', '')}
+                    className="text-[#7a8187] text-[12px] font-semibold hover:text-[#004b98] transition-colors">
+                    Limpiar ({caracteristicasSeleccionadas.size})
+                  </button>
+                )}
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4">
+                {categoriasCaracteristicas.map((cat) => {
+                  const visibles = cat.caracteristicas.filter((c) => c.filtrable)
+                  if (visibles.length === 0) return null
+                  return (
+                    <div key={cat.id}>
+                      <p className="text-[#7a8187] text-[11px] font-semibold tracking-[0.66px] uppercase mb-2">
+                        {cat.nombre}
+                      </p>
+                      <ul className="space-y-1.5">
+                        {visibles.map((c) => (
+                          <li key={c.id}>
+                            <label className="flex items-center gap-2 cursor-pointer text-[#0d1c27] text-[14px] hover:text-[#004b98] transition-colors">
+                              <input
+                                type="checkbox"
+                                checked={caracteristicasSeleccionadas.has(c.id)}
+                                onChange={() => toggleCaracteristica(c.id)}
+                                className="w-4 h-4 accent-[#004b98] cursor-pointer"
+                              />
+                              <span>{c.nombre}</span>
+                            </label>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Contador */}
           {!isLoading && data && (
