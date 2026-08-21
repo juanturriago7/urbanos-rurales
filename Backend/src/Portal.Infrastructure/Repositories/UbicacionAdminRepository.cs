@@ -1,4 +1,5 @@
 using Dapper;
+using Portal.Application.Features.Catalogos.DTOs;
 using Portal.Application.Interfaces;
 using Portal.Domain.Entities;
 using Portal.Domain.Enums;
@@ -128,5 +129,22 @@ internal sealed class UbicacionAdminRepository : IUbicacionAdminRepository
 
         using var conn = await _connectionFactory.OpenAsync(ct);
         await conn.ExecuteAsync(sql, new { Id = id });
+    }
+
+    public async Task<IReadOnlyList<UbicacionPlanaDto>> GetAllNoBarrioAsync(CancellationToken ct = default)
+    {
+        // El panel admin necesita ver también nodos inactivos (para poder
+        // reactivarlos); los barrios siguen fuera del árbol por volumen.
+        const string sql = """
+            SELECT id AS Id, tipo::text AS Tipo, nombre AS Nombre, slug AS Slug,
+                   padre_id AS PadreId, activo AS Activo
+            FROM ubicaciones
+            WHERE tipo <> 'barrio'
+            ORDER BY tipo, nombre
+            """;
+
+        using var conn = await _connectionFactory.OpenAsync(ct);
+        var filas = await conn.QueryAsync<UbicacionPlanaDto>(sql);
+        return filas.ToList();
     }
 }

@@ -17,6 +17,7 @@ public sealed class UbicacionNodoDto
     public string Tipo { get; init; } = default!;
     public string Nombre { get; init; } = default!;
     public string Slug { get; init; } = default!;
+    public long? PadreId { get; init; }
     public bool Activo { get; init; }
     public List<UbicacionNodoDto> Hijos { get; init; } = [];
 }

@@ -1,6 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Portal.Application.Features.Catalogos.DTOs;
+using Portal.Application.Features.Catalogos.Queries.GetUbicacionesAdmin;
 using Portal.Application.Features.Catalogos.Ubicaciones.Commands.ActualizarUbicacion;
 using Portal.Application.Features.Catalogos.Ubicaciones.Commands.CrearUbicacion;
 using Portal.Application.Features.Catalogos.Ubicaciones.Commands.DesactivarUbicacion;
@@ -19,6 +21,12 @@ public sealed class AdminUbicacionesController : ControllerBase
     {
         _mediator = mediator;
     }
+
+    /// <summary>Árbol completo (zona/localidad/upz, activos e inactivos) para el panel admin.</summary>
+    [HttpGet]
+    [ProducesResponseType(typeof(IReadOnlyList<UbicacionNodoDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> Listar(CancellationToken ct)
+        => Ok(await _mediator.Send(new GetUbicacionesAdminQuery(), ct));
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
