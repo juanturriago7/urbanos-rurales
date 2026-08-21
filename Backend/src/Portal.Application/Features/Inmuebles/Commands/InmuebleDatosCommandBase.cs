@@ -11,12 +11,16 @@ public abstract record InmuebleDatosCommandBase
     public int TipoInmuebleId { get; init; }
     public long UbicacionId { get; init; }
     public string DireccionExacta { get; init; } = default!;
-    public decimal? LatitudExacta { get; init; }
-    public decimal? LongitudExacta { get; init; }
-    public decimal? LatitudAproximada { get; init; }
-    public decimal? LongitudAproximada { get; init; }
+
+    // Spec 03 — área de terreno obligatoria si el tipo no es PH (regla en handler,
+    // no en validator porque no hay acceso a BD desde este).
+    public decimal? AreaTerrenoM2 { get; init; }
     public decimal? AreaConstruidaM2 { get; init; }
     public decimal? AreaPrivadaM2 { get; init; }
+
+    public string? YoutubeUrl { get; init; }
+    public string? MapaEmbedUrl { get; init; }
+
     public short Habitaciones { get; init; }
     public short Banos { get; init; }
     public short Parqueaderos { get; init; }
@@ -56,14 +60,17 @@ public abstract class InmuebleDatosValidatorBase<T> : AbstractValidator<T>
         RuleFor(x => x.TipoInmuebleId).GreaterThan(0);
         RuleFor(x => x.UbicacionId).GreaterThan(0);
         RuleFor(x => x.DireccionExacta).NotEmpty().MaximumLength(200);
-        RuleFor(x => x.LatitudAproximada)
-            .InclusiveBetween(-90, 90)
-            .When(x => x.LatitudAproximada is not null);
-        RuleFor(x => x.LongitudAproximada)
-            .InclusiveBetween(-180, 180)
-            .When(x => x.LongitudAproximada is not null);
+        RuleFor(x => x.AreaTerrenoM2).GreaterThan(0).When(x => x.AreaTerrenoM2 is not null);
         RuleFor(x => x.AreaConstruidaM2).GreaterThan(0).When(x => x.AreaConstruidaM2 is not null);
         RuleFor(x => x.AreaPrivadaM2).GreaterThan(0).When(x => x.AreaPrivadaM2 is not null);
+        RuleFor(x => x.YoutubeUrl)
+            .Must(u => u!.Contains("youtube.com") || u!.Contains("youtu.be"))
+            .When(x => !string.IsNullOrEmpty(x.YoutubeUrl))
+            .WithMessage("El link debe ser una URL de YouTube.");
+        RuleFor(x => x.MapaEmbedUrl)
+            .Must(u => u!.StartsWith("https://www.google.com/maps/embed"))
+            .When(x => !string.IsNullOrEmpty(x.MapaEmbedUrl))
+            .WithMessage("El mapa debe ser una URL de embed de Google Maps (https://www.google.com/maps/embed...).");
         RuleFor(x => x.Habitaciones).GreaterThanOrEqualTo((short)0);
         RuleFor(x => x.Banos).GreaterThanOrEqualTo((short)0);
         RuleFor(x => x.Parqueaderos).GreaterThanOrEqualTo((short)0);

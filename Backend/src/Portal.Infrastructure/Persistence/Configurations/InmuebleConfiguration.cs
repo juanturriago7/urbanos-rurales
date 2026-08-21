@@ -25,21 +25,19 @@ internal sealed class InmuebleConfiguration : IEntityTypeConfiguration<Inmueble>
         builder.Property(i => i.TipoInmuebleId).HasColumnName("tipo_inmueble_id").IsRequired();
         builder.Property(i => i.UbicacionId).HasColumnName("ubicacion_id").IsRequired();
 
-        // Dirección exacta: SOLO panel admin. La pública es la aproximada (RF-044).
+        // Dirección exacta: SOLO panel admin (RF-044).
+        // Spec 03 eliminó lat/long: la captura numérica no tenía consumidor real,
+        // se reemplazó por mapaEmbedUrl (URL de Google Maps embed).
         builder.Property(i => i.DireccionExacta)
                .HasColumnName("direccion_exacta").HasMaxLength(200).IsRequired();
-        builder.Property(i => i.LatitudExacta).HasColumnName("latitud_exacta").HasPrecision(10, 7);
-        builder.Property(i => i.LongitudExacta).HasColumnName("longitud_exacta").HasPrecision(10, 7);
-        // Nullable hasta que exista geocodificación o mapa (RF-044 aún no implementado):
-        // pedirle al admin que calcule a mano un lat/long "aproximado" era mala UX sin
-        // ningún consumidor real del dato todavía.
-        builder.Property(i => i.LatitudAproximada)
-               .HasColumnName("latitud_aproximada").HasPrecision(10, 7);
-        builder.Property(i => i.LongitudAproximada)
-               .HasColumnName("longitud_aproximada").HasPrecision(10, 7);
 
+        // Spec 03: área de terreno (obligatoria si tipo no es PH) + video + mapa.
+        builder.Property(i => i.AreaTerrenoM2)
+               .HasColumnName("area_terreno_m2").HasPrecision(10, 2);
         builder.Property(i => i.AreaConstruidaM2).HasColumnName("area_construida_m2").HasPrecision(8, 2);
         builder.Property(i => i.AreaPrivadaM2).HasColumnName("area_privada_m2").HasPrecision(8, 2);
+        builder.Property(i => i.YoutubeUrl).HasColumnName("youtube_url").HasMaxLength(300);
+        builder.Property(i => i.MapaEmbedUrl).HasColumnName("mapa_embed_url").HasMaxLength(500);
         builder.Property(i => i.Habitaciones).HasColumnName("habitaciones").IsRequired().HasDefaultValue((short)0);
         builder.Property(i => i.Banos).HasColumnName("banos").IsRequired().HasDefaultValue((short)0);
         builder.Property(i => i.Parqueaderos).HasColumnName("parqueaderos").IsRequired().HasDefaultValue((short)0);
@@ -106,7 +104,8 @@ internal sealed class InmuebleConfiguration : IEntityTypeConfiguration<Inmueble>
 
         builder.HasIndex("BusquedaTsv").HasMethod("gin").HasDatabaseName("idx_inmuebles_tsv");
 
-        builder.HasIndex(i => new { i.LatitudAproximada, i.LongitudAproximada })
-               .HasDatabaseName("idx_inmuebles_geo");
+        // idx_inmuebles_geo eliminado en la migración ActualizarFichaTecnicaInmueble
+        // (spec 03) junto con latitud_exacta/longitud_exacta/latitud_aproximada/
+        // longitud_aproximada — ya no se buscan inmuebles por proximidad.
     }
 }
