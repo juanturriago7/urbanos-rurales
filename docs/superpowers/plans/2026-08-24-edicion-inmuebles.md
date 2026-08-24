@@ -175,10 +175,15 @@ describe('inmuebleSchema — operaciones', () => {
   })
 
   it('acepta solo arriendo, con las claves de venta ausentes', () => {
+    // La clave se OMITE, no se pone en undefined: en Zod 4 son rutas
+    // distintas. Sin `.optional()`, una clave ausente se rechaza pero un
+    // `undefined` explícito se acepta — escribir `precioVenta: undefined`
+    // haría que este test pase con o sin el arreglo, que es justo lo que
+    // no queremos.
+    const { precioVenta: _omitido, ...sinVenta } = base
     const r = inmuebleSchema.safeParse({
-      ...base,
+      ...sinVenta,
       tieneVenta: false,
-      precioVenta: undefined,
       tieneArriendo: true,
       precioArriendo: 2500000,
     })
@@ -254,7 +259,9 @@ Expected: FAIL — el módulo `@/features/admin/properties/schemas/inmuebleSchem
 
 - [ ] **Step 3: Crear el archivo del schema**
 
-Crear `src/features/admin/properties/schemas/inmuebleSchema.ts`. Es un **movimiento** de `InmuebleFormPage.tsx:30-132` con **un solo cambio de comportamiento**: `.optional()` sobre los tres helpers, que es el arreglo del bug de Zod 4.
+Crear `src/features/admin/properties/schemas/inmuebleSchema.ts`. Es un **movimiento** de `InmuebleFormPage.tsx:30-132` con **un solo cambio de comportamiento**: `.optional()` sobre los **dos** helpers opcionales (`numeroOpcional` y `textoOpcional`), que es el arreglo del bug de Zod 4.
+
+`numeroRequerido` **no** lleva `.optional()`: respalda campos que siempre están registrados en pantalla (`tipoInmuebleId`, `ubicacionId`, `habitaciones`, `banos`, `parqueaderos`), nunca campos ocultos tras un checkbox, así que su clave jamás llega ausente.
 
 ```ts
 import { z } from 'zod'
