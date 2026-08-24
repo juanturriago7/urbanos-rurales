@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useNavigate } from 'react-router-dom'
 import { useCrearInmueble } from '@/features/admin/properties/hooks/useInmuebles'
 import {
@@ -16,6 +15,12 @@ import { Spinner } from '@/shared/components/ui/Spinner'
 import { Input, Select, Textarea } from '@/shared/components/ui/Field'
 import { TarjetaFotos } from '@/features/admin/properties/components/TarjetaFotos'
 import type { CrearInmuebleInput } from '@/features/admin/properties/api/inmueblesApi'
+import {
+  inmuebleSchema,
+  valoresPorDefecto,
+  type InmuebleFormInput,
+  type InmuebleFormParsed,
+} from '@/features/admin/properties/schemas/inmuebleSchema'
 
 /**
  * Alta de inmueble (RF-070, RF-072, RF-076, RF-077).
@@ -26,110 +31,6 @@ import type { CrearInmuebleInput } from '@/features/admin/properties/api/inmuebl
  * (InmuebleDatosValidatorBase) para dar retroalimentación inmediata; el backend
  * sigue siendo la autoridad y sus mensajes se muestran si algo se escapa.
  */
-
-// Los <input type="number"> entregan string; se convierten antes de validar.
-//
-// Es imprescindible aceptar `undefined`: los campos de una operación solo se
-// renderizan cuando su checkbox está marcado, así que mientras estén ocultos
-// nunca se registran y llegan como undefined. Si el esquema los rechaza, la
-// validación falla en un campo que no está en pantalla y el submit se aborta
-// sin mostrar ningún error.
-const numeroOpcional = z
-  .union([z.string(), z.number(), z.null(), z.undefined()])
-  .transform((v) => (v === '' || v === null || v === undefined ? null : Number(v)))
-
-const numeroRequerido = z
-  .union([z.string(), z.number(), z.null(), z.undefined()])
-  .transform((v) => (v === '' || v === null || v === undefined ? Number.NaN : Number(v)))
-
-const textoOpcional = z
-  .union([z.string(), z.null(), z.undefined()])
-  .transform((v) => (v == null || v.trim() === '' ? null : v.trim()))
-
-const inmuebleSchema = z
-  .object({
-    titulo: z.string().trim().min(1, 'El título es obligatorio').max(160, 'Máximo 160 caracteres'),
-    descripcion: textoOpcional,
-    tipoInmuebleId: numeroRequerido.refine((v) => v > 0, 'Selecciona un tipo de inmueble'),
-    ubicacionId: numeroRequerido.refine((v) => v > 0, 'Selecciona una ubicación'),
-    direccionExacta: z
-      .string()
-      .trim()
-      .min(1, 'La dirección es obligatoria')
-      .max(200, 'Máximo 200 caracteres'),
-
-    // Spec 03 — lat/long eliminados; el mapa ahora es un embed de Google Maps.
-    areaTerrenoM2: numeroOpcional.refine((v) => v === null || v > 0, 'Debe ser mayor que 0'),
-    areaConstruidaM2: numeroOpcional.refine((v) => v === null || v > 0, 'Debe ser mayor que 0'),
-    areaPrivadaM2: numeroOpcional.refine((v) => v === null || v > 0, 'Debe ser mayor que 0'),
-
-    youtubeUrl: z
-      .string()
-      .trim()
-      .optional()
-      .refine(
-        (v) => !v || v.includes('youtube.com') || v.includes('youtu.be'),
-        'El link debe ser una URL de YouTube.',
-      ),
-    mapaEmbedUrl: z
-      .string()
-      .trim()
-      .optional()
-      .refine(
-        (v) => !v || v.startsWith('https://www.google.com/maps/embed'),
-        'Debe ser una URL de embed de Google Maps (https://www.google.com/maps/embed...).',
-      ),
-
-    habitaciones: numeroRequerido.refine((v) => v >= 0, 'No puede ser negativo'),
-    banos: numeroRequerido.refine((v) => v >= 0, 'No puede ser negativo'),
-    parqueaderos: numeroRequerido.refine((v) => v >= 0, 'No puede ser negativo'),
-
-    piso: numeroOpcional,
-    pisosEdificio: numeroOpcional,
-    estrato: numeroOpcional.refine(
-      (v) => v === null || (v >= 1 && v <= 6),
-      'El estrato debe estar entre 1 y 6',
-    ),
-    antiguedad: textoOpcional,
-    orientacion: textoOpcional,
-
-    politicaMascotas: z.enum(['permitidas', 'no_permitidas', 'con_restricciones']),
-    amoblado: z.enum(['si', 'no', 'semi']),
-    matriculaInmobiliaria: textoOpcional,
-
-    // ── Operaciones (RF-076): venta y/o arriendo, al menos una ────────────────
-    tieneVenta: z.boolean(),
-    precioVenta: numeroOpcional,
-    adminVenta: numeroOpcional,
-
-    tieneArriendo: z.boolean(),
-    precioArriendo: numeroOpcional,
-    adminArriendo: numeroOpcional,
-    adminIncluidaArriendo: z.boolean(),
-
-    // Un grupo de checkboxes con el mismo `name` devuelve las opciones marcadas
-    // como strings (el atributo `value` del DOM), no como números. Se acepta
-    // cualquiera de los dos y se normaliza aquí.
-    caracteristicaIds: z
-      .array(z.union([z.string(), z.number()]))
-      .default([])
-      .transform((ids) => ids.map(Number).filter((n) => Number.isFinite(n))),
-  })
-  .refine((d) => d.tieneVenta || d.tieneArriendo, {
-    message: 'Debes registrar al menos una operación: venta o arriendo',
-    path: ['tieneVenta'],
-  })
-  .refine((d) => !d.tieneVenta || (d.precioVenta !== null && d.precioVenta > 0), {
-    message: 'Ingresa el precio de venta',
-    path: ['precioVenta'],
-  })
-  .refine((d) => !d.tieneArriendo || (d.precioArriendo !== null && d.precioArriendo > 0), {
-    message: 'Ingresa el canon de arriendo',
-    path: ['precioArriendo'],
-  })
-
-type InmuebleForm = z.input<typeof inmuebleSchema>
-type InmuebleFormParsed = z.output<typeof inmuebleSchema>
 
 export function InmuebleFormPage() {
   const navigate = useNavigate()
@@ -153,19 +54,9 @@ export function InmuebleFormPage() {
     control,
     setError,
     formState: { errors },
-  } = useForm<InmuebleForm, unknown, InmuebleFormParsed>({
+  } = useForm<InmuebleFormInput, unknown, InmuebleFormParsed>({
     resolver: zodResolver(inmuebleSchema),
-    defaultValues: {
-      politicaMascotas: 'no_permitidas',
-      amoblado: 'no',
-      habitaciones: 0,
-      banos: 0,
-      parqueaderos: 0,
-      tieneVenta: true,
-      tieneArriendo: false,
-      adminIncluidaArriendo: false,
-      caracteristicaIds: [],
-    },
+    defaultValues: valoresPorDefecto,
   })
 
   // useWatch en vez de watch(): watch() devuelve una función no memoizable y el
@@ -357,7 +248,7 @@ export function InmuebleFormPage() {
               label="URL de embed de Google Maps"
               placeholder="https://www.google.com/maps/embed?pb=..."
               wrapperClassName="sm:col-span-2"
-              hint='En Google Maps: Compartir → Insertar un mapa → copia el link que empieza por https://www.google.com/maps/embed...'
+              hint="En Google Maps: Compartir → Insertar un mapa → copia el link que empieza por https://www.google.com/maps/embed..."
               error={errors.mapaEmbedUrl?.message}
               {...register('mapaEmbedUrl')}
             />
