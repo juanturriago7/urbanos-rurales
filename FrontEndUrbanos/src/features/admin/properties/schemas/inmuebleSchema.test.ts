@@ -26,10 +26,16 @@ describe('inmuebleSchema — operaciones', () => {
   })
 
   it('acepta solo arriendo, con las claves de venta ausentes', () => {
+    // La clave se OMITE, no se pone en undefined: en Zod 4 son rutas
+    // distintas. Sin `.optional()`, una clave ausente se rechaza pero un
+    // `undefined` explícito se acepta — escribir `precioVenta: undefined`
+    // haría que este test pase con o sin el arreglo, que es justo lo que
+    // no queremos.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- se descarta a propósito para omitir la clave
+    const { precioVenta: _omitido, ...sinVenta } = base
     const r = inmuebleSchema.safeParse({
-      ...base,
+      ...sinVenta,
       tieneVenta: false,
-      precioVenta: undefined,
       tieneArriendo: true,
       precioArriendo: 2500000,
     })
