@@ -38,8 +38,10 @@
 Desde `FrontEndUrbanos/`:
 
 ```bash
-pnpm add -D vitest@^3
+pnpm add -D vitest@^4
 ```
+
+**Tiene que ser vitest 4, no 3.** Este proyecto usa `vite@^8.1.1`, y el rango de peers de vitest 3 llega solo hasta vite 7: pnpm instala entonces un `vite@7` en paralelo al `vite@8` del proyecto, y los tipos de ambos chocan en `vite.config.ts` (`error TS2769: No overload matches this call` sobre `plugins`), rompiendo `pnpm build` aunque los tests pasen. vitest 4 declara `vite: ^6.0.0 || ^7.0.0 || ^8.0.0` y reutiliza el vite que ya está.
 
 No se instala `jsdom`, `happy-dom` ni Testing Library: los tests corren en entorno `node`.
 
@@ -108,10 +110,13 @@ describe('infraestructura de tests', () => {
 
 Este test vale por sí solo: si el alias `@` no estuviera resuelto en Vitest, todos los tests de las tareas siguientes fallarían con un error de import críptico.
 
-- [ ] **Step 5: Correr el test**
+- [ ] **Step 5: Correr el test Y el build**
 
 Run: `pnpm test`
 Expected: PASS, 1 test.
+
+Run: `pnpm build`
+Expected: exit 0, sin errores de TypeScript. **Este paso no es opcional**: es el único que detecta un conflicto de versiones entre vitest y vite, que se manifiesta solo en `tsc` y deja los tests pasando en verde.
 
 - [ ] **Step 6: Commit**
 
