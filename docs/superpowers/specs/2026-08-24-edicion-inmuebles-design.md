@@ -110,10 +110,32 @@ Por tanto: `InmuebleForm` los incluye, y **la página decide cómo persistirlos*
 | Página | Persistencia |
 |---|---|
 | Crear | Un solo `POST /api/admin/inmuebles` con `operaciones` embebido en el payload (`CrearInmuebleInput.operaciones`). |
-| Editar | Dos llamadas: `PUT /{id}` con los campos y `PUT /{id}/operaciones` con el arreglo de operaciones. |
+| Editar | `PUT /{id}` con los campos, y **una llamada a `PUT /{id}/operaciones` por cada tipo de operación**. |
 
-En edición, si la primera llamada falla no se dispara la segunda, y se muestra
-el error sin dejar el formulario en estado inconsistente.
+**`PUT /{id}/operaciones` recibe UNA operación, no un arreglo.** Su body es
+`UpsertOperacionCommand`:
+
+```csharp
+public sealed record UpsertOperacionCommand(
+    string TipoOperacion,        // 'venta' | 'arriendo'
+    decimal Precio,
+    decimal? CuotaAdministracion,
+    bool AdminIncluida,
+    string? Estado,              // 'disponible' | 'reservado' | 'cerrado'
+    bool? Activo);
+```
+
+Consecuencias para la edición:
+
+- Editar un inmueble con venta y arriendo son **dos** llamadas, una por tipo.
+- **No existe endpoint de borrado de operación.** Para quitar una operación que
+  el usuario desmarcó se envía la misma operación con `Activo: false`. El
+  validador exige `Precio > 0` siempre, así que al desactivar hay que reenviar
+  el precio que ya tenía (viene en `InmuebleAdminDetalleDto.Operaciones`), no
+  un `0`.
+- Las llamadas se hacen en secuencia: primero los campos; si eso falla, no se
+  disparan las de operaciones y se muestra el error sin dejar el formulario en
+  estado inconsistente.
 - `features/admin/properties/api/inmueblesApi.test.ts`
 - `features/admin/properties/hooks/useInmuebles.test.ts`
 - `features/admin/properties/schemas/inmuebleSchema.test.ts`
@@ -166,8 +188,13 @@ Queda por cubrir en esta pantalla:
   No dejar la página en spinner indefinido.
 - **Carga inicial** → estado de carga mientras `useInmueble` resuelve, siguiendo
   el patrón `cargandoExistente` de `BlogAdminFormPage`.
-- **400 de validación** → mapear los errores de ProblemDetails a los campos
-  correspondientes del formulario.
+- **400 de validación del backend** → mensaje general en `errors.root` del
+  formulario, usando el helper `mensajeDeError` ya existente. **No** se mapea
+  campo por campo: la página de creación tampoco lo hace hoy, y la validación
+  Zod del cliente ya replica las reglas del validador de FluentValidation, así
+  que un 400 con detalle por campo es el caso raro. Mapear ProblemDetails a
+  campos sería una mejora transversal a todos los formularios del admin, no de
+  esta pantalla.
 
 ## Testing
 
