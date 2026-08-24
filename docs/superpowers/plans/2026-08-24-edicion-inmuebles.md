@@ -429,6 +429,7 @@ git commit -m "fix(inmuebles): extrae el schema Zod y corrige el bug de opcional
 **Interfaces:**
 - Consumes: `InmuebleFormInput`, `InmuebleFormParsed` de la Task 2; los tipos `InmuebleDatosInput`, `OperacionInput` de `api/inmueblesApi.ts`.
 - Produces:
+  - `api/inmueblesTypes.ts` con: las uniones `EstadoInmueble`, `TipoOperacion`, `PoliticaMascotas`, `Amoblado` (**movidas** desde `inmueblesApi.ts:9-12`), más `OperacionDto`, `CaracteristicaValorDto`, `ImagenDto`, `InmuebleAdminDetalleDto`, `UpsertOperacionInput`.
   - `aValoresFormulario(dto: InmuebleAdminDetalleDto): InmuebleFormInput`
   - `aDatosInput(datos: InmuebleFormParsed): InmuebleDatosInput`
   - `aOperacionesUpsert(datos: InmuebleFormParsed, actuales: OperacionDto[]): UpsertOperacionInput[]`
@@ -439,15 +440,15 @@ Los tipos del detalle admin (`InmuebleAdminDetalleDto`, `OperacionDto`, `UpsertO
 
 - [ ] **Step 1: Crear los tipos que faltan**
 
-Crear `src/features/admin/properties/api/inmueblesTypes.ts`:
+Crear `src/features/admin/properties/api/inmueblesTypes.ts`.
+
+**Las uniones primitivas se MUEVEN aquí desde `inmueblesApi.ts`** (líneas 9-12 de ese archivo). Es imprescindible: si `inmueblesTypes.ts` las importara de `inmueblesApi.ts` mientras `inmueblesApi.ts` importa los DTOs de `inmueblesTypes.ts`, quedaría un ciclo de imports. Con `import type` TypeScript lo borraría en compilación, pero es exactamente el acoplamiento que este archivo existe para evitar. La dependencia va en una sola dirección: `inmueblesApi.ts` → `inmueblesTypes.ts`.
 
 ```ts
-import type {
-  Amoblado,
-  EstadoInmueble,
-  PoliticaMascotas,
-  TipoOperacion,
-} from '@/features/admin/properties/api/inmueblesApi'
+export type EstadoInmueble = 'borrador' | 'publicado' | 'pausado' | 'archivado'
+export type TipoOperacion = 'venta' | 'arriendo'
+export type PoliticaMascotas = 'permitidas' | 'no_permitidas' | 'con_restricciones'
+export type Amoblado = 'si' | 'no' | 'semi'
 
 export interface OperacionDto {
   id: number
@@ -928,17 +929,36 @@ Expected: FAIL — `getInmuebleAdmin`, `actualizarInmueble` y `upsertOperacion` 
 
 - [ ] **Step 3: Agregar las funciones de API**
 
-Al final de `api/inmueblesApi.ts`, y añadiendo el re-export de tipos arriba:
+En `api/inmueblesApi.ts`, primero **borrar las líneas 9-12** (las cuatro uniones primitivas, que se movieron a `inmueblesTypes.ts` en la Task 3) y re-exportarlas desde su nuevo hogar junto con los DTOs, para que ningún consumidor existente se rompa:
 
 ```ts
 export type {
+  Amoblado,
   CaracteristicaValorDto,
+  EstadoInmueble,
   ImagenDto,
   InmuebleAdminDetalleDto,
   OperacionDto,
+  PoliticaMascotas,
+  TipoOperacion,
   UpsertOperacionInput,
 } from '@/features/admin/properties/api/inmueblesTypes'
 ```
+
+Las interfaces que ya usan esas uniones dentro de este archivo (`InmuebleAdminListItemDto`, `OperacionInput`, `InmuebleDatosInput`) necesitan además el import de valor de tipo:
+
+```ts
+import type {
+  Amoblado,
+  EstadoInmueble,
+  InmuebleAdminDetalleDto,
+  PoliticaMascotas,
+  TipoOperacion,
+  UpsertOperacionInput,
+} from '@/features/admin/properties/api/inmueblesTypes'
+```
+
+Después, al final del archivo, las tres funciones nuevas:
 
 ```ts
 /** Detalle completo para edición (RF-044). */
@@ -965,15 +985,6 @@ export const upsertOperacion = async (
 ): Promise<void> => {
   await apiClient.put(`/api/admin/inmuebles/${id}/operaciones`, operacion)
 }
-```
-
-El import de los tipos va arriba del archivo:
-
-```ts
-import type {
-  InmuebleAdminDetalleDto,
-  UpsertOperacionInput,
-} from '@/features/admin/properties/api/inmueblesTypes'
 ```
 
 - [ ] **Step 4: Correr los tests**
