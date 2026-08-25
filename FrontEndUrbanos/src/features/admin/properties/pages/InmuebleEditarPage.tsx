@@ -21,7 +21,14 @@ export function InmuebleEditarPage() {
   const { data: inmueble, isLoading, isError } = useInmueble(esIdValido ? id : undefined)
   const { mutateAsync: actualizar, isPending } = useActualizarInmueble()
 
-  if (!esIdValido || isError) {
+  // El `!inmueble` no es defensivo, es la condición: React Query conserva
+  // `data` y pone `status: 'error'` cuando falla un REFETCH. `useActualizarInmueble`
+  // invalida ['inmuebles'], que hace prefijo con la clave del detalle y fuerza
+  // justo ese refetch tras guardar. Sin el `!inmueble`, un 500 pasajero después
+  // de un guardado correcto reemplazaría el formulario montado por "no
+  // encontrado" y tiraría los cambios sin guardar. Solo se muestra la tarjeta
+  // cuando no hay NADA que mostrar.
+  if (!esIdValido || (isError && !inmueble)) {
     return (
       <div className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm">
         <p className="text-error">Inmueble no encontrado.</p>
@@ -43,7 +50,10 @@ export function InmuebleEditarPage() {
   const onSubmit = async (datos: InmuebleFormParsed) => {
     await actualizar({
       id,
-      datos: aDatosInput(datos),
+      // El segundo argumento reenvía los campos que el PUT sobrescribe pero el
+      // formulario no edita (metaTitulo, metaDescripcion, asesorId y el `valor`
+      // de cada característica). Sin él, cada guardado los borraría.
+      datos: aDatosInput(datos, inmueble),
       operaciones: aOperacionesUpsert(datos, inmueble.operaciones),
     })
   }

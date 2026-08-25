@@ -18,7 +18,6 @@ export type {
   Amoblado,
   CaracteristicaValorDto,
   EstadoInmueble,
-  ImagenDto,
   InmuebleAdminDetalleDto,
   OperacionDto,
   PoliticaMascotas,

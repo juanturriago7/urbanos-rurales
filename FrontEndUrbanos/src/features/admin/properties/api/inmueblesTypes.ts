@@ -5,6 +5,12 @@
  * de la otra: `inmueblesApi.ts` importa de aquí, nunca al revés.
  */
 
+// `ImagenDto` no se redeclara aquí: la definición buena, la que coincide con lo
+// que devuelve el backend (urlCdn, urlThumbnail, formato...), ya vive en
+// `imagenesApi.ts`. Es `import type`, así que se borra al compilar y no
+// arrastra `apiClient` a este archivo ni a los mapeadores.
+import type { ImagenDto } from '@/features/admin/properties/api/imagenesApi'
+
 export type EstadoInmueble = 'borrador' | 'publicado' | 'pausado' | 'archivado'
 export type TipoOperacion = 'venta' | 'arriendo'
 export type PoliticaMascotas = 'permitidas' | 'no_permitidas' | 'con_restricciones'
@@ -25,13 +31,6 @@ export interface CaracteristicaValorDto {
   nombre: string
   categoria: string
   valor: string | null
-}
-
-export interface ImagenDto {
-  id: number
-  url: string
-  esPortada: boolean
-  orden: number
 }
 
 /** Respuesta de GET /api/admin/inmuebles/{id}. */

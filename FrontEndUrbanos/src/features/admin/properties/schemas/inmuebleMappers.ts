@@ -50,13 +50,53 @@ export function aValoresFormulario(dto: InmuebleAdminDetalleDto): InmuebleFormIn
   }
 }
 
-/** Formulario validado → body de PUT/POST de los campos del inmueble. */
-export function aDatosInput(datos: InmuebleFormParsed): InmuebleDatosInput {
-  const caracteristicas: CaracteristicaValorInput[] = datos.caracteristicaIds.map((id) => ({
-    caracteristicaId: id,
-  }))
+/**
+ * Campos que el formulario NO edita pero que el PUT de actualización sí
+ * sobrescribe. Es un `Pick` del detalle, así que la página de edición puede
+ * pasar el DTO cargado tal cual.
+ */
+export type CamposPreservados = Pick<
+  InmuebleAdminDetalleDto,
+  'metaTitulo' | 'metaDescripcion' | 'asesorId' | 'caracteristicas'
+>
+
+/**
+ * Formulario validado → body de PUT/POST de los campos del inmueble.
+ *
+ * `previo` es OBLIGATORIO al editar y debe omitirse al crear.
+ *
+ * `PUT /api/admin/inmuebles/{id}` es un reemplazo completo, no un merge: el
+ * handler pasa `MetaTitulo`, `MetaDescripcion` y `AsesorId` directo a
+ * `ActualizarDatos`, y el repositorio los escribe siempre; una clave ausente
+ * del JSON llega como `null` y borra la columna. Lo mismo con las
+ * características: el repositorio borra y reinserta el set completo, así que
+ * el `valor` de cada una se pierde si no se reenvía. Como el formulario no
+ * tiene inputs para nada de eso, hay que devolverlos tal como vinieron en el
+ * detalle.
+ *
+ * Al crear no hay nada que preservar —el registro no existe todavía— y esas
+ * claves simplemente no se emiten; el backend aplica sus valores por defecto.
+ */
+export function aDatosInput(
+  datos: InmuebleFormParsed,
+  previo?: CamposPreservados,
+): InmuebleDatosInput {
+  const caracteristicas: CaracteristicaValorInput[] = datos.caracteristicaIds.map((id) => {
+    const previa = previo?.caracteristicas.find((c) => c.caracteristicaId === id)
+    // Una característica recién marcada no tiene `valor` previo que conservar.
+    return previa ? { caracteristicaId: id, valor: previa.valor } : { caracteristicaId: id }
+  })
+
+  const preservados: Partial<InmuebleDatosInput> = previo
+    ? {
+        metaTitulo: previo.metaTitulo,
+        metaDescripcion: previo.metaDescripcion,
+        asesorId: previo.asesorId,
+      }
+    : {}
 
   return {
+    ...preservados,
     titulo: datos.titulo,
     descripcion: datos.descripcion,
     tipoInmuebleId: datos.tipoInmuebleId,
@@ -89,6 +129,12 @@ export function aDatosInput(datos: InmuebleFormParsed): InmuebleDatosInput {
  * operación que el usuario desmarcó se desactiva con `activo: false`,
  * reenviando el precio que ya tenía porque el validador exige Precio > 0.
  * Una operación que nunca existió y sigue desmarcada simplemente no se envía.
+ *
+ * `estado` se omite A PROPÓSITO, y no por apoyarse en un valor por defecto del
+ * backend: el handler solo llama a `CambiarEstado` cuando `Estado is not null`,
+ * así que omitirlo conserva el estado actual de la operación. Enviarlo sería
+ * el bug — pisaría un `reservado`/`cerrado` existente con `disponible`, que es
+ * lo único que el formulario podría mandar (no tiene input para el estado).
  */
 export function aOperacionesUpsert(
   datos: InmuebleFormParsed,

@@ -113,6 +113,67 @@ describe('aDatosInput', () => {
   })
 })
 
+/**
+ * PUT /api/admin/inmuebles/{id} es un reemplazo completo: toda clave ausente
+ * del body llega como null al repositorio y borra la columna. El formulario no
+ * edita metaTitulo, metaDescripcion, asesorId ni el `valor` de las
+ * características, así que la edición tiene que devolvérselos al backend.
+ */
+describe('aDatosInput al editar (campos que el formulario no edita)', () => {
+  const dtoConMetadatos: InmuebleAdminDetalleDto = {
+    ...dto,
+    metaTitulo: 'Casa en Chía con vista a la montaña',
+    metaDescripcion: 'Casa campestre de 180 m² construidos en Chía, Cundinamarca.',
+    asesorId: 42,
+    caracteristicas: [
+      { caracteristicaId: 3, nombre: 'Piscina', categoria: 'Exteriores', valor: '8x4 m' },
+      { caracteristicaId: 7, nombre: 'Gimnasio', categoria: 'Comunes', valor: null },
+    ],
+  }
+
+  it('reenvía metaTitulo, metaDescripcion y asesorId del detalle cargado', () => {
+    const datos = inmuebleSchema.parse(aValoresFormulario(dtoConMetadatos))
+    const payload = aDatosInput(datos, dtoConMetadatos)
+
+    expect(payload.metaTitulo).toBe('Casa en Chía con vista a la montaña')
+    expect(payload.metaDescripcion).toBe(
+      'Casa campestre de 180 m² construidos en Chía, Cundinamarca.',
+    )
+    expect(payload.asesorId).toBe(42)
+  })
+
+  it('reenvía el valor de cada característica que ya lo tenía', () => {
+    const datos = inmuebleSchema.parse(aValoresFormulario(dtoConMetadatos))
+
+    expect(aDatosInput(datos, dtoConMetadatos).caracteristicas).toEqual([
+      { caracteristicaId: 3, valor: '8x4 m' },
+      { caracteristicaId: 7, valor: null },
+    ])
+  })
+
+  it('no inventa valor para una característica recién marcada', () => {
+    const valores = aValoresFormulario(dtoConMetadatos)
+    const datos = inmuebleSchema.parse({ ...valores, caracteristicaIds: [3, 9] })
+
+    expect(aDatosInput(datos, dtoConMetadatos).caracteristicas).toEqual([
+      { caracteristicaId: 3, valor: '8x4 m' },
+      { caracteristicaId: 9 },
+    ])
+  })
+
+  it('el alta (sin detalle previo) no emite ninguna de esas claves', () => {
+    // El POST de creación no tiene nada que preservar y no debe mandar nulls
+    // que pisen los valores por defecto del backend.
+    const datos = inmuebleSchema.parse(aValoresFormulario(dtoConMetadatos))
+    const payload = aDatosInput(datos) as unknown as Record<string, unknown>
+
+    expect(payload).not.toHaveProperty('metaTitulo')
+    expect(payload).not.toHaveProperty('metaDescripcion')
+    expect(payload).not.toHaveProperty('asesorId')
+    expect(payload.caracteristicas).toEqual([{ caracteristicaId: 3 }, { caracteristicaId: 7 }])
+  })
+})
+
 describe('aOperacionesUpsert', () => {
   it('envía la operación marcada como activa', () => {
     const datos = inmuebleSchema.parse(aValoresFormulario(dto))
