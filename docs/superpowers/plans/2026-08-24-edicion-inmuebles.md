@@ -1104,6 +1104,14 @@ git commit -m "feat(inmuebles): API y hooks para leer y actualizar un inmueble"
     textoBoton: string
     /** Se renderiza en la sidebar; en creación es TarjetaFotos, en edición GaleriaImagenes. */
     panelFotos?: React.ReactNode
+    /**
+     * Reemplaza al botón de submit cuando la página ya no quiere que se envíe
+     * el formulario. En creación, tras guardar, es el enlace "Ir al listado".
+     * Va aquí y no dentro de `panelFotos` porque el submit vive fuera del
+     * fieldset deshabilitado: colarlo por la prop de fotos funcionaría, pero
+     * dejaría un nombre que miente sobre lo que contiene.
+     */
+    accionPrincipal?: React.ReactNode
     deshabilitado?: boolean
   }
   ```
