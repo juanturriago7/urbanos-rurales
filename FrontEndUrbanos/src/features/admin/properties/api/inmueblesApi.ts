@@ -6,11 +6,6 @@ import type { PagedResult } from '@/shared/types/api'
  * Contrato: Task/BackEnd/04-contrato-api-frontend.md
  */
 
-export type EstadoInmueble = 'borrador' | 'publicado' | 'pausado' | 'archivado'
-export type TipoOperacion = 'venta' | 'arriendo'
-export type PoliticaMascotas = 'permitidas' | 'no_permitidas' | 'con_restricciones'
-export type Amoblado = 'si' | 'no' | 'semi'
-
 export interface InmuebleAdminListItemDto {
   id: number
   codigoReferencia: string
