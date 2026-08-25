@@ -18,6 +18,14 @@ import {
 } from '@/features/admin/properties/schemas/inmuebleSchema'
 
 interface InmuebleFormProps {
+  /**
+   * Valores iniciales del formulario. **Se leen UNA sola vez, al montar**:
+   * `useForm` fija `defaultValues` en el primer render y este componente no
+   * llama a `reset()`. Una página que cargue datos de forma asíncrona debe
+   * entonces NO montar el formulario hasta tenerlos, o remontarlo con
+   * `key={id}` — si se monta antes, los campos quedan vacíos para siempre y
+   * el primer guardado borra el registro.
+   */
   valoresIniciales?: Partial<InmuebleFormInput>
   onSubmit: (datos: InmuebleFormParsed) => Promise<void>
   enviando: boolean
@@ -30,6 +38,11 @@ interface InmuebleFormProps {
    * Va aquí y no dentro de `panelFotos` porque el submit vive fuera del
    * fieldset deshabilitado: colarlo por la prop de fotos funcionaría, pero
    * dejaría un nombre que miente sobre lo que contiene.
+   *
+   * El `??` que la resuelve trata `null` y `undefined` igual: con cualquiera
+   * de los dos se cae al botón de submit. Pasar `null` NO suprime el submit,
+   * así que un `cond ? <X/> : null` junto a `deshabilitado={false}` renderiza
+   * un submit que nadie pidió; para no tener acción principal, `deshabilitado`.
    */
   accionPrincipal?: React.ReactNode
   deshabilitado?: boolean
