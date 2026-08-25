@@ -79,22 +79,16 @@ export function InmuebleFormPage() {
         enviando={isPending}
         textoBoton="Crear inmueble"
         deshabilitado={yaCreado}
-        panelFotos={
-          <>
-            {/* Ya creado el formulario se bloquea y desaparece el submit: la
-                única salida es este botón, que ocupa su lugar en la sidebar. */}
-            {yaCreado && (
-              <Button
-                type="button"
-                className="w-full"
-                onClick={() => navigate('/admin/properties')}
-              >
-                Ir al listado
-              </Button>
-            )}
-            <TarjetaFotos inmuebleId={inmuebleCreadoId} />
-          </>
+        // Ya creado el formulario se bloquea y desaparece el submit: la única
+        // salida es este botón, que ocupa su lugar en la sidebar.
+        accionPrincipal={
+          yaCreado ? (
+            <Button type="button" className="w-full" onClick={() => navigate('/admin/properties')}>
+              Ir al listado
+            </Button>
+          ) : undefined
         }
+        panelFotos={<TarjetaFotos inmuebleId={inmuebleCreadoId} />}
       />
     </div>
   )
