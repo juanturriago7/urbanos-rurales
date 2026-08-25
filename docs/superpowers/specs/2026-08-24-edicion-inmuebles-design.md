@@ -143,9 +143,13 @@ Consecuencias para la edición:
 ### Archivos a modificar (diffs aditivos)
 
 - `api/inmueblesApi.ts` — agregar `getInmuebleAdmin(id)`,
-  `actualizarInmueble(id, input)`, `actualizarOperaciones(id, ops)`.
-- `hooks/useInmuebles.ts` — agregar `useInmueble(id)`,
-  `useActualizarInmueble()`, `useActualizarOperaciones()`.
+  `actualizarInmueble(id, input)`, `upsertOperacion(id, operacion)`. La última
+  es **una operación por llamada**, no un arreglo, porque así es el endpoint.
+- `hooks/useInmuebles.ts` — agregar `useInmueble(id)` y
+  `useActualizarInmueble()`. No hay hook aparte para operaciones: el bucle que
+  llama a `upsertOperacion` una vez por operación vive dentro de
+  `useActualizarInmueble`, para garantizar que los campos se guarden primero y
+  que un fallo ahí no deje operaciones aplicadas a medias.
 - `pages/InmuebleFormPage.tsx` — reducir a envoltura delgada de creación.
 - `app/router/index.tsx` — una línea:
   `{ path: 'properties/:id/editar', element: <InmuebleEditarPage /> }`.
@@ -205,8 +209,9 @@ Queda por cubrir en esta pantalla:
 Vitest **sin** Testing Library ni entorno DOM (decisión explícita del usuario).
 
 - `inmueblesApi.test.ts` — verifica URL, método HTTP y forma del payload de
-  `getInmuebleAdmin`, `actualizarInmueble` y `actualizarOperaciones`, con
-  `apiClient` mockeado.
+  `getInmuebleAdmin`, `actualizarInmueble` y `upsertOperacion`, con
+  `apiClient` mockeado. El de `upsertOperacion` además fija que el body sea la
+  operación suelta y no un arreglo, que es el error fácil de cometer aquí.
 - **No hay `useInmuebles.test.ts`.** Se había planeado para verificar claves de
   query e invalidaciones, pero un hook de React Query no se puede ejercitar sin
   renderer, y este proyecto renuncia al entorno DOM a propósito. En su lugar la
