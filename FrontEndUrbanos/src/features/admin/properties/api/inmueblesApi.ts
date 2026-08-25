@@ -1,10 +1,30 @@
 import { apiClient } from '@/shared/lib/axios'
 import type { PagedResult } from '@/shared/types/api'
+import type {
+  Amoblado,
+  EstadoInmueble,
+  InmuebleAdminDetalleDto,
+  PoliticaMascotas,
+  TipoOperacion,
+  UpsertOperacionInput,
+} from '@/features/admin/properties/api/inmueblesTypes'
 
 /**
  * Inmuebles del panel admin. Todos los endpoints exigen JWT con rol Asesor o Admin.
  * Contrato: Task/BackEnd/04-contrato-api-frontend.md
  */
+
+export type {
+  Amoblado,
+  CaracteristicaValorDto,
+  EstadoInmueble,
+  ImagenDto,
+  InmuebleAdminDetalleDto,
+  OperacionDto,
+  PoliticaMascotas,
+  TipoOperacion,
+  UpsertOperacionInput,
+} from '@/features/admin/properties/api/inmueblesTypes'
 
 export interface InmuebleAdminListItemDto {
   id: number
@@ -91,10 +111,7 @@ export const crearInmueble = async (input: CrearInmuebleInput): Promise<number> 
   return data.id
 }
 
-export const cambiarEstadoInmueble = async (
-  id: number,
-  estado: EstadoInmueble,
-): Promise<void> => {
+export const cambiarEstadoInmueble = async (id: number, estado: EstadoInmueble): Promise<void> => {
   await apiClient.put(`/api/admin/inmuebles/${id}/estado`, { estado })
 }
 
@@ -104,4 +121,26 @@ export const marcarDestacado = async (id: number, destacado: boolean): Promise<v
 
 export const eliminarInmueble = async (id: number): Promise<void> => {
   await apiClient.delete(`/api/admin/inmuebles/${id}`)
+}
+
+/** Detalle completo para edición (RF-044). */
+export const getInmuebleAdmin = async (id: number): Promise<InmuebleAdminDetalleDto> => {
+  const { data } = await apiClient.get<InmuebleAdminDetalleDto>(`/api/admin/inmuebles/${id}`)
+  return data
+}
+
+/** Edita los campos del inmueble (RF-072). Slug y código no cambian. */
+export const actualizarInmueble = async (id: number, input: InmuebleDatosInput): Promise<void> => {
+  await apiClient.put(`/api/admin/inmuebles/${id}`, input)
+}
+
+/**
+ * Crea o actualiza UNA operación (RF-076). Para venta y arriendo hay que
+ * llamar dos veces; el endpoint no acepta arreglos.
+ */
+export const upsertOperacion = async (
+  id: number,
+  operacion: UpsertOperacionInput,
+): Promise<void> => {
+  await apiClient.put(`/api/admin/inmuebles/${id}/operaciones`, operacion)
 }

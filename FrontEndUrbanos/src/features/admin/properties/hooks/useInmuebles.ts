@@ -1,18 +1,24 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
+  actualizarInmueble,
   cambiarEstadoInmueble,
   crearInmueble,
   eliminarInmueble,
+  getInmuebleAdmin,
   getInmueblesAdmin,
   marcarDestacado,
+  upsertOperacion,
   type CrearInmuebleInput,
   type EstadoInmueble,
   type FiltroInmueblesAdmin,
+  type InmuebleDatosInput,
+  type UpsertOperacionInput,
 } from '@/features/admin/properties/api/inmueblesApi'
 
 export const inmueblesQueryKeys = {
   all: ['inmuebles'] as const,
   list: (filtro: FiltroInmueblesAdmin) => ['inmuebles', 'list', filtro] as const,
+  detalle: (id: number) => ['inmuebles', 'detalle', id] as const,
 }
 
 export function useInmuebles(filtro: FiltroInmueblesAdmin = {}) {
@@ -59,5 +65,40 @@ export function useEliminarInmueble() {
   return useMutation({
     mutationFn: (id: number) => eliminarInmueble(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: inmueblesQueryKeys.all }),
+  })
+}
+
+export function useInmueble(id: number | undefined) {
+  return useQuery({
+    queryKey: inmueblesQueryKeys.detalle(id ?? 0),
+    queryFn: () => getInmuebleAdmin(id!),
+    enabled: typeof id === 'number' && Number.isFinite(id) && id > 0,
+  })
+}
+
+export function useActualizarInmueble() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      datos,
+      operaciones,
+    }: {
+      id: number
+      datos: InmuebleDatosInput
+      operaciones: UpsertOperacionInput[]
+    }) => {
+      // Secuencial a propósito: si los campos fallan, no se tocan las
+      // operaciones y el registro no queda a medias.
+      await actualizarInmueble(id, datos)
+      for (const operacion of operaciones) {
+        await upsertOperacion(id, operacion)
+      }
+    },
+    onSuccess: (_data, { id }) => {
+      queryClient.invalidateQueries({ queryKey: inmueblesQueryKeys.all })
+      queryClient.invalidateQueries({ queryKey: inmueblesQueryKeys.detalle(id) })
+    },
   })
 }
