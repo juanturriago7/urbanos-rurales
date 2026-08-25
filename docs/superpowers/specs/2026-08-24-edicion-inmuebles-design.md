@@ -137,8 +137,8 @@ Consecuencias para la edición:
   disparan las de operaciones y se muestra el error sin dejar el formulario en
   estado inconsistente.
 - `features/admin/properties/api/inmueblesApi.test.ts`
-- `features/admin/properties/hooks/useInmuebles.test.ts`
 - `features/admin/properties/schemas/inmuebleSchema.test.ts`
+- `features/admin/properties/schemas/inmuebleMappers.test.ts`
 
 ### Archivos a modificar (diffs aditivos)
 
@@ -168,13 +168,17 @@ Lista admin ──"Editar"──▶ /admin/properties/:id/editar
                               └─ GaleriaImagenes ─────▶ (sus propias queries, sin cambios)
 ```
 
-Claves de React Query: la lista usa `['inmuebles']`; el detalle usa
-`['inmueble', id]`. Toda mutación invalida ambas.
+Claves de React Query (`inmueblesQueryKeys`): la lista usa
+`['inmuebles', 'list', filtro]` y el detalle `['inmuebles', 'detalle', id]`,
+ambas bajo el prefijo común `['inmuebles']`. Toda mutación invalida ese
+prefijo, y por coincidencia parcial de clave eso alcanza también al detalle.
 
-**Efecto secundario deseado:** tras crear, `InmuebleFormPage` navega a
-`/admin/properties/:id/editar` — igual que hace `BlogAdminFormPage` hoy. Eso
-resuelve el síntoma original (subir fotos a un inmueble recién creado) sin
-código adicional.
+**Cómo se resolvió lo de subir fotos tras crear:** `InmuebleFormPage` **no**
+navega a `/admin/properties/:id/editar`. Se llegó a considerar (es lo que hace
+`BlogAdminFormPage`), pero se implementó el intercambio en el sitio: una vez
+creado el inmueble el formulario se bloquea y la tarjeta de fotos de la barra
+lateral pasa de `TarjetaFotos` "bloqueada" a la galería real, sin cambiar de
+ruta. Eso resuelve el síntoma original sin perder el contexto de la página.
 
 ## Manejo de errores
 
@@ -203,8 +207,18 @@ Vitest **sin** Testing Library ni entorno DOM (decisión explícita del usuario)
 - `inmueblesApi.test.ts` — verifica URL, método HTTP y forma del payload de
   `getInmuebleAdmin`, `actualizarInmueble` y `actualizarOperaciones`, con
   `apiClient` mockeado.
-- `useInmuebles.test.ts` — verifica claves de query y qué se invalida en cada
-  mutación.
+- **No hay `useInmuebles.test.ts`.** Se había planeado para verificar claves de
+  query e invalidaciones, pero un hook de React Query no se puede ejercitar sin
+  renderer, y este proyecto renuncia al entorno DOM a propósito. En su lugar la
+  lógica que valía la pena probar se empujó fuera de los hooks, a mapeadores
+  puros (`schemas/inmuebleMappers.ts`), que sí quedan cubiertos. Los hooks se
+  quedaron como envoltura delgada sin lógica propia.
+- `inmuebleMappers.test.ts` — verifica el ida y vuelta entre el detalle del
+  backend y el formulario: qué operaciones quedan marcadas, cómo se desactiva
+  una operación desmarcada, y qué campos que el formulario no edita
+  (`metaTitulo`, `metaDescripcion`, `asesorId`, el `valor` de cada
+  característica) hay que reenviar al editar para que el PUT —que es un
+  reemplazo completo, no un merge— no los borre.
 - `inmuebleSchema.test.ts` — verifica el schema Zod extraído: que acepta una
   sola operación (solo venta / solo arriendo), que rechaza cero operaciones, y
   que exige precio > 0 cuando la operación está activa. Este es el test que
