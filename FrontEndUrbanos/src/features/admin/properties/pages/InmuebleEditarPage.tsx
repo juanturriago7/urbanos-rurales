@@ -50,6 +50,15 @@ export function InmuebleEditarPage() {
 
   return (
     <InmuebleForm
+      // `key={id}` es obligatorio, no decorativo. React Router reutiliza esta
+      // misma instancia al pasar de /properties/1/editar a /properties/2/editar,
+      // y si el detalle del 2 ya está en caché (staleTime de 5 min) React Query
+      // lo devuelve de forma síncrona: `isLoading` nunca se pone en true, el
+      // guard de arriba no dispara, y el formulario NO se desmonta. Sin la key
+      // seguiría mostrando los valores del inmueble 1 mientras `id` y
+      // `operaciones` ya son del 2 — y guardar escribiría los datos del 1 sobre
+      // el 2. Ver el docblock de `valoresIniciales` en InmuebleForm.
+      key={id}
       valoresIniciales={aValoresFormulario(inmueble)}
       onSubmit={onSubmit}
       enviando={isPending}
