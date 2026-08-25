@@ -130,15 +130,35 @@ describe('aOperacionesUpsert', () => {
 
   it('desactiva una operación desmarcada reenviando su precio anterior', () => {
     // El validador del backend exige Precio > 0 incluso al desactivar.
-    const datos = inmuebleSchema.parse({
-      ...aValoresFormulario({ ...dto, operaciones: [opVenta, opArriendo] }),
-      tieneArriendo: false,
+    //
+    // La clave `precioArriendo` se OMITE del formulario a propósito. Dos
+    // razones, y la segunda es la que hace válido al test:
+    //
+    // 1. Es lo que pasa de verdad: al desmarcar el checkbox el campo deja de
+    //    renderizarse, RHF nunca lo registra y la clave llega ausente.
+    // 2. Discrimina entre las dos fuentes posibles del precio. Si se dejara
+    //    el valor del formulario intacto, coincidiría con `previa.precio`
+    //    (ambos 2500000) y el test pasaría igual con una implementación que
+    //    leyera `datos.precioArriendo` — es decir, no probaría nada. Omitida,
+    //    esa implementación incorrecta enviaría null y el test fallaría.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { precioArriendo: _omitido, ...sinCanon } = aValoresFormulario({
+      ...dto,
+      operaciones: [opVenta, opArriendo],
     })
+    const datos = inmuebleSchema.parse({ ...sinCanon, tieneArriendo: false })
     const ops = aOperacionesUpsert(datos, [opVenta, opArriendo])
     const arriendo = ops.find((o) => o.tipoOperacion === 'arriendo')
     expect(arriendo).toBeDefined()
     expect(arriendo!.activo).toBe(false)
     expect(arriendo!.precio).toBe(2500000)
+    expect(arriendo!.cuotaAdministracion).toBe(300000)
+  })
+
+  it('no reenvía una operación que ya estaba inactiva y sigue desmarcada', () => {
+    const datos = inmuebleSchema.parse(aValoresFormulario(dto))
+    const ops = aOperacionesUpsert(datos, [opVenta, { ...opArriendo, activo: false }])
+    expect(ops.some((o) => o.tipoOperacion === 'arriendo')).toBe(false)
   })
 
   it('no envía nada para una operación que nunca existió y sigue desmarcada', () => {
