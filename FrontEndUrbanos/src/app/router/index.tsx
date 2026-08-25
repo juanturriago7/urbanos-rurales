@@ -14,6 +14,7 @@ import { DashboardPage } from '@/features/admin/dashboard/pages/DashboardPage'
 import { RolesPage } from '@/features/admin/users/pages/RolesPage'
 import { InmueblesPage } from '@/features/admin/properties/pages/InmueblesPage'
 import { InmuebleFormPage } from '@/features/admin/properties/pages/InmuebleFormPage'
+import { InmuebleEditarPage } from '@/features/admin/properties/pages/InmuebleEditarPage'
 import { UbicacionesAdminPage } from '@/features/admin/catalogos/pages/UbicacionesAdminPage'
 import { TiposInmuebleAdminPage } from '@/features/admin/catalogos/pages/TiposInmuebleAdminPage'
 import { CaracteristicasAdminPage } from '@/features/admin/catalogos/pages/CaracteristicasAdminPage'
@@ -57,6 +58,7 @@ const router = createBrowserRouter([
           { path: 'dashboard', element: <DashboardPage /> },
           { path: 'properties', element: <InmueblesPage /> },
           { path: 'properties/nuevo', element: <InmuebleFormPage /> },
+          { path: 'properties/:id/editar', element: <InmuebleEditarPage /> },
           { path: 'leads', element: <div className="p-4">Leads</div> },
           { path: 'media', element: <div className="p-4">Multimedia</div> },
           { path: 'users', element: <RolesPage /> },

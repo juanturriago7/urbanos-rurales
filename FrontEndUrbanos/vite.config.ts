@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
@@ -9,6 +9,13 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
+  },
+  test: {
+    // Sin DOM a propósito: solo se testea lógica pura (schema, mapeadores y
+    // funciones de API con apiClient mockeado). Ver el spec.
+    environment: 'node',
+    globals: true,
+    include: ['src/**/*.test.ts'],
   },
   server: {
     port: 5173,

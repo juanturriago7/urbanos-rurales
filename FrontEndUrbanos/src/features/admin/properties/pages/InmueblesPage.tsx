@@ -297,6 +297,11 @@ function Fila({ inmueble, deshabilitado, onCambiarEstado, onDestacar, onEliminar
       </td>
       <td className="px-4 py-3">
         <div className="flex flex-wrap gap-1">
+          <Link to={`/admin/properties/${inmueble.id}/editar`}>
+            <Button size="sm" variant="ghost">
+              Editar
+            </Button>
+          </Link>
           {inmueble.estado !== 'publicado' && (
             <Button
               size="sm"
