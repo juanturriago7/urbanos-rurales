@@ -1,7 +1,7 @@
 import { type ButtonHTMLAttributes, forwardRef } from 'react'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'gold' | 'outline-light' | 'ghost' | 'danger'
+  variant?: 'primary' | 'secondary' | 'cyan' | 'outline-light' | 'ghost' | 'danger'
   size?: 'sm' | 'md' | 'lg'
   isLoading?: boolean
 }
@@ -11,7 +11,7 @@ const variantClasses: Record<NonNullable<ButtonProps['variant']>, string> = {
     'bg-brand-600 text-white hover:bg-brand-700 focus-visible:ring-brand-500 disabled:bg-brand-300',
   secondary:
     'bg-white text-brand-700 border border-brand-300 hover:bg-brand-50 focus-visible:ring-brand-500',
-  gold: 'bg-accent-gold text-white hover:bg-accent-gold-hover focus-visible:ring-accent-gold disabled:opacity-60',
+  cyan: 'bg-accent-cyan text-white hover:bg-accent-cyan-hover focus-visible:ring-accent-cyan disabled:opacity-60',
   // Solo para el header sobre el hero, donde el fondo es una foto oscurecida.
   'outline-light': 'border border-white/70 text-white hover:bg-white/10 focus-visible:ring-white',
   ghost: 'text-text-secondary hover:bg-surface-muted focus-visible:ring-brand-500',

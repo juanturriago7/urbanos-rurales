@@ -1,51 +1,49 @@
 @import 'tailwindcss';
 
 /* ─── Design tokens ─────────────────────────────────────────────────────────
-   Paleta premium crema / carbón / bronce — inspirada en Sotheby's, Compass
-   y los mejores sitios de real estate americano de lujo.
-   Fondo cálido (#faf8f5), texto carbón (#1c1917), acento bronce (#8b6f4e).
+   Paleta azul corporativa — la misma del sitio público (Header, landing,
+   Quiénes somos): azul primario (#004b98), navy profundo (#001124), acento
+   cian (#00b5c5), superficies azul-gris tenues (#eef4f8) y texto frío (#0d1c27).
    ────────────────────────────────────────────────────────────────────────── */
 @theme {
-  /* Marca — bronce/tierra elegante */
-  --color-brand-50:  #faf6f0;
-  --color-brand-100: #f2e9dc;
-  --color-brand-200: #e2cdb0;
-  --color-brand-300: #ceaa7e;
-  --color-brand-400: #bb8c57;
-  --color-brand-500: #a87840;
-  --color-brand-600: #8b6f4e;
-  --color-brand-700: #735840;
-  --color-brand-800: #5c4433;
-  --color-brand-900: #3d2d20;
+  /* Marca — azul corporativo (600 primario, 700 hover, 900 navy) */
+  --color-brand-50:  #eef4fb;
+  --color-brand-100: #d7e6f6;
+  --color-brand-200: #b0cbe9;
+  --color-brand-300: #82abd7;
+  --color-brand-400: #4b85c0;
+  --color-brand-500: #1c63a6;
+  --color-brand-600: #004b98;
+  --color-brand-700: #003b7a;
+  --color-brand-800: #002c5c;
+  --color-brand-900: #001124;
 
-  /* Acento — bronce dorado para CTAs y detalles */
-  --color-accent-bronze:       #8b6f4e;
-  --color-accent-bronze-hover: #735840;
-  --color-accent-gold:         #c4a882;
-  --color-accent-gold-hover:   #b8960c;
+  /* Acento — cian del sitio para CTAs y detalles */
+  --color-accent-cyan:       #00b5c5;
+  --color-accent-cyan-hover: #00a0b0;
 
   /* Superficies */
-  --color-surface:        #faf8f5;   /* crema cálido */
-  --color-surface-muted:  #f2ede6;   /* crema más profundo */
+  --color-surface:        #f5f8fb;   /* azul muy tenue */
+  --color-surface-muted:  #eef4f8;   /* azul-gris del sitio */
   --color-surface-card:   #ffffff;
-  --color-surface-dark:   #1c1917;   /* carbón */
-  --color-surface-darker: #100f0e;
+  --color-surface-dark:   #001124;   /* navy */
+  --color-surface-darker: #00060f;
 
   /* Texto */
-  --color-text-primary:       #1c1917;
-  --color-text-secondary:     #44403c;
-  --color-text-tertiary:      #78716c;
-  --color-text-disabled:      #a8a29e;
-  --color-text-inverse:       #faf8f5;
-  --color-text-muted-inverse: #d6d3d1;
+  --color-text-primary:       #0d1c27;
+  --color-text-secondary:     #41596a;
+  --color-text-tertiary:      #7a8187;
+  --color-text-disabled:      #a6b2bb;
+  --color-text-inverse:       #f5f8fb;
+  --color-text-muted-inverse: #a1c5cc;
 
-  --color-border: #e7e0d8;
+  --color-border: #d8dfe4;
 
   /* Semánticos */
   --color-error:   #c0392b;
   --color-success: #2e7d32;
   --color-warning: #d97706;
-  --color-info:    #8b6f4e;
+  --color-info:    #004b98;
 
   /* Tipografía */
   --font-sans:  'Outfit', 'Inter Variable', 'Inter', system-ui, sans-serif;
@@ -55,11 +53,11 @@
   --radius-control: 2px;
   --radius-card:    6px;
 
-  /* Sombras */
-  --shadow-card:       0 1px 4px rgba(28, 25, 23, 0.06);
-  --shadow-card-hover: 0 8px 32px rgba(28, 25, 23, 0.10);
-  --shadow-dropdown:   0 12px 40px rgba(28, 25, 23, 0.12);
-  --shadow-header:     0 1px 0 rgba(28, 25, 23, 0.07);
+  /* Sombras — tintadas en navy, como el sitio público */
+  --shadow-card:       0 1px 4px rgba(0, 17, 36, 0.06);
+  --shadow-card-hover: 0 8px 32px rgba(0, 17, 36, 0.10);
+  --shadow-dropdown:   0 12px 40px rgba(0, 17, 36, 0.12);
+  --shadow-header:     0 1px 0 rgba(0, 17, 36, 0.07);
 
   /* Espaciado extra */
   --spacing-18: 4.5rem;
