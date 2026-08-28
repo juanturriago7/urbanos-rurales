@@ -13,7 +13,7 @@ interface HeaderProps {
 
 const NAV_ITEMS = [
   { label: 'Inicio',        to: '/' },
-  { label: 'Quiénes somos', anchor: 'quienes-somos' },
+  { label: 'Quiénes somos', to: '/quienes-somos' },
   { label: 'Servicios',     anchor: 'servicios' },
   { label: 'Inmuebles',     to: '/inmuebles' },
   { label: 'Contacto',      anchor: 'contacto' },

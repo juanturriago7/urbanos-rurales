@@ -1,6 +1,4 @@
-import { useState } from 'react'
-import { Input, Textarea } from '@/shared/components/ui/Field'
-import { Button } from '@/shared/components/ui/Button'
+import { useState, type FormEvent, type ReactNode } from 'react'
 
 /**
  * Formulario "Trabaja con nosotros" — spec 07.
@@ -12,7 +10,44 @@ import { Button } from '@/shared/components/ui/Button'
  *
  * Validación client-side: la URL debe terminar en .pdf (no se gasta
  * un postulación si el archivo claramente no es PDF).
+ *
+ * Estilo: paleta del sitio público (azul #004b98 / cian #00b5c5 / campos
+ * #eff4f8), replicando el formulario de contacto de la landing. No usa los
+ * componentes `Input`/`Button` del panel, que son crema/bronce.
  */
+
+// Campo y etiqueta calcados del formulario de contacto de la landing.
+const claseCampo =
+  'rounded-[10px] border border-[#d2d8dd] bg-[#eff4f8] px-[17px] py-[13px] text-[14px] text-[#0d1c27] ' +
+  'placeholder:text-[#757575] outline-none transition-colors focus:border-[#004b98] focus:bg-white'
+
+const claseEtiqueta = 'text-[12px] font-semibold uppercase tracking-[0.6px] text-[#41596a]'
+
+function Campo({
+  id,
+  label,
+  required,
+  hint,
+  children,
+}: {
+  id: string
+  label: string
+  required?: boolean
+  hint?: string
+  children: ReactNode
+}) {
+  return (
+    <div className="flex flex-col gap-[6px]">
+      <label htmlFor={id} className={claseEtiqueta}>
+        {label}
+        {required && <span className="ml-1 text-[#00b5c5]">*</span>}
+      </label>
+      {children}
+      {hint && <p className="text-[12px] leading-[1.5] text-[#7a8187]">{hint}</p>}
+    </div>
+  )
+}
+
 export function FormularioTrabajaConNosotros() {
   const [nombre, setNombre] = useState('')
   const [correo, setCorreo] = useState('')
@@ -24,7 +59,7 @@ export function FormularioTrabajaConNosotros() {
   const [estado, setEstado] = useState<'idle' | 'enviando' | 'ok' | 'error'>('idle')
   const [mensajeError, setMensajeError] = useState('')
 
-  async function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: FormEvent) {
     e.preventDefault()
     setMensajeError('')
 
@@ -70,75 +105,127 @@ export function FormularioTrabajaConNosotros() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Input
-          label="Nombre completo"
-          required
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
-        />
-        <Input
-          label="Correo electrónico"
-          required
-          type="email"
-          value={correo}
-          onChange={(e) => setCorreo(e.target.value)}
-        />
-        <Input
-          label="Teléfono"
-          value={telefono}
-          onChange={(e) => setTelefono(e.target.value)}
-        />
-        <Input
-          label="Cargo de interés"
-          value={cargoInteres}
-          onChange={(e) => setCargoInteres(e.target.value)}
-          placeholder="Ej. Consultor junior, Topógrafo..."
-        />
+    <form onSubmit={onSubmit} className="flex flex-col gap-[14px]">
+      <div className="grid grid-cols-1 gap-[14px] sm:grid-cols-2">
+        <Campo id="tcn-nombre" label="Nombre completo" required>
+          <input
+            id="tcn-nombre"
+            className={claseCampo}
+            required
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+          />
+        </Campo>
+        <Campo id="tcn-correo" label="Correo electrónico" required>
+          <input
+            id="tcn-correo"
+            type="email"
+            className={claseCampo}
+            required
+            value={correo}
+            onChange={(e) => setCorreo(e.target.value)}
+          />
+        </Campo>
+        <Campo id="tcn-telefono" label="Teléfono">
+          <input
+            id="tcn-telefono"
+            type="tel"
+            className={claseCampo}
+            value={telefono}
+            onChange={(e) => setTelefono(e.target.value)}
+          />
+        </Campo>
+        <Campo id="tcn-cargo" label="Cargo de interés">
+          <input
+            id="tcn-cargo"
+            className={claseCampo}
+            value={cargoInteres}
+            onChange={(e) => setCargoInteres(e.target.value)}
+            placeholder="Ej. Consultor junior, Topógrafo..."
+          />
+        </Campo>
       </div>
-      <Textarea
-        label="Mensaje (opcional)"
-        rows={4}
-        value={mensaje}
-        onChange={(e) => setMensaje(e.target.value)}
-      />
-      <Input
+
+      <Campo id="tcn-mensaje" label="Mensaje (opcional)">
+        <textarea
+          id="tcn-mensaje"
+          rows={4}
+          className={`${claseCampo} resize-none`}
+          value={mensaje}
+          onChange={(e) => setMensaje(e.target.value)}
+        />
+      </Campo>
+
+      <Campo
+        id="tcn-cv"
         label="URL de tu hoja de vida (PDF)"
         required
-        value={cvUrl}
-        onChange={(e) => setCvUrl(e.target.value)}
-        placeholder="https://ejemplo.com/mi-cv.pdf"
         hint="Pega aquí el enlace a tu CV en PDF (Google Drive, Dropbox, etc.). v1."
-      />
+      >
+        <input
+          id="tcn-cv"
+          type="url"
+          className={claseCampo}
+          required
+          value={cvUrl}
+          onChange={(e) => setCvUrl(e.target.value)}
+          placeholder="https://ejemplo.com/mi-cv.pdf"
+        />
+      </Campo>
 
-      <label className="flex items-start gap-2 text-sm">
+      <label className="flex items-start gap-[10px] text-[13px] leading-[1.55] text-[#5a6b78]">
         <input
           type="checkbox"
           checked={aceptaTratamiento}
           onChange={(e) => setAceptaTratamiento(e.target.checked)}
-          className="mt-1 h-4 w-4 accent-[#004b98]"
+          className="mt-[3px] h-4 w-4 shrink-0 accent-[#004b98]"
         />
-        <span className="text-text-secondary">
+        <span>
           Acepto el tratamiento de mis datos personales conforme a la política de privacidad.
         </span>
       </label>
 
       {estado === 'ok' && (
-        <div className="rounded-control border border-green-200 bg-green-50 p-3 text-sm text-green-800">
+        <p className="rounded-[10px] border border-[#a9dde3] bg-[#e8f7f9] px-4 py-3 text-[13px] leading-[1.5] text-[#0a5b66]">
           ¡Recibimos tu postulación! Te contactaremos al correo registrado.
-        </div>
+        </p>
       )}
       {estado === 'error' && mensajeError && (
-        <div className="rounded-control border border-red-200 bg-red-50 p-3 text-sm text-error">
+        <p className="rounded-[10px] border border-[#f0c2c2] bg-[#fdf2f2] px-4 py-3 text-[13px] leading-[1.5] text-[#b42318]">
           {mensajeError}
-        </div>
+        </p>
       )}
 
-      <div className="flex justify-end">
-        <Button type="submit" isLoading={estado === 'enviando'}>
-          Enviar postulación
-        </Button>
+      <div className="mt-1 flex justify-end">
+        <button
+          type="submit"
+          disabled={estado === 'enviando'}
+          className="inline-flex items-center gap-2 rounded-[10px] bg-[#004b98] px-[30px] py-[14px] text-[14px] font-bold text-white transition-colors duration-200 hover:bg-[#003b7a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004b98] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {estado === 'enviando' && (
+            <svg
+              className="h-4 w-4 animate-spin"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+              />
+            </svg>
+          )}
+          {estado === 'enviando' ? 'Enviando...' : 'Enviar postulación'}
+        </button>
       </div>
     </form>
   )
