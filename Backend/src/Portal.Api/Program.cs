@@ -94,6 +94,19 @@ try
                     Window = TimeSpan.FromMinutes(1),
                     QueueLimit = 0
                 }));
+
+        // El presign es anónimo y sin ningún registro previo (no hay "lead" que
+        // limitar por email/id): sin este límite, cualquiera podría generar URLs
+        // de subida indefinidamente y llenar el bucket de basura.
+        options.AddPolicy("postulaciones", httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "desconocida",
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 5,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueLimit = 0
+                }));
     });
 
     // ─── Health Checks ────────────────────────────────────────────────────────

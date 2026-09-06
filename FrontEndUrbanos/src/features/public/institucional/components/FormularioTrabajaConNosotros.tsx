@@ -1,20 +1,25 @@
-import { useState, type FormEvent, type ReactNode } from 'react'
+import { useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react'
+import { enviarPostulacion } from '@/features/public/institucional/api/postulacionesApi'
 
 /**
  * Formulario "Trabaja con nosotros" — spec 07.
  *
- * v1 simplificado: el CV se recibe como URL directa (no flujo presign →
- * PUT directo al bucket). El cliente pega el link a su PDF ya subido al
- * CDN. El flujo presign completo queda como fast-follow si el cliente
- * pide subir el archivo desde el panel.
+ * El CV se sube de verdad al bucket (presign → PUT directo → crear la
+ * postulación con el storageKey confirmado) — ver
+ * features/public/institucional/api/postulacionesApi.ts. Ya no acepta una
+ * URL externa pegada a mano.
  *
- * Validación client-side: la URL debe terminar en .pdf (no se gasta
- * un postulación si el archivo claramente no es PDF).
+ * Validación client-side: el archivo debe ser un PDF real (por tipo MIME,
+ * no por extensión del nombre) y pesar como máximo 5MB — el backend vuelve
+ * a validar ambas cosas, esto solo evita gastar una subida completa cuando
+ * es obvio que va a fallar.
  *
  * Estilo: paleta del sitio público (azul #004b98 / cian #00b5c5 / campos
  * #eff4f8), replicando el formulario de contacto de la landing. No usa los
  * componentes `Input`/`Button` del panel, que son crema/bronce.
  */
+
+const MAX_BYTES_CV = 5 * 1024 * 1024
 
 // Campo y etiqueta calcados del formulario de contacto de la landing.
 const claseCampo =
@@ -54,10 +59,29 @@ export function FormularioTrabajaConNosotros() {
   const [telefono, setTelefono] = useState('')
   const [cargoInteres, setCargoInteres] = useState('')
   const [mensaje, setMensaje] = useState('')
-  const [cvUrl, setCvUrl] = useState('')
+  const [cv, setCv] = useState<File | null>(null)
   const [aceptaTratamiento, setAceptaTratamiento] = useState(false)
   const [estado, setEstado] = useState<'idle' | 'enviando' | 'ok' | 'error'>('idle')
   const [mensajeError, setMensajeError] = useState('')
+
+  function handleSeleccionarCv(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] ?? null
+    setMensajeError('')
+
+    if (file && file.type !== 'application/pdf') {
+      setCv(null)
+      e.target.value = ''
+      setMensajeError('El archivo debe ser un PDF.')
+      return
+    }
+    if (file && file.size > MAX_BYTES_CV) {
+      setCv(null)
+      e.target.value = ''
+      setMensajeError(`El PDF supera el máximo de ${MAX_BYTES_CV / (1024 * 1024)} MB.`)
+      return
+    }
+    setCv(file)
+  }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
@@ -67,37 +91,26 @@ export function FormularioTrabajaConNosotros() {
       setMensajeError('Debes aceptar el tratamiento de datos personales.')
       return
     }
-    if (!cvUrl.trim().toLowerCase().endsWith('.pdf')) {
-      setMensajeError('La URL del CV debe terminar en .pdf')
+    if (!cv) {
+      setMensajeError('Adjunta tu hoja de vida en PDF.')
       return
     }
 
     setEstado('enviando')
     try {
-      // v1: construimos un storageKey estable a partir de la URL del CV.
-      // Si se agrega el flujo presign, este campo lo provee el backend.
-      const storageKey = `postulaciones/${Date.now()}-${nombre.replace(/\s+/g, '_')}.pdf`
-
-      const resp = await fetch('/api/postulaciones', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      await enviarPostulacion(
+        {
           nombre: nombre.trim(),
           correo: correo.trim(),
           telefono: telefono.trim() || null,
           cargoInteres: cargoInteres.trim() || null,
           mensaje: mensaje.trim() || null,
-          cvStorageKey: storageKey,
-          cvUrl: cvUrl.trim(),
-        }),
-      })
-      if (!resp.ok) {
-        const data = await resp.json().catch(() => null)
-        throw new Error(data?.detail ?? data?.title ?? 'Error al enviar la postulación.')
-      }
+        },
+        cv,
+      )
       setEstado('ok')
       setNombre(''); setCorreo(''); setTelefono(''); setCargoInteres('')
-      setMensaje(''); setCvUrl(''); setAceptaTratamiento(false)
+      setMensaje(''); setCv(null); setAceptaTratamiento(false)
     } catch (err) {
       setEstado('error')
       setMensajeError(err instanceof Error ? err.message : 'Error desconocido.')
@@ -158,18 +171,17 @@ export function FormularioTrabajaConNosotros() {
 
       <Campo
         id="tcn-cv"
-        label="URL de tu hoja de vida (PDF)"
+        label="Tu hoja de vida (PDF)"
         required
-        hint="Pega aquí el enlace a tu CV en PDF (Google Drive, Dropbox, etc.). v1."
+        hint={cv ? `Archivo seleccionado: ${cv.name}` : `Máximo ${MAX_BYTES_CV / (1024 * 1024)} MB.`}
       >
         <input
           id="tcn-cv"
-          type="url"
-          className={claseCampo}
+          type="file"
+          accept="application/pdf"
           required
-          value={cvUrl}
-          onChange={(e) => setCvUrl(e.target.value)}
-          placeholder="https://ejemplo.com/mi-cv.pdf"
+          onChange={handleSeleccionarCv}
+          className={`${claseCampo} file:mr-3 file:cursor-pointer file:rounded-[8px] file:border-0 file:bg-[#004b98] file:px-4 file:py-2 file:text-[13px] file:font-semibold file:text-white hover:file:bg-[#003b7a]`}
         />
       </Campo>
 
