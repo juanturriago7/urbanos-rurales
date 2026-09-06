@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { useArticulosPublico } from '@/features/public/blog/hooks/useBlogPublico'
+import { useArticulosPublico } from '@/features/public/proyectos/hooks/useProyectosPublico'
 import { Spinner } from '@/shared/components/ui/Spinner'
 
 const formatoFecha = new Intl.DateTimeFormat('es-CO', {
@@ -7,10 +7,10 @@ const formatoFecha = new Intl.DateTimeFormat('es-CO', {
 })
 
 /**
- * Listado público de artículos del blog — spec 06.
+ * Listado público de proyectos — spec 06.
  * Solo muestra artículos con estado = publicado (lo filtra el backend).
  */
-export function BlogListPage() {
+export function ProyectosListPage() {
   const { data, isLoading, isError, error } = useArticulosPublico(1, 12)
 
   return (
@@ -19,7 +19,7 @@ export function BlogListPage() {
         <header className="mb-12 flex flex-col gap-3">
           <span className="self-start rounded-full bg-[rgba(0,75,152,0.08)] px-3 py-1">
             <span className="text-[11px] font-semibold uppercase tracking-[1.32px] text-[#004b98]">
-              Blog
+              Proyectos
             </span>
           </span>
           <h1 className="text-[42px] font-extrabold leading-[1.1] tracking-[-0.8px] text-[#001124]">
@@ -50,7 +50,7 @@ export function BlogListPage() {
             {data.items.map((a) => (
               <Link
                 key={a.id}
-                to={`/blog/${a.slug}`}
+                to={`/proyectos/${a.slug}`}
                 className="group block overflow-hidden rounded-[18px] border border-[#d8dfe4] bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_32px_rgba(0,17,36,0.10)]"
               >
                 {a.imagenPortadaUrl ? (

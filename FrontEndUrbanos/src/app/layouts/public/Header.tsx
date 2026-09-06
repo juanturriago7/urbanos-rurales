@@ -16,6 +16,7 @@ const NAV_ITEMS = [
   { label: 'Quiénes somos',       to: '/quienes-somos' },
   { label: 'Líneas de servicio',  anchor: 'servicios' },
   { label: 'Inmuebles',           to: '/inmuebles' },
+  { label: 'Proyectos',           to: '/proyectos' },
   { label: 'Contacto',            anchor: 'contacto' },
 ] as const
 

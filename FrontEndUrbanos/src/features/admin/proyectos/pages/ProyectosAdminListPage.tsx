@@ -4,15 +4,15 @@ import {
   useArticulosAdmin,
   useCambiarEstadoArticulo,
   useEliminarArticulo,
-} from '@/features/admin/blog/hooks/useBlogAdmin'
-import type { EstadoArticulo } from '@/features/admin/blog/api/blogAdminApi'
+} from '@/features/admin/proyectos/hooks/useProyectosAdmin'
+import type { EstadoArticulo } from '@/features/admin/proyectos/api/proyectosAdminApi'
 import { Button } from '@/shared/components/ui/Button'
 import { Spinner } from '@/shared/components/ui/Spinner'
 
 /**
- * Lista de artículos de blog del panel admin — spec 06.
+ * Lista de proyectos del panel admin — spec 06.
  */
-export function BlogAdminListPage() {
+export function ProyectosAdminListPage() {
   const [page, setPage] = useState(1)
   const { data, isLoading, isError, error } = useArticulosAdmin(page)
   const cambiarEstado = useCambiarEstadoArticulo()
@@ -27,12 +27,12 @@ export function BlogAdminListPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-text-primary">Blog</h2>
+          <h2 className="text-xl font-semibold text-text-primary">Proyectos</h2>
           <p className="mt-1 text-sm text-text-secondary">
-            Artículos del blog. Crea en borrador, edita y publica cuando estén listos.
+            Artículos de proyectos. Crea en borrador, edita y publica cuando estén listos.
           </p>
         </div>
-        <Link to="/admin/blog/nuevo">
+        <Link to="/admin/proyectos/nuevo">
           <Button>+ nuevo artículo</Button>
         </Link>
       </div>
@@ -78,7 +78,7 @@ export function BlogAdminListPage() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="inline-flex gap-2">
-                      <Link to={`/admin/blog/${a.id}/editar`}>
+                      <Link to={`/admin/proyectos/${a.id}/editar`}>
                         <Button size="sm" variant="ghost">Editar</Button>
                       </Link>
                       {a.estado !== 'publicado' && (

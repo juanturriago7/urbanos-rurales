@@ -5,6 +5,8 @@ using Portal.Application.Features.Blog.Commands.ActualizarArticulo;
 using Portal.Application.Features.Blog.Commands.CambiarEstadoArticulo;
 using Portal.Application.Features.Blog.Commands.CrearArticulo;
 using Portal.Application.Features.Blog.Commands.EliminarArticulo;
+using Portal.Application.Features.Blog.Commands.EstablecerImagenPortada;
+using Portal.Application.Features.Blog.Commands.GenerarUrlSubidaPortada;
 using Portal.Application.Features.Blog.Queries.GetArticuloAdminPorId;
 using Portal.Application.Features.Blog.Queries.ListarArticulosAdmin;
 
@@ -71,6 +73,32 @@ public sealed class AdminBlogController : ControllerBase
         var result = await _mediator.Send(new EliminarArticuloCommand(id), ct);
         return result.IsSuccess ? NoContent() : BadRequest(Problema(result.Error));
     }
+
+    /// <summary>Paso 1: URL prefirmada para subir la portada directo al bucket.</summary>
+    [HttpPost("{id:long}/imagen-portada/presign")]
+    public async Task<IActionResult> PresignImagenPortada(
+        long id, [FromBody] PresignPortadaRequest body, CancellationToken ct)
+    {
+        var result = await _mediator.Send(
+            new GenerarUrlSubidaPortadaCommand(id, body.NombreArchivo, body.ContentType), ct);
+
+        return result.IsSuccess ? Ok(result.Value) : BadRequest(Problema(result.Error));
+    }
+
+    /// <summary>Paso 2: confirma que la portada llegó al bucket y la fija en el artículo.</summary>
+    [HttpPut("{id:long}/imagen-portada")]
+    public async Task<IActionResult> ConfirmarImagenPortada(
+        long id, [FromBody] ConfirmarPortadaRequest body, CancellationToken ct)
+    {
+        var result = await _mediator.Send(
+            new EstablecerImagenPortadaCommand(id, body.StorageKey), ct);
+
+        return result.IsSuccess ? Ok(new { imagenPortadaUrl = result.Value }) : BadRequest(Problema(result.Error));
+    }
+
+    public sealed record PresignPortadaRequest(string NombreArchivo, string ContentType);
+
+    public sealed record ConfirmarPortadaRequest(string StorageKey);
 
     public sealed record CambiarEstadoRequest(string Estado);
 

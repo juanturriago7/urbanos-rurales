@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
-import { useArticuloPorSlug } from '@/features/public/blog/hooks/useBlogPublico'
+import { useArticuloPorSlug } from '@/features/public/proyectos/hooks/useProyectosPublico'
 import { Spinner } from '@/shared/components/ui/Spinner'
 
 const formatoFecha = new Intl.DateTimeFormat('es-CO', {
@@ -10,11 +10,11 @@ const formatoFecha = new Intl.DateTimeFormat('es-CO', {
 })
 
 /**
- * Detalle público de un artículo — spec 06.
+ * Detalle público de un proyecto — spec 06.
  * Markdown se renderiza con `marked` y se sanitiza con `DOMPurify`
  * antes de inyectar (XSS: admin puede poner `<script>` que se ignora).
  */
-export function BlogDetallePage() {
+export function ProyectoDetallePage() {
   const { slug } = useParams<{ slug: string }>()
   const { data: articulo, isLoading, isError, error } = useArticuloPorSlug(slug)
 
@@ -38,8 +38,8 @@ export function BlogDetallePage() {
         <p className="mt-2 text-[15px] text-[#7a8187]">
           {error instanceof Error ? error.message : 'Este artículo no existe o no está publicado.'}
         </p>
-        <Link to="/blog" className="mt-6 inline-block text-[14px] font-semibold text-[#004b98] hover:underline">
-          ← Volver al blog
+        <Link to="/proyectos" className="mt-6 inline-block text-[14px] font-semibold text-[#004b98] hover:underline">
+          ← Volver a proyectos
         </Link>
       </div>
     )
@@ -48,8 +48,8 @@ export function BlogDetallePage() {
   return (
     <article className="bg-white px-6 py-16 sm:px-12">
       <div className="mx-auto max-w-[760px]">
-        <Link to="/blog" className="text-[13px] font-semibold text-[#004b98] hover:underline">
-          ← Blog
+        <Link to="/proyectos" className="text-[13px] font-semibold text-[#004b98] hover:underline">
+          ← Proyectos
         </Link>
 
         <header className="mt-6 flex flex-col gap-4">
