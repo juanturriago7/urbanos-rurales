@@ -192,10 +192,15 @@ public sealed class Inmueble
         MarcarActualizado();
     }
 
-    /// <summary>RF-077: campos mínimos que exige la publicación (las imágenes se validan aparte).</summary>
+    /// <summary>
+    /// RF-077: campos mínimos que exige la publicación (las imágenes se validan
+    /// aparte). Descripción NO está aquí a propósito: es opcional en todo el
+    /// ciclo de vida del inmueble (así lo trata el schema del frontend) — antes
+    /// se exigía solo en este paso, sin avisar en el formulario de creación, lo
+    /// que producía un error sorpresivo al publicar.
+    /// </summary>
     public bool TieneCamposObligatoriosParaPublicar()
         => !string.IsNullOrWhiteSpace(Titulo)
-           && !string.IsNullOrWhiteSpace(Descripcion)
            && TipoInmuebleId > 0
            && UbicacionId > 0
            && !string.IsNullOrWhiteSpace(DireccionExacta);

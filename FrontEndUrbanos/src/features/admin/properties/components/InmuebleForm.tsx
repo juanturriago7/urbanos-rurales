@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -72,21 +73,44 @@ export function InmuebleForm({
   const ubicaciones = useUbicaciones()
   const caracteristicas = useCaracteristicas()
 
+  // Tipo inicial resuelto ANTES de montar useForm: tipos.data ya está cargado
+  // en este punto (el early return de más abajo bloquea el render mientras
+  // tipos.isLoading), así que esPropiedadHorizontal arranca correcto incluso
+  // en edición, sin esperar al primer cambio del select.
+  const tipoInicial = tipos.data?.find(
+    (t) => String(t.id) === String(valoresIniciales?.tipoInmuebleId ?? ''),
+  )
+
   const {
     register,
     handleSubmit,
     control,
     setError,
+    setValue,
     formState: { errors },
   } = useForm<InmuebleFormInput, unknown, InmuebleFormParsed>({
     resolver: zodResolver(inmuebleSchema),
-    defaultValues: { ...valoresPorDefecto, ...valoresIniciales },
+    defaultValues: {
+      ...valoresPorDefecto,
+      ...valoresIniciales,
+      esPropiedadHorizontal: tipoInicial?.esPropiedadHorizontal ?? false,
+    },
   })
 
   // useWatch en vez de watch(): watch() devuelve una función no memoizable y el
   // compilador de React descarta la optimización del componente entero.
   const tieneVenta = useWatch({ control, name: 'tieneVenta' })
   const tieneArriendo = useWatch({ control, name: 'tieneArriendo' })
+  const tipoInmuebleIdActual = useWatch({ control, name: 'tipoInmuebleId' })
+
+  const tipoActual = tipos.data?.find((t) => String(t.id) === String(tipoInmuebleIdActual))
+  const esPH = tipoActual?.esPropiedadHorizontal ?? false
+
+  // Sincroniza el flag oculto que usa el schema para decidir cuál área exigir
+  // (ver inmuebleSchema.ts) cada vez que el usuario cambia el tipo de inmueble.
+  useEffect(() => {
+    setValue('esPropiedadHorizontal', esPH)
+  }, [esPH, setValue])
 
   const opcionesUbicacion = ubicaciones.data ? aplanarUbicaciones(ubicaciones.data) : []
 
@@ -212,23 +236,30 @@ export function InmuebleForm({
           titulo="Ficha técnica"
           gridClassName="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
         >
-          {/* Spec 03 — campo "Área de terreno" primero; el backend exige este
-              campo si el tipo no es PH. La UI lo muestra siempre; la regla
-              cruzada (PH → terreno requerido) vive en el backend por
-              simplicidad (el validator no tiene acceso a tipos_inmueble). */}
-          <Input
-            label="Área de terreno (m²)"
-            type="number"
-            step="0.01"
-            placeholder="0"
-            hint="Obligatoria para tipos no-PH (casa, lote, edificio)."
-            error={errors.areaTerrenoM2?.message}
-            {...register('areaTerrenoM2')}
-          />
+          {/* Spec 03 — cuál área es obligatoria depende del tipo elegido
+              (esPropiedadHorizontal, ver useEffect que sincroniza el campo
+              oculto homónimo del schema): PH exige área construida y no pide
+              terreno; el resto (casa, lote, edificio) exige terreno. La misma
+              regla se valida en el backend (InmuebleDatosValidatorBase) contra
+              el catálogo tipos_inmueble — esto es solo la señal inmediata. */}
+          {!esPH && (
+            <Input
+              label="Área de terreno (m²)"
+              type="number"
+              step="0.01"
+              required
+              placeholder="0"
+              hint="Obligatoria para este tipo de inmueble."
+              error={errors.areaTerrenoM2?.message}
+              {...register('areaTerrenoM2')}
+            />
+          )}
           <Input
             label="Área construida (m²)"
             type="number"
             step="0.01"
+            required={esPH}
+            hint={esPH ? 'Obligatoria para este tipo de inmueble.' : undefined}
             error={errors.areaConstruidaM2?.message}
             {...register('areaConstruidaM2')}
           />

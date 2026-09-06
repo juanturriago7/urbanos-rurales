@@ -1,10 +1,18 @@
 import { describe, expect, it } from 'vitest'
 import { inmuebleSchema } from '@/features/admin/properties/schemas/inmuebleSchema'
 
-/** Base válida mínima, sin ninguna clave de precio ni de área. */
+/**
+ * Base válida mínima, sin ninguna clave de precio. `esPropiedadHorizontal:
+ * false` (una casa, no PH) exige área de terreno — ver el describe de abajo
+ * dedicado a esa regla cruzada — así que la base ya la trae para que el resto
+ * de los tests (que no les interesa el área) no tengan que preocuparse por
+ * eso.
+ */
 const base = {
   titulo: 'Casa en Chía',
   tipoInmuebleId: 1,
+  esPropiedadHorizontal: false,
+  areaTerrenoM2: 500,
   ubicacionId: 2,
   direccionExacta: 'Calle 1 # 2-3',
   habitaciones: 3,
@@ -42,12 +50,12 @@ describe('inmuebleSchema — operaciones', () => {
     expect(r.success).toBe(true)
   })
 
-  it('acepta que las claves de área opcionales estén ausentes', () => {
+  it('acepta que las áreas no exigidas por el tipo estén ausentes', () => {
     const r = inmuebleSchema.safeParse(base)
     expect(r.success).toBe(true)
     if (r.success) {
-      expect(r.data.areaTerrenoM2).toBeNull()
       expect(r.data.areaConstruidaM2).toBeNull()
+      expect(r.data.areaPrivadaM2).toBeNull()
     }
   })
 
@@ -100,5 +108,58 @@ describe('inmuebleSchema — normalización', () => {
     const r = inmuebleSchema.safeParse({ ...base, caracteristicaIds: ['3', '7'] })
     expect(r.success).toBe(true)
     if (r.success) expect(r.data.caracteristicaIds).toEqual([3, 7])
+  })
+})
+
+describe('inmuebleSchema — área según tipo de inmueble (PH vs. terreno)', () => {
+  it('un tipo no-PH (casa, lote...) exige área de terreno', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- se descarta a propósito para omitir la clave
+    const { areaTerrenoM2: _omitido, ...sinTerreno } = base
+    const r = inmuebleSchema.safeParse(sinTerreno)
+    expect(r.success).toBe(false)
+    if (!r.success) {
+      expect(r.error.issues.some((i) => i.path.includes('areaTerrenoM2'))).toBe(true)
+    }
+  })
+
+  it('un tipo no-PH NO exige área construida', () => {
+    const r = inmuebleSchema.safeParse(base) // esPropiedadHorizontal: false, sin areaConstruidaM2
+    expect(r.success).toBe(true)
+  })
+
+  it('un tipo PH (apartamento, oficina...) exige área construida', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- se descarta a propósito para omitir la clave
+    const { areaTerrenoM2: _omitido, ...sinTerreno } = base
+    const r = inmuebleSchema.safeParse({
+      ...sinTerreno,
+      esPropiedadHorizontal: true,
+    })
+    expect(r.success).toBe(false)
+    if (!r.success) {
+      expect(r.error.issues.some((i) => i.path.includes('areaConstruidaM2'))).toBe(true)
+    }
+  })
+
+  it('un tipo PH con área construida pasa sin necesidad de área de terreno', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- se descarta a propósito para omitir la clave
+    const { areaTerrenoM2: _omitido, ...sinTerreno } = base
+    const r = inmuebleSchema.safeParse({
+      ...sinTerreno,
+      esPropiedadHorizontal: true,
+      areaConstruidaM2: 80,
+    })
+    expect(r.success).toBe(true)
+    if (r.success) expect(r.data.areaTerrenoM2).toBeNull()
+  })
+
+  it('sin tipo seleccionado, no exige ningún área todavía (solo falla tipoInmuebleId)', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- se descarta a propósito para omitir la clave
+    const { areaTerrenoM2: _omitido, tipoInmuebleId: _tipo, ...resto } = base
+    const r = inmuebleSchema.safeParse({ ...resto, tipoInmuebleId: '' })
+    expect(r.success).toBe(false)
+    if (!r.success) {
+      expect(r.error.issues.some((i) => i.path.includes('areaTerrenoM2'))).toBe(false)
+      expect(r.error.issues.some((i) => i.path.includes('tipoInmuebleId'))).toBe(true)
+    }
   })
 })

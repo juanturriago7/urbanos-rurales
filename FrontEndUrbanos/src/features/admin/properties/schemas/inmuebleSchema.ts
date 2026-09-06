@@ -36,6 +36,11 @@ export const inmuebleSchema = z
     titulo: z.string().trim().min(1, 'El título es obligatorio').max(160, 'Máximo 160 caracteres'),
     descripcion: textoOpcional,
     tipoInmuebleId: numeroRequerido.refine((v) => v > 0, 'Selecciona un tipo de inmueble'),
+    // Espejo del flag del catálogo tipos_inmueble para el tipo seleccionado —
+    // lo sincroniza InmuebleForm vía setValue al cambiar tipoInmuebleId. No es
+    // un campo que el usuario edite directamente: decide cuál área es
+    // obligatoria en los refine() de abajo (ver comentario ahí).
+    esPropiedadHorizontal: z.boolean().default(false),
     ubicacionId: numeroRequerido.refine((v) => v > 0, 'Selecciona una ubicación'),
     direccionExacta: z
       .string()
@@ -112,12 +117,30 @@ export const inmuebleSchema = z
     message: 'Ingresa el canon de arriendo',
     path: ['precioArriendo'],
   })
+  // Spec 03 — regla cruzada con el catálogo de tipos: propiedad horizontal
+  // (apartamento, oficina, local...) exige área construida; el resto (casa,
+  // lote, bodega...) exige área de terreno. Se ignora mientras no haya tipo
+  // seleccionado (tipoInmuebleId ya lo bloquea con su propio mensaje) para no
+  // mostrar un error de área antes de que el usuario elija el tipo.
+  // `!(v > 0)` en vez de `v <= 0`: tipoInmuebleId puede llegar como NaN si el
+  // usuario aún no elige tipo, y `NaN <= 0` es false (NaN no compara como
+  // "mayor" ni "menor" que nada), lo que dispararía el error de área ANTES de
+  // que se seleccione un tipo, encima del error propio de tipoInmuebleId.
+  .refine((d) => !(d.tipoInmuebleId > 0) || d.esPropiedadHorizontal || (d.areaTerrenoM2 !== null && d.areaTerrenoM2 > 0), {
+    message: 'El área de terreno es obligatoria para este tipo de inmueble',
+    path: ['areaTerrenoM2'],
+  })
+  .refine((d) => !(d.tipoInmuebleId > 0) || !d.esPropiedadHorizontal || (d.areaConstruidaM2 !== null && d.areaConstruidaM2 > 0), {
+    message: 'El área construida es obligatoria para este tipo de inmueble',
+    path: ['areaConstruidaM2'],
+  })
 
 export type InmuebleFormInput = z.input<typeof inmuebleSchema>
 export type InmuebleFormParsed = z.output<typeof inmuebleSchema>
 
 /** defaultValues de React Hook Form para el alta de un inmueble nuevo. */
 export const valoresPorDefecto: Partial<InmuebleFormInput> = {
+  esPropiedadHorizontal: false,
   politicaMascotas: 'no_permitidas',
   amoblado: 'no',
   habitaciones: 0,
