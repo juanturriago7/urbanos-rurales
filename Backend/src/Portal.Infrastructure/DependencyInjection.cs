@@ -44,9 +44,34 @@ public static class DependencyInjection
         // Servicios transversales — sin estado: Singleton
         services.AddSingleton<IPasswordHasher, BcryptPasswordHasher>();
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
-        services.AddSingleton<ICorreoService, CorreoLogService>();
 
+        services.AddCorreo(configuration);
         services.AddAlmacenamientoObjetos(configuration);
+
+        return services;
+    }
+
+    /// <summary>
+    /// SMTP real si la sección "Correo" trae un Host configurado; si no
+    /// (desarrollo sin credenciales a mano), cae al stub que solo loguea.
+    /// </summary>
+    private static IServiceCollection AddCorreo(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.Configure<OpcionesCorreo>(configuration.GetSection(OpcionesCorreo.Seccion));
+
+        var host = configuration[$"{OpcionesCorreo.Seccion}:Host"];
+        var correoConfigurado = !string.IsNullOrWhiteSpace(host) && host != "CHANGE_ME";
+
+        if (correoConfigurado)
+        {
+            services.AddSingleton<ICorreoService, SmtpCorreoService>();
+        }
+        else
+        {
+            services.AddSingleton<ICorreoService, CorreoLogService>();
+        }
 
         return services;
     }

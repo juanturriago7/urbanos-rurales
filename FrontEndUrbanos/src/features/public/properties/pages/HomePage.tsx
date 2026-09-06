@@ -18,9 +18,10 @@ import {
   ShieldCheck,
   Users,
 } from 'lucide-react'
-import { useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { PublicacionesDestacadas } from '@/features/public/properties/components/PublicacionesDestacadas'
+import { useCrearLead } from '@/features/public/contacto/hooks/useCrearLead'
 import { WhatsAppIcon } from '@/shared/components/icons/WhatsAppIcon'
 import { site } from '@/shared/config/site'
 
@@ -75,6 +76,85 @@ const CERTIFICACIONES_PLANTILLA = [
 export function HomePage() {
   useReveal()
   const marqueeRef = useRef<HTMLDivElement>(null)
+  const location = useLocation()
+
+  /**
+   * Si se llega desde otra página vía "/#ancla" (ej. click en "Líneas de
+   * servicio" desde la ficha de un inmueble), hace scroll al ancla una vez
+   * montado el contenido.
+   */
+  useEffect(() => {
+    if (!location.hash) return
+    const id = location.hash.slice(1)
+    const t = setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+    }, 120)
+    return () => clearTimeout(t)
+  }, [location.hash])
+
+  /* ── Formulario de contacto ──────────────────────────────────── */
+  const crearLead = useCrearLead()
+  const [contacto, setContacto] = useState({
+    nombre: '',
+    telefono: '',
+    email: '',
+    servicio: '',
+    mensaje: '',
+    aceptoDatos: false,
+  })
+  const [sitio, setSitio] = useState('') // honeypot anti-spam — un humano nunca lo llena
+  const [errorValidacion, setErrorValidacion] = useState<string | null>(null)
+  const [envioExitoso, setEnvioExitoso] = useState(false)
+
+  function actualizarContacto<K extends keyof typeof contacto>(campo: K, valor: (typeof contacto)[K]) {
+    setEnvioExitoso(false)
+    setContacto((prev) => ({ ...prev, [campo]: valor }))
+  }
+
+  function seleccionarServicio(servicio: string) {
+    actualizarContacto('servicio', servicio)
+    document.getElementById('contacto')?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  async function handleEnviarContacto(e: React.FormEvent) {
+    e.preventDefault()
+    setErrorValidacion(null)
+
+    if (!contacto.nombre.trim()) {
+      setErrorValidacion('Ingresa tu nombre completo.')
+      return
+    }
+    if (!contacto.email.trim() && !contacto.telefono.trim()) {
+      setErrorValidacion('Indica al menos un correo o un teléfono de contacto.')
+      return
+    }
+    if (!contacto.aceptoDatos) {
+      setErrorValidacion('Debes aceptar el tratamiento de tus datos personales.')
+      return
+    }
+
+    try {
+      await crearLead.mutateAsync({
+        nombre: contacto.nombre.trim(),
+        correo: contacto.email.trim() || undefined,
+        telefono: contacto.telefono.trim() || undefined,
+        mensaje:
+          [
+            contacto.servicio && `Servicio de interés: ${contacto.servicio}`,
+            contacto.mensaje.trim(),
+          ]
+            .filter(Boolean)
+            .join('\n\n') || undefined,
+        origen: 'formulario_general',
+        aceptoTratamientoDatos: contacto.aceptoDatos,
+        sitio: sitio || undefined,
+      })
+      setEnvioExitoso(true)
+      setContacto({ nombre: '', telefono: '', email: '', servicio: '', mensaje: '', aceptoDatos: false })
+    } catch {
+      // el estado de error ya lo expone crearLead.isError
+    }
+  }
 
   /* Auto-scroll marquee */
   useEffect(() => {
@@ -302,8 +382,10 @@ export function HomePage() {
                 </div>
                 <p className="font-bold text-[#001124] text-[17px] mt-2">{titulo}</p>
                 <p className="text-[#7a8187] text-[14px] leading-[1.65]">{desc}</p>
-                <a href="#contacto" className="flex items-center gap-[6px] text-[#004b98] text-[13px] font-semibold mt-1 hover:text-[#00b5c5] transition-colors">
-                  Más información
+                <a href="#contacto"
+                  onClick={(e) => { e.preventDefault(); seleccionarServicio(titulo) }}
+                  className="flex items-center gap-[6px] text-[#004b98] text-[13px] font-semibold mt-1 hover:text-[#00b5c5] transition-colors">
+                  Cotizar
                   <ArrowRight className="w-[14px] h-[14px]" aria-hidden="true" />
                 </a>
               </div>
@@ -495,27 +577,46 @@ export function HomePage() {
             {/* Formulario */}
             <div className="flex-1 flex flex-col gap-6 min-w-0">
               <p className="font-bold text-[#001124] text-[22px]">Envíenos un mensaje</p>
-              <form className="flex flex-col gap-[14px]" onSubmit={(e) => e.preventDefault()}>
+              <form className="flex flex-col gap-[14px]" onSubmit={handleEnviarContacto}>
+                {/* Honeypot anti-spam: oculto para humanos, los bots sí lo llenan */}
+                <input
+                  type="text"
+                  name="sitio_web"
+                  value={sitio}
+                  onChange={(e) => setSitio(e.target.value)}
+                  tabIndex={-1}
+                  autoComplete="off"
+                  className="hidden"
+                  aria-hidden="true"
+                />
                 <div className="flex gap-[14px]">
-                  {[
-                    { id: 'nombre', label: 'Nombre completo', placeholder: 'Su nombre', type: 'text' },
-                    { id: 'telefono', label: 'Teléfono', placeholder: '+57 300 000 0000', type: 'tel' },
-                  ].map(({ id, label, placeholder, type }) => (
-                    <div key={id} className="flex-1 flex flex-col gap-[6px]">
-                      <label htmlFor={id} className="text-[#41596a] text-[12px] font-semibold tracking-[0.6px] uppercase">{label}</label>
-                      <input id={id} type={type} placeholder={placeholder}
-                        className="bg-[#eff4f8] border border-[#d2d8dd] rounded-[10px] px-[17px] py-[13px] text-[14px] text-[#0d1c27] placeholder:text-[#757575] outline-none focus:border-[#004b98] focus:bg-white transition-colors" />
-                    </div>
-                  ))}
+                  <div className="flex-1 flex flex-col gap-[6px]">
+                    <label htmlFor="nombre" className="text-[#41596a] text-[12px] font-semibold tracking-[0.6px] uppercase">Nombre completo</label>
+                    <input id="nombre" type="text" placeholder="Su nombre"
+                      value={contacto.nombre}
+                      onChange={(e) => actualizarContacto('nombre', e.target.value)}
+                      className="bg-[#eff4f8] border border-[#d2d8dd] rounded-[10px] px-[17px] py-[13px] text-[14px] text-[#0d1c27] placeholder:text-[#757575] outline-none focus:border-[#004b98] focus:bg-white transition-colors" />
+                  </div>
+                  <div className="flex-1 flex flex-col gap-[6px]">
+                    <label htmlFor="telefono" className="text-[#41596a] text-[12px] font-semibold tracking-[0.6px] uppercase">Teléfono</label>
+                    <input id="telefono" type="tel" placeholder="+57 300 000 0000"
+                      value={contacto.telefono}
+                      onChange={(e) => actualizarContacto('telefono', e.target.value)}
+                      className="bg-[#eff4f8] border border-[#d2d8dd] rounded-[10px] px-[17px] py-[13px] text-[14px] text-[#0d1c27] placeholder:text-[#757575] outline-none focus:border-[#004b98] focus:bg-white transition-colors" />
+                  </div>
                 </div>
                 <div className="flex flex-col gap-[6px]">
                   <label htmlFor="email" className="text-[#41596a] text-[12px] font-semibold tracking-[0.6px] uppercase">Correo electrónico</label>
                   <input id="email" type="email" placeholder="correo@empresa.com"
+                    value={contacto.email}
+                    onChange={(e) => actualizarContacto('email', e.target.value)}
                     className="bg-[#eff4f8] border border-[#d2d8dd] rounded-[10px] px-[17px] py-[13px] text-[14px] text-[#0d1c27] placeholder:text-[#757575] outline-none focus:border-[#004b98] focus:bg-white transition-colors" />
                 </div>
                 <div className="flex flex-col gap-[6px]">
                   <label htmlFor="servicio" className="text-[#41596a] text-[12px] font-semibold tracking-[0.6px] uppercase">Servicio de interés</label>
                   <select id="servicio"
+                    value={contacto.servicio}
+                    onChange={(e) => actualizarContacto('servicio', e.target.value)}
                     className="bg-[#eff4f8] border border-[#d2d8dd] rounded-[10px] px-[17px] py-[14px] text-[14px] text-[#0d1c27] outline-none focus:border-[#004b98] focus:bg-white transition-colors appearance-none cursor-pointer">
                     <option value="">Seleccione un servicio...</option>
                     <option>Consultoría y Asesoría Predial</option>
@@ -528,12 +629,38 @@ export function HomePage() {
                 <div className="flex flex-col gap-[6px]">
                   <label htmlFor="mensaje" className="text-[#41596a] text-[12px] font-semibold tracking-[0.6px] uppercase">Mensaje</label>
                   <textarea id="mensaje" rows={4} placeholder="Cuéntenos sobre su proyecto..."
+                    value={contacto.mensaje}
+                    onChange={(e) => actualizarContacto('mensaje', e.target.value)}
                     className="bg-[#eff4f8] border border-[#d2d8dd] rounded-[10px] px-[17px] py-[13px] text-[14px] text-[#0d1c27] placeholder:text-[#757575] outline-none focus:border-[#004b98] focus:bg-white transition-colors resize-none" />
                 </div>
+                <label className="flex items-start gap-2 text-[12px] text-[#41596a] leading-[1.5] cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={contacto.aceptoDatos}
+                    onChange={(e) => actualizarContacto('aceptoDatos', e.target.checked)}
+                    className="mt-0.5 w-4 h-4 accent-[#004b98] cursor-pointer shrink-0"
+                  />
+                  Acepto el tratamiento de mis datos personales conforme a la política de privacidad.
+                </label>
+                {errorValidacion && (
+                  <p className="text-[13px] font-semibold text-[#c0392b] bg-[rgba(192,57,43,0.08)] rounded-[10px] px-4 py-3">
+                    {errorValidacion}
+                  </p>
+                )}
+                {crearLead.isError && (
+                  <p className="text-[13px] font-semibold text-[#c0392b] bg-[rgba(192,57,43,0.08)] rounded-[10px] px-4 py-3">
+                    No pudimos enviar tu mensaje. Intenta nuevamente en unos minutos.
+                  </p>
+                )}
+                {envioExitoso && (
+                  <p className="text-[13px] font-semibold text-[#0a8a3f] bg-[rgba(10,138,63,0.08)] rounded-[10px] px-4 py-3">
+                    ¡Gracias! Recibimos tu mensaje y te contactaremos pronto.
+                  </p>
+                )}
                 <div className="flex gap-3">
-                  <button type="submit"
-                    className="flex-1 bg-[#004b98] text-white font-bold text-[14px] py-[14px] rounded-[10px] hover:bg-[#003b7a] transition-colors duration-200">
-                    Enviar mensaje
+                  <button type="submit" disabled={crearLead.isPending}
+                    className="flex-1 bg-[#004b98] text-white font-bold text-[14px] py-[14px] rounded-[10px] hover:bg-[#003b7a] disabled:opacity-60 disabled:cursor-not-allowed transition-colors duration-200">
+                    {crearLead.isPending ? 'Enviando…' : 'Enviar mensaje'}
                   </button>
                   <button type="button"
                     className="border border-[#004b98] text-[#004b98] font-semibold text-[13px] px-[21px] py-[15px] rounded-[10px] hover:bg-[rgba(0,75,152,0.05)] transition-colors duration-200">
