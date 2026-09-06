@@ -201,10 +201,7 @@ export function InmuebleDetallePage() {
             <div className="mt-8">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="text-[12px] font-semibold tracking-[0.5px] text-[#7a8187]">
-                    {inmueble.codigoReferencia}
-                  </p>
-                  <h1 className="mt-1 text-[28px] leading-tight font-extrabold tracking-[-0.5px] text-[#001124]">
+                  <h1 className="text-[28px] leading-tight font-extrabold tracking-[-0.5px] text-[#001124]">
                     {inmueble.titulo}
                   </h1>
                   <div className="mt-2 flex items-center gap-[6px] text-[#7a8187]">
@@ -287,8 +284,15 @@ export function InmuebleDetallePage() {
                       <iframe
                         src={`https://www.youtube.com/embed/${id}`}
                         title="Video del inmueble"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        // "fullscreen" es imprescindible en `allow`: Chrome ignora el
+                        // atributo legado allowFullScreen en cuanto hay un `allow`
+                        // explícito sin ese permiso ("Allow attribute will take
+                        // precedence over 'allowfullscreen'"), y el botón de
+                        // pantalla completa del reproductor queda muerto — verificado
+                        // en vivo con y sin el permiso.
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture"
                         allowFullScreen
+                        loading="lazy"
                         className="absolute inset-0 h-full w-full"
                       />
                     </div>
