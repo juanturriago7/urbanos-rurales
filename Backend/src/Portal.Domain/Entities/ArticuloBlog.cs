@@ -98,6 +98,21 @@ public sealed class ArticuloBlog
         ActualizadoEn = DateTime.UtcNow;
     }
 
+    /// <summary>
+    /// Fija la portada tras confirmar la subida al bucket (flujo de presign).
+    /// Independiente de <see cref="Actualizar"/>, que solo toca la URL manual
+    /// heredada de la v1 y nunca la storage key (ver ActualizarArticuloCommand).
+    /// </summary>
+    public void EstablecerImagenPortada(string storageKey, string url)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(storageKey);
+        ArgumentException.ThrowIfNullOrWhiteSpace(url);
+
+        ImagenPortadaKey = storageKey;
+        ImagenPortadaUrl = url;
+        ActualizadoEn = DateTime.UtcNow;
+    }
+
     public void CambiarEstado(EstadoArticuloBlog nuevoEstado)
     {
         var pasaba = Estado;

@@ -8,6 +8,7 @@ import {
   useCrearArticulo,
 } from '@/features/admin/proyectos/hooks/useProyectosAdmin'
 import type { ArticuloBlogAdmin } from '@/features/admin/proyectos/api/proyectosAdminApi'
+import { subirImagenPortada } from '@/features/admin/proyectos/api/imagenPortadaApi'
 import { Button } from '@/shared/components/ui/Button'
 import { Input, Textarea } from '@/shared/components/ui/Field'
 import { Spinner } from '@/shared/components/ui/Spinner'
@@ -61,6 +62,25 @@ function FormularioArticulo({
   const [imagenPortadaUrl, setImagenPortadaUrl] = useState(articuloExistente?.imagenPortadaUrl ?? '')
   const [metaTitulo, setMetaTitulo] = useState(articuloExistente?.metaTitulo ?? '')
   const [metaDescripcion, setMetaDescripcion] = useState(articuloExistente?.metaDescripcion ?? '')
+  const [subiendoPortada, setSubiendoPortada] = useState(false)
+  const [errorPortada, setErrorPortada] = useState<string | null>(null)
+
+  async function handleSeleccionarPortada(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = '' // permite volver a elegir el mismo archivo si falla
+    if (!file || !idArticulo) return
+
+    setErrorPortada(null)
+    setSubiendoPortada(true)
+    try {
+      const url = await subirImagenPortada(idArticulo, file)
+      setImagenPortadaUrl(url)
+    } catch (err) {
+      setErrorPortada(err instanceof Error ? err.message : 'No se pudo subir la imagen.')
+    } finally {
+      setSubiendoPortada(false)
+    }
+  }
 
   const htmlPreview = useMemo(() => {
     const raw = marked.parse(contenido, { async: false }) as string
@@ -121,13 +141,40 @@ function FormularioArticulo({
           maxLength={320}
           onChange={(e) => setResumen(e.target.value)}
         />
-        <Input
-          label="URL de imagen de portada"
-          wrapperClassName="mt-4"
-          value={imagenPortadaUrl}
-          onChange={(e) => setImagenPortadaUrl(e.target.value)}
-          placeholder="https://..."
-        />
+        <div className="mt-4">
+          <p className="text-text-primary mb-1 block text-sm font-medium">Imagen de portada</p>
+
+          {imagenPortadaUrl && (
+            <img
+              src={imagenPortadaUrl}
+              alt="Portada actual"
+              className="mb-2 h-32 w-auto rounded-control border border-border object-cover"
+            />
+          )}
+
+          {isEdit ? (
+            <>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                disabled={subiendoPortada}
+                onChange={handleSeleccionarPortada}
+                className="block w-full text-sm text-text-secondary file:mr-3 file:rounded-control file:border-0 file:bg-brand-50 file:px-3 file:py-2 file:text-sm file:font-medium file:text-brand-700 hover:file:bg-brand-100 disabled:opacity-60"
+              />
+              <p className="mt-1 text-xs text-text-secondary">JPG, PNG o WebP.</p>
+              {subiendoPortada && (
+                <p className="mt-1 text-xs text-text-secondary">Subiendo imagen…</p>
+              )}
+              {errorPortada && (
+                <p className="mt-1 text-xs text-error">{errorPortada}</p>
+              )}
+            </>
+          ) : (
+            <p className="text-xs text-text-secondary">
+              Guarda el artículo primero: la portada se sube desde la pantalla de edición.
+            </p>
+          )}
+        </div>
         <Input
           label="Meta título (SEO)"
           wrapperClassName="mt-4"
