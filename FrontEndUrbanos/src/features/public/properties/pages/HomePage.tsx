@@ -22,22 +22,9 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { PublicacionesDestacadas } from '@/features/public/properties/components/PublicacionesDestacadas'
 import { useCrearLead } from '@/features/public/contacto/hooks/useCrearLead'
+import { useScrollReveal } from '@/shared/hooks/useScrollReveal'
 import { WhatsAppIcon } from '@/shared/components/icons/WhatsAppIcon'
 import { site } from '@/shared/config/site'
-
-/* ── Reveal on scroll ─────────────────────────────────────────── */
-function useReveal() {
-  useEffect(() => {
-    const io = new IntersectionObserver(
-      (entries) => entries.forEach((e) => {
-        if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target) }
-      }),
-      { threshold: 0.08 },
-    )
-    document.querySelectorAll('.reveal').forEach((t) => io.observe(t))
-    return () => io.disconnect()
-  }, [])
-}
 
 /* ── Marquee clientes ─────────────────────────────────────────── */
 const CLIENTES = [
@@ -74,7 +61,7 @@ const CERTIFICACIONES_PLANTILLA = [
    COMPONENTE PRINCIPAL
    ══════════════════════════════════════════════════════════════ */
 export function HomePage() {
-  useReveal()
+  useScrollReveal()
   const marqueeRef = useRef<HTMLDivElement>(null)
   const location = useLocation()
 
