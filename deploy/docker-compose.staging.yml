@@ -1,9 +1,22 @@
+# Nombra el proyecto de compose explícitamente — evita que Docker lo derive del
+# nombre del directorio ("deploy"). NOTA: si ya desplegaste antes con el nombre
+# de proyecto por defecto, este cambio hace que Compose cree redes/volúmenes
+# NUEVOS (prefijo urbanos-staging_ en vez de deploy_) la próxima vez que
+# despliegues — no reutiliza los viejos automáticamente.
+name: urbanos-staging
+
 services:
   db:
     image: postgis/postgis:16-3.4
     container_name: urbanos-db-staging
     restart: unless-stopped
     mem_limit: 300m
+    memswap_limit: 300m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-portal_db}
       POSTGRES_USER: ${POSTGRES_USER:-portal_user}
@@ -25,6 +38,12 @@ services:
     container_name: urbanos-minio-staging
     restart: unless-stopped
     mem_limit: 128m
+    memswap_limit: 128m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
@@ -82,6 +101,12 @@ services:
     container_name: urbanos-backend-staging
     restart: unless-stopped
     mem_limit: 350m
+    memswap_limit: 350m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - urbanos-staging-network
       - prod-network
@@ -119,6 +144,12 @@ services:
     container_name: urbanos-frontend-staging
     restart: unless-stopped
     mem_limit: 32m
+    memswap_limit: 32m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - urbanos-staging-network
       - prod-network

@@ -11,11 +11,11 @@ REF="${1:-develop}"
 echo "==> Actualizando código a origin/${REF}"
 cd "$REPO_DIR"
 git fetch origin "$REF"
-git reset --hard "origin/${REF}"
+git reset --hard FETCH_HEAD
 
 echo "==> Reconstruyendo imágenes"
 cd "$REPO_DIR/deploy"
-docker compose -f docker-compose.staging.yml --env-file .env build
+docker compose -f docker-compose.staging.yml --env-file .env --profile migration build
 
 echo "==> Aplicando migraciones EF"
 docker compose -f docker-compose.staging.yml --env-file .env --profile migration run --rm migrator

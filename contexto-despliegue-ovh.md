@@ -112,7 +112,7 @@ en el repo `urbanos-rurales` para el diseño completo.
 | Directorio en el VPS | `~/urbanos-rurales-staging/` (clon de git) |
 | Compose | `~/urbanos-rurales-staging/deploy/docker-compose.staging.yml` |
 | Secretos | `~/urbanos-rurales-staging/deploy/.env` (no versionado) |
-| Contenedores | `urbanos-db-staging`, `urbanos-minio-staging`, `urbanos-backend-staging`, `urbanos-frontend-staging` |
+| Contenedores | `urbanos-db-staging`, `urbanos-minio-staging`, `urbanos-minio-init-staging`, `urbanos-backend-staging`, `urbanos-frontend-staging` |
 | Redeploy | `.\deploy\deploy-staging.ps1` (local, tras cada push a `develop` — no hay GitHub Actions, el usuario no tiene acceso admin al repo) |
 | Script remoto | `~/deploy-urbanos-staging.sh` en el VPS (copia de `deploy/vps-deploy.sh` del repo, vive fuera del clon a propósito) |
 
@@ -121,6 +121,30 @@ Comparte el `crm-nginx` y el certbot de TiviPlay (bloques nuevos agregados a
 `~/tiviplay/certbot/conf/live/stage-urbanos.saintsoft.us/`) — no tiene nginx
 ni certbot propios. Se une a la red `tiviplay_tiviplay-network` para que el
 nginx compartido pueda alcanzarlo.
+
+### Puertos publicados (127.0.0.1 solamente)
+
+| Puerto | Servicio |
+|---|---|
+| `5434` | postgres |
+| `9004` | MinIO API |
+| `9005` | MinIO console |
+
+### Gotchas específicos de este ambiente
+
+- Bind-mounts de un solo archivo en Docker (como `~/tiviplay/nginx/nginx.conf`) pueden quedar "stale" si se editan en el host con una herramienta que hace rename (p. ej. `sed -i`): el contenedor sigue viendo el inodo viejo hasta un `docker compose restart <servicio>`. Antes de confiar en un `nginx -t` corrido dentro del contenedor tras editar el archivo en el host, validar primero con un contenedor efímero: `docker run --rm --network tiviplay_tiviplay-network -v ~/tiviplay/nginx/nginx.conf:/etc/nginx/nginx.conf:ro -v ~/tiviplay/certbot/conf:/etc/letsencrypt:ro nginx:alpine nginx -t`, y solo después reiniciar el contenedor real y confirmar que el md5sum del archivo coincide dentro y fuera.
+- Las imágenes runtime de `aspnet:10.0` no incluyen `curl` ni `wget`. Para probar un endpoint interno de `urbanos-backend-staging` sin publicar su puerto al host, usar un contenedor efímero en la misma red: `docker run --rm --network deploy_urbanos-staging-network curlimages/curl:latest -s http://urbanos-backend-staging:8080/health`.
+
+`deploy/vps-deploy.sh` en el repo es la fuente de verdad, pero la copia que
+realmente se ejecuta (`~/deploy-urbanos-staging.sh`) debe re-copiarse a mano
+(`cp ~/urbanos-rurales-staging/deploy/vps-deploy.sh ~/deploy-urbanos-staging.sh`)
+después de cualquier edición a la versión del repo — nada hace esto
+automáticamente, a propósito (para evitar que el script en ejecución se
+auto-modifique a mitad de un `git reset --hard`).
+
+`deploy/nginx-fragment-staging.conf` en el repo es un snapshot de lo que se
+aplicó, no una fuente de verdad viva — el `~/tiviplay/nginx/nginx.conf` real
+en el VPS se edita a mano y puede haber divergido de él.
 
 ---
 
