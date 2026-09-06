@@ -108,8 +108,11 @@ internal sealed class InmueblePublicoRepository : IInmueblePublicoRepository
                     $"EXISTS (SELECT 1 FROM inmueble_operaciones o WHERE {string.Join(" AND ", subCondiciones)})");
             }
 
-            if (filtro.AreaMin is not null) condiciones.Add("i.area_construida_m2 >= @AreaMin");
-            if (filtro.AreaMax is not null) condiciones.Add("i.area_construida_m2 <= @AreaMax");
+            // COALESCE: un lote no tiene área construida, así que el filtro cae al área de terreno.
+            if (filtro.AreaMin is not null)
+                condiciones.Add("COALESCE(i.area_construida_m2, i.area_terreno_m2) >= @AreaMin");
+            if (filtro.AreaMax is not null)
+                condiciones.Add("COALESCE(i.area_construida_m2, i.area_terreno_m2) <= @AreaMax");
             if (filtro.Habitaciones is not null) condiciones.Add("i.habitaciones >= @Habitaciones");
             if (filtro.Banos is not null) condiciones.Add("i.banos >= @Banos");
             if (filtro.Parqueaderos is not null) condiciones.Add("i.parqueaderos >= @Parqueaderos");
