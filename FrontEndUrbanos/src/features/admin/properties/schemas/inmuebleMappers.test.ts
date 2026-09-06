@@ -90,8 +90,23 @@ describe('aValoresFormulario', () => {
     expect(v.tieneVenta).toBe(false)
   })
 
-  it('aplana las características a sus ids', () => {
-    expect(aValoresFormulario(dto).caracteristicaIds).toEqual([3, 7])
+  it('aplana las características booleanas (valor null) a sus ids', () => {
+    const v = aValoresFormulario(dto)
+    expect(v.caracteristicaIds).toEqual([3, 7])
+    expect(v.caracteristicaTextos).toEqual({})
+  })
+
+  it('separa las características valoradas (valor != null) en caracteristicaTextos', () => {
+    const conValor: InmuebleAdminDetalleDto = {
+      ...dto,
+      caracteristicas: [
+        { caracteristicaId: 3, nombre: 'Piscina', categoria: 'Exteriores', valor: null },
+        { caracteristicaId: 5, nombre: 'Closets', categoria: 'Interior', valor: '4' },
+      ],
+    }
+    const v = aValoresFormulario(conValor)
+    expect(v.caracteristicaIds).toEqual([3])
+    expect(v.caracteristicaTextos).toEqual({ '5': '4' })
   })
 })
 
@@ -104,20 +119,48 @@ describe('aDatosInput', () => {
     expect(payload.titulo).toBe('Casa en Chía')
   })
 
-  it('convierte los ids de característica al shape que espera el backend', () => {
+  it('convierte los ids de característica booleana al shape que espera el backend', () => {
     const datos = inmuebleSchema.parse(aValoresFormulario(dto))
     expect(aDatosInput(datos).caracteristicas).toEqual([
       { caracteristicaId: 3 },
       { caracteristicaId: 7 },
     ])
   })
+
+  it('emite { caracteristicaId, valor } por cada entrada no vacía de caracteristicaTextos', () => {
+    const datos = inmuebleSchema.parse({
+      ...aValoresFormulario(dto),
+      caracteristicaIds: [7],
+      caracteristicaTextos: { '5': '4', '9': '   ', '12': 'Norte' },
+    })
+    const cs = aDatosInput(datos).caracteristicas ?? []
+    expect(cs).toEqual(
+      expect.arrayContaining([
+        { caracteristicaId: 7 },
+        { caracteristicaId: 5, valor: '4' },
+        { caracteristicaId: 12, valor: 'Norte' },
+      ]),
+    )
+    // '9' con valor en blanco se descarta.
+    expect(cs).toHaveLength(3)
+  })
+
+  it('si un id aparece en ambos buckets, gana el valor de caracteristicaTextos', () => {
+    const datos = inmuebleSchema.parse({
+      ...aValoresFormulario(dto),
+      caracteristicaIds: [3],
+      caracteristicaTextos: { '3': '4' },
+    })
+    expect(aDatosInput(datos).caracteristicas).toEqual([{ caracteristicaId: 3, valor: '4' }])
+  })
 })
 
 /**
  * PUT /api/admin/inmuebles/{id} es un reemplazo completo: toda clave ausente
  * del body llega como null al repositorio y borra la columna. El formulario no
- * edita metaTitulo, metaDescripcion, asesorId ni el `valor` de las
- * características, así que la edición tiene que devolvérselos al backend.
+ * edita metaTitulo, metaDescripcion ni asesorId, así que la edición tiene que
+ * devolvérselos al backend. El `valor` de una característica número/texto sí lo
+ * edita el formulario (campo `caracteristicaTextos`), así que ese viaja solo.
  */
 describe('aDatosInput al editar (campos que el formulario no edita)', () => {
   const dtoConMetadatos: InmuebleAdminDetalleDto = {
@@ -142,26 +185,29 @@ describe('aDatosInput al editar (campos que el formulario no edita)', () => {
     expect(payload.asesorId).toBe(42)
   })
 
-  it('reenvía el valor de cada característica que ya lo tenía', () => {
+  it('el valor de una característica número/texto viaja de vuelta vía caracteristicaTextos', () => {
     const datos = inmuebleSchema.parse(aValoresFormulario(dtoConMetadatos))
+    const cs = aDatosInput(datos, dtoConMetadatos).caracteristicas ?? []
 
-    expect(aDatosInput(datos, dtoConMetadatos).caracteristicas).toEqual([
-      { caracteristicaId: 3, valor: '8x4 m' },
-      { caracteristicaId: 7, valor: null },
-    ])
+    expect(cs).toEqual(
+      expect.arrayContaining([
+        { caracteristicaId: 7 },
+        { caracteristicaId: 3, valor: '8x4 m' },
+      ]),
+    )
+    expect(cs).toHaveLength(2)
   })
 
-  it('no inventa valor para una característica recién marcada', () => {
+  it('una booleana recién marcada no lleva valor', () => {
     const valores = aValoresFormulario(dtoConMetadatos)
-    const datos = inmuebleSchema.parse({ ...valores, caracteristicaIds: [3, 9] })
+    const datos = inmuebleSchema.parse({ ...valores, caracteristicaIds: [7, 9] })
+    const cs = aDatosInput(datos, dtoConMetadatos).caracteristicas ?? []
 
-    expect(aDatosInput(datos, dtoConMetadatos).caracteristicas).toEqual([
-      { caracteristicaId: 3, valor: '8x4 m' },
-      { caracteristicaId: 9 },
-    ])
+    expect(cs).toEqual(expect.arrayContaining([{ caracteristicaId: 9 }]))
+    expect(cs.find((c) => c.caracteristicaId === 9)).not.toHaveProperty('valor')
   })
 
-  it('el alta (sin detalle previo) no emite ninguna de esas claves', () => {
+  it('el alta (sin detalle previo) no emite metaTitulo/metaDescripcion/asesorId', () => {
     // El POST de creación no tiene nada que preservar y no debe mandar nulls
     // que pisen los valores por defecto del backend.
     const datos = inmuebleSchema.parse(aValoresFormulario(dtoConMetadatos))
@@ -170,7 +216,13 @@ describe('aDatosInput al editar (campos que el formulario no edita)', () => {
     expect(payload).not.toHaveProperty('metaTitulo')
     expect(payload).not.toHaveProperty('metaDescripcion')
     expect(payload).not.toHaveProperty('asesorId')
-    expect(payload.caracteristicas).toEqual([{ caracteristicaId: 3 }, { caracteristicaId: 7 }])
+    // El valor de la característica número/texto viaja igual, no depende del previo.
+    expect(payload.caracteristicas).toEqual(
+      expect.arrayContaining([
+        { caracteristicaId: 7 },
+        { caracteristicaId: 3, valor: '8x4 m' },
+      ]),
+    )
   })
 })
 

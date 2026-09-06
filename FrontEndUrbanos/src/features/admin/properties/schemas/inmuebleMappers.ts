@@ -17,6 +17,16 @@ export function aValoresFormulario(dto: InmuebleAdminDetalleDto): InmuebleFormIn
   const venta = dto.operaciones.find((o) => o.tipoOperacion === 'venta' && o.activo)
   const arriendo = dto.operaciones.find((o) => o.tipoOperacion === 'arriendo' && o.activo)
 
+  // Semántica DB (inmueble_caracteristicas.valor): NULL ⇒ booleana (la sola
+  // fila implica true) → va al grupo de checkboxes; no NULL ⇒ número/texto →
+  // va al mapa de inputs. No hace falta consultar el catálogo de tipos.
+  const caracteristicaIds: number[] = []
+  const caracteristicaTextos: Record<string, string> = {}
+  for (const c of dto.caracteristicas) {
+    if (c.valor == null) caracteristicaIds.push(c.caracteristicaId)
+    else caracteristicaTextos[String(c.caracteristicaId)] = c.valor
+  }
+
   return {
     titulo: dto.titulo,
     descripcion: dto.descripcion,
@@ -46,7 +56,8 @@ export function aValoresFormulario(dto: InmuebleAdminDetalleDto): InmuebleFormIn
     precioArriendo: arriendo?.precio ?? undefined,
     adminArriendo: arriendo?.cuotaAdministracion ?? undefined,
     adminIncluidaArriendo: arriendo?.adminIncluida ?? false,
-    caracteristicaIds: dto.caracteristicas.map((c) => c.caracteristicaId),
+    caracteristicaIds,
+    caracteristicaTextos,
   }
 }
 
@@ -57,7 +68,7 @@ export function aValoresFormulario(dto: InmuebleAdminDetalleDto): InmuebleFormIn
  */
 export type CamposPreservados = Pick<
   InmuebleAdminDetalleDto,
-  'metaTitulo' | 'metaDescripcion' | 'asesorId' | 'caracteristicas'
+  'metaTitulo' | 'metaDescripcion' | 'asesorId'
 >
 
 /**
@@ -68,11 +79,13 @@ export type CamposPreservados = Pick<
  * `PUT /api/admin/inmuebles/{id}` es un reemplazo completo, no un merge: el
  * handler pasa `MetaTitulo`, `MetaDescripcion` y `AsesorId` directo a
  * `ActualizarDatos`, y el repositorio los escribe siempre; una clave ausente
- * del JSON llega como `null` y borra la columna. Lo mismo con las
- * características: el repositorio borra y reinserta el set completo, así que
- * el `valor` de cada una se pierde si no se reenvía. Como el formulario no
- * tiene inputs para nada de eso, hay que devolverlos tal como vinieron en el
- * detalle.
+ * del JSON llega como `null` y borra la columna. Como el formulario no tiene
+ * inputs para esos tres, hay que devolverlos tal como vinieron en el detalle.
+ *
+ * El set de características también se borra y reinserta completo, pero su
+ * `valor` sí lo edita el formulario: las booleanas llegan por
+ * `caracteristicaIds` (sin `valor`) y las de número/texto por
+ * `caracteristicaTextos` (clave = id). Si un id cae en los dos, gana el valor.
  *
  * Al crear no hay nada que preservar —el registro no existe todavía— y esas
  * claves simplemente no se emiten; el backend aplica sus valores por defecto.
@@ -81,11 +94,16 @@ export function aDatosInput(
   datos: InmuebleFormParsed,
   previo?: CamposPreservados,
 ): InmuebleDatosInput {
-  const caracteristicas: CaracteristicaValorInput[] = datos.caracteristicaIds.map((id) => {
-    const previa = previo?.caracteristicas.find((c) => c.caracteristicaId === id)
-    // Una característica recién marcada no tiene `valor` previo que conservar.
-    return previa ? { caracteristicaId: id, valor: previa.valor } : { caracteristicaId: id }
-  })
+  const porId = new Map<number, CaracteristicaValorInput>()
+  for (const id of datos.caracteristicaIds) porId.set(id, { caracteristicaId: id })
+  for (const [clave, bruto] of Object.entries(datos.caracteristicaTextos)) {
+    const valor = bruto?.trim()
+    if (!valor) continue
+    const id = Number(clave)
+    if (!Number.isFinite(id)) continue
+    porId.set(id, { caracteristicaId: id, valor })
+  }
+  const caracteristicas: CaracteristicaValorInput[] = [...porId.values()]
 
   const preservados: Partial<InmuebleDatosInput> = previo
     ? {

@@ -433,20 +433,41 @@ export function InmuebleForm({
                 <div key={categoria.id}>
                   <p className="text-text-primary text-sm font-medium">{categoria.nombre}</p>
                   <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
-                    {categoria.caracteristicas.map((c) => (
-                      <label
-                        key={c.id}
-                        className="text-text-secondary flex items-center gap-2 text-sm"
-                      >
-                        <input
-                          type="checkbox"
-                          className="h-4 w-4"
-                          value={c.id}
-                          {...register('caracteristicaIds')}
-                        />
-                        {c.nombre}
-                      </label>
-                    ))}
+                    {categoria.caracteristicas.map((c) =>
+                      c.tipoValor === 'booleano' ? (
+                        <label
+                          key={c.id}
+                          className="text-text-secondary flex items-center gap-2 text-sm"
+                        >
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4"
+                            value={c.id}
+                            {...register('caracteristicaIds')}
+                          />
+                          {c.nombre}
+                        </label>
+                      ) : (
+                        // Características de número/texto: input en vez de checkbox.
+                        // La sola presencia de un valor no vacío la marca como
+                        // asociada al inmueble (ver aDatosInput). Vacío = no la tiene.
+                        <label
+                          key={c.id}
+                          className="text-text-secondary flex flex-col gap-1 text-sm"
+                        >
+                          <span>
+                            {c.nombre}{' '}
+                            <span className="text-text-secondary/60">({c.tipoValor})</span>
+                          </span>
+                          <input
+                            type={c.tipoValor === 'numero' ? 'number' : 'text'}
+                            inputMode={c.tipoValor === 'numero' ? 'decimal' : undefined}
+                            className="border-border focus:border-b-brand-600 rounded-control border px-2 py-1 text-sm focus:border-b-2 focus:outline-none"
+                            {...register(`caracteristicaTextos.${c.id}`)}
+                          />
+                        </label>
+                      ),
+                    )}
                   </div>
                 </div>
               ))}

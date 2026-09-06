@@ -109,6 +109,21 @@ describe('inmuebleSchema — normalización', () => {
     expect(r.success).toBe(true)
     if (r.success) expect(r.data.caracteristicaIds).toEqual([3, 7])
   })
+
+  it('caracteristicaTextos ausente se normaliza a objeto vacío', () => {
+    const r = inmuebleSchema.safeParse(base)
+    expect(r.success).toBe(true)
+    if (r.success) expect(r.data.caracteristicaTextos).toEqual({})
+  })
+
+  it('conserva los valores tecleados de caracteristicaTextos (número/texto)', () => {
+    const r = inmuebleSchema.safeParse({
+      ...base,
+      caracteristicaTextos: { '5': '4', '8': 'Norte' },
+    })
+    expect(r.success).toBe(true)
+    if (r.success) expect(r.data.caracteristicaTextos).toEqual({ '5': '4', '8': 'Norte' })
+  })
 })
 
 describe('inmuebleSchema — área según tipo de inmueble (PH vs. terreno)', () => {

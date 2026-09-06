@@ -104,6 +104,13 @@ export const inmuebleSchema = z
       .array(z.union([z.string(), z.number()]))
       .default([])
       .transform((ids) => ids.map(Number).filter((n) => Number.isFinite(n))),
+
+    // Características de tipo `numero` o `texto`: el formulario las registra como
+    // `caracteristicaTextos.<id>` (un input, no un checkbox del grupo de arriba).
+    // Clave = id de la característica; valor = lo tecleado, sin normalizar. Las
+    // entradas vacías las descarta el mapper (aDatosInput), no el schema, porque
+    // RHF deja `{ '5': '' }` en un campo que se tocó y luego se borró.
+    caracteristicaTextos: z.record(z.string(), z.string()).default({}),
   })
   .refine((d) => d.tieneVenta || d.tieneArriendo, {
     message: 'Debes registrar al menos una operación: venta o arriendo',
@@ -150,4 +157,5 @@ export const valoresPorDefecto: Partial<InmuebleFormInput> = {
   tieneArriendo: false,
   adminIncluidaArriendo: false,
   caracteristicaIds: [],
+  caracteristicaTextos: {},
 }
