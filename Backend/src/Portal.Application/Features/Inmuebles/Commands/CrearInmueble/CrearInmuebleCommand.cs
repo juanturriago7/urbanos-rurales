@@ -2,6 +2,7 @@ using FluentValidation;
 using MediatR;
 using Portal.Application.Common;
 using Portal.Application.Features.Inmuebles.DTOs;
+using Portal.Application.Interfaces;
 
 namespace Portal.Application.Features.Inmuebles.Commands.CrearInmueble;
 
@@ -19,7 +20,8 @@ public sealed class CrearInmuebleCommandValidator
 {
     private static readonly string[] TiposOperacionValidos = ["venta", "arriendo"];
 
-    public CrearInmuebleCommandValidator()
+    public CrearInmuebleCommandValidator(ITipoInmuebleAdminRepository tiposInmueble)
+        : base(tiposInmueble)
     {
         RuleForEach(x => x.Operaciones)
             .ChildRules(o =>

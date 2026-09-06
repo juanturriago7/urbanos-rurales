@@ -1,5 +1,6 @@
 using FluentValidation;
 using Portal.Application.Features.Inmuebles.DTOs;
+using Portal.Application.Interfaces;
 
 namespace Portal.Application.Features.Inmuebles.Commands;
 
@@ -12,8 +13,9 @@ public abstract record InmuebleDatosCommandBase
     public long UbicacionId { get; init; }
     public string DireccionExacta { get; init; } = default!;
 
-    // Spec 03 — área de terreno obligatoria si el tipo no es PH (regla en handler,
-    // no en validator porque no hay acceso a BD desde este).
+    // Spec 03 — área de terreno obligatoria si el tipo no es PH, área construida
+    // obligatoria si sí lo es (InmuebleDatosValidatorBase, regla cruzada contra
+    // tipos_inmueble vía ITipoInmuebleAdminRepository).
     public decimal? AreaTerrenoM2 { get; init; }
     public decimal? AreaConstruidaM2 { get; init; }
     public decimal? AreaPrivadaM2 { get; init; }
@@ -53,7 +55,7 @@ public abstract class InmuebleDatosValidatorBase<T> : AbstractValidator<T>
 
     private static readonly string[] AmobladoValidos = ["si", "no", "semi"];
 
-    protected InmuebleDatosValidatorBase()
+    protected InmuebleDatosValidatorBase(ITipoInmuebleAdminRepository tiposInmueble)
     {
         RuleFor(x => x.Titulo).NotEmpty().MaximumLength(160);
         RuleFor(x => x.Descripcion).MaximumLength(10_000);
@@ -93,5 +95,33 @@ public abstract class InmuebleDatosValidatorBase<T> : AbstractValidator<T>
                 c.RuleFor(x => x.Valor).MaximumLength(60);
             })
             .When(x => x.Caracteristicas is not null);
+
+        // Spec 03 — regla cruzada con el catálogo: un tipo "propiedad horizontal"
+        // (apartamento, oficina, local...) exige área construida; los demás
+        // (casa, lote, bodega...) exigen área de terreno. Si el tipo no existe,
+        // GreaterThan(0) de arriba ya reportó el problema — aquí no se duplica.
+        RuleFor(x => x).CustomAsync(async (cmd, context, ct) =>
+        {
+            if (cmd.TipoInmuebleId <= 0) return;
+
+            var tipo = await tiposInmueble.GetByIdAsync(cmd.TipoInmuebleId, ct);
+            if (tipo is null) return;
+
+            if (tipo.EsPropiedadHorizontal)
+            {
+                if (cmd.AreaConstruidaM2 is null || cmd.AreaConstruidaM2 <= 0)
+                {
+                    context.AddFailure(
+                        nameof(InmuebleDatosCommandBase.AreaConstruidaM2),
+                        "El área construida es obligatoria para este tipo de inmueble.");
+                }
+            }
+            else if (cmd.AreaTerrenoM2 is null || cmd.AreaTerrenoM2 <= 0)
+            {
+                context.AddFailure(
+                    nameof(InmuebleDatosCommandBase.AreaTerrenoM2),
+                    "El área de terreno es obligatoria para este tipo de inmueble.");
+            }
+        });
     }
 }

@@ -1,5 +1,6 @@
 using MediatR;
 using Portal.Application.Common;
+using Portal.Application.Interfaces;
 
 namespace Portal.Application.Features.Inmuebles.Commands.ActualizarInmueble;
 
@@ -14,4 +15,10 @@ public sealed record ActualizarInmuebleCommand : InmuebleDatosCommandBase, IRequ
 }
 
 public sealed class ActualizarInmuebleCommandValidator
-    : InmuebleDatosValidatorBase<ActualizarInmuebleCommand>;
+    : InmuebleDatosValidatorBase<ActualizarInmuebleCommand>
+{
+    public ActualizarInmuebleCommandValidator(ITipoInmuebleAdminRepository tiposInmueble)
+        : base(tiposInmueble)
+    {
+    }
+}
