@@ -301,6 +301,115 @@ internal sealed class InmueblePublicoRepository : IInmueblePublicoRepository
         return detalle;
     }
 
+    public async Task<InmueblePublicoDetalleDto?> GetDetallePorIdAsync(
+        long id, CancellationToken ct = default)
+    {
+        const string sql = """
+            SELECT
+                i.id                     AS Id,
+                i.slug                   AS Slug,
+                i.codigo_referencia      AS CodigoReferencia,
+                i.titulo                 AS Titulo,
+                i.descripcion            AS Descripcion,
+                ti.nombre                AS TipoInmueble,
+                i.tipo_inmueble_id       AS TipoInmuebleId,
+                ti.es_propiedad_horizontal AS EsPropiedadHorizontal,
+                i.ubicacion_id           AS UbicacionId,
+                i.area_terreno_m2        AS AreaTerrenoM2,
+                i.area_construida_m2     AS AreaConstruidaM2,
+                i.area_privada_m2        AS AreaPrivadaM2,
+                i.youtube_url            AS YoutubeUrl,
+                i.mapa_embed_url         AS MapaEmbedUrl,
+                i.habitaciones           AS Habitaciones,
+                i.banos                  AS Banos,
+                i.parqueaderos           AS Parqueaderos,
+                i.piso                   AS Piso,
+                i.pisos_edificio         AS PisosEdificio,
+                i.estrato                AS Estrato,
+                i.antiguedad             AS Antiguedad,
+                i.orientacion            AS Orientacion,
+                i.politica_mascotas::text AS PoliticaMascotas,
+                i.amoblado               AS Amoblado,
+                i.destacado              AS Destacado,
+                i.meta_titulo            AS MetaTitulo,
+                i.meta_descripcion       AS MetaDescripcion,
+                i.creado_en              AS CreadoEn
+            FROM inmuebles i
+            INNER JOIN tipos_inmueble ti ON ti.id = i.tipo_inmueble_id
+            WHERE i.id = @Id AND i.estado = 'publicado' AND i.eliminado_en IS NULL;
+
+            WITH RECURSIVE cadena AS (
+                SELECT u.id, u.tipo::text AS tipo, u.nombre, u.slug, u.padre_id, 0 AS nivel
+                FROM ubicaciones u
+                WHERE u.id = (SELECT ubicacion_id FROM inmuebles
+                              WHERE id = @Id AND estado = 'publicado' AND eliminado_en IS NULL)
+                UNION ALL
+                SELECT p.id, p.tipo::text, p.nombre, p.slug, p.padre_id, c.nivel + 1
+                FROM ubicaciones p
+                INNER JOIN cadena c ON p.id = c.padre_id
+            )
+            SELECT id AS Id, tipo AS Tipo, nombre AS Nombre, slug AS Slug
+            FROM cadena
+            ORDER BY nivel DESC;
+
+            SELECT
+                o.id                   AS Id,
+                o.tipo_operacion::text AS TipoOperacion,
+                o.precio               AS Precio,
+                o.cuota_administracion AS CuotaAdministracion,
+                o.admin_incluida       AS AdminIncluida,
+                o.estado::text         AS Estado,
+                o.activo               AS Activo
+            FROM inmueble_operaciones o
+            WHERE o.inmueble_id = (SELECT id FROM inmuebles
+                                   WHERE id = @Id AND estado = 'publicado' AND eliminado_en IS NULL)
+              AND o.activo = TRUE
+            ORDER BY o.tipo_operacion;
+
+            SELECT
+                ic.caracteristica_id AS CaracteristicaId,
+                c.nombre             AS Nombre,
+                cc.nombre            AS Categoria,
+                ic.valor             AS Valor
+            FROM inmueble_caracteristicas ic
+            INNER JOIN caracteristicas c ON c.id = ic.caracteristica_id
+            INNER JOIN categorias_caracteristica cc ON cc.id = c.categoria_id
+            WHERE ic.inmueble_id = (SELECT id FROM inmuebles
+                                    WHERE id = @Id AND estado = 'publicado' AND eliminado_en IS NULL)
+            ORDER BY cc.orden, c.nombre;
+
+            SELECT
+                im.id            AS Id,
+                im.url_cdn       AS UrlCdn,
+                im.url_thumbnail AS UrlThumbnail,
+                im.formato       AS Formato,
+                im.orden         AS Orden,
+                im.es_portada    AS EsPortada,
+                im.texto_alt     AS TextoAlt
+            FROM imagenes im
+            WHERE im.inmueble_id = (SELECT id FROM inmuebles
+                                    WHERE id = @Id AND estado = 'publicado' AND eliminado_en IS NULL)
+            ORDER BY im.orden;
+            """;
+
+        using var conn = await _connectionFactory.OpenAsync(ct);
+        using var multi = await conn.QueryMultipleAsync(sql, new { Id = id });
+
+        var detalle = await multi.ReadSingleOrDefaultAsync<InmueblePublicoDetalleDto>();
+
+        if (detalle is null)
+        {
+            return null;
+        }
+
+        detalle.Ubicacion = (await multi.ReadAsync<UbicacionRefDto>()).ToList();
+        detalle.Operaciones = (await multi.ReadAsync<OperacionDto>()).ToList();
+        detalle.Caracteristicas = (await multi.ReadAsync<CaracteristicaValorDto>()).ToList();
+        detalle.Imagenes = (await multi.ReadAsync<ImagenDto>()).ToList();
+
+        return detalle;
+    }
+
     public async Task<IReadOnlyList<InmueblePublicoListItemDto>> GetSimilaresAsync(
         long inmuebleId, int max, CancellationToken ct = default)
     {

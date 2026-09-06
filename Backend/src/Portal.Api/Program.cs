@@ -1,10 +1,12 @@
 using System.Text;
 using System.Threading.RateLimiting;
+using Dapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Portal.Api.Middlewares;
 using Portal.Application;
 using Portal.Infrastructure;
+using Scalar.AspNetCore;
 using Serilog;
 
 // ─── Bootstrap Logger (antes del build) ───────────────────────────────────────
@@ -115,6 +117,39 @@ try
     // ─── Build ────────────────────────────────────────────────────────────────
     var app = builder.Build();
 
+    // ─── Database Seeder (usuario admin) ──────────────────────────────────────
+    using (var scope = app.Services.CreateScope())
+    {
+        var connectionFactory = scope.ServiceProvider.GetRequiredService<Portal.Infrastructure.Persistence.DbConnectionFactory>();
+        try
+        {
+            using var connection = await connectionFactory.OpenAsync();
+            
+            // Verificar que la extensión pgcrypto esté habilitada
+            await connection.ExecuteAsync("CREATE EXTENSION IF NOT EXISTS pgcrypto;");
+            
+            // Crear usuario admin si no existe
+            var adminInserted = await connection.ExecuteAsync(@"
+                INSERT INTO usuarios (nombre, correo, password_hash, rol)
+                VALUES ('Administrador Dev', 'admin@portal.local', crypt('Admin123*', gen_salt('bf', 11)), 'admin')
+                ON CONFLICT (correo) DO NOTHING;
+            ");
+            
+            if (adminInserted > 0)
+            {
+                Log.Information("✓ Usuario admin creado: admin@portal.local / Admin123*");
+            }
+            else
+            {
+                Log.Information("✓ Usuario admin ya existe en la base de datos");
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Error al ejecutar el seeder de usuario admin");
+        }
+    }
+
     // ─── Middleware Pipeline ──────────────────────────────────────────────────
     app.UseMiddleware<ErrorHandlingMiddleware>(); // Siempre primero
 
@@ -125,6 +160,7 @@ try
     if (app.Environment.IsDevelopment())
     {
         app.MapOpenApi(); // → http://localhost:5095/openapi/v1.json
+        app.MapScalarApiReference(); // → http://localhost:5095/scalar/v1
     }
 
     app.UseAuthentication();

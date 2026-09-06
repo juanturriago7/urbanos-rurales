@@ -39,8 +39,8 @@ services:
       MINIO_ROOT_USER: portal_minio
       MINIO_ROOT_PASSWORD: portal_minio_pass
     ports:
-      - "9000:9000"   # API S3
-      - "9001:9001"   # consola web
+      - "9002:9000"   # API S3
+      - "9003:9001"   # consola web
     volumes:
       - minio_data:/data
     command: server /data --console-address ":9001"
@@ -78,7 +78,7 @@ services:
         condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Production
-      ConnectionStrings__Default: "Host=postgres;Port=5432;Database=portal_db;Username=portal_user;Password=portal_pass"
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=portal_db;Username=portal_user;Password=portal_pass"
       Jwt__Key: "${JWT_KEY:-change-this-in-production}"
       Jwt__Issuer: "portal-api"
       Jwt__Audience: "portal-frontend"
@@ -88,7 +88,7 @@ services:
       Storage__Bucket: "portal-inmuebles"
       Storage__AccessKey: "portal_minio"
       Storage__SecretKey: "portal_minio_pass"
-      Storage__UrlPublicaBase: "http://localhost:9000/portal-inmuebles"
+      Storage__UrlPublicaBase: "http://localhost:9002/portal-inmuebles"
       Storage__ForcePathStyle: "true"
     ports:
       - "8080:8080"

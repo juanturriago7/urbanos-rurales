@@ -15,6 +15,10 @@ public interface IInmueblePublicoRepository
     Task<InmueblePublicoDetalleDto?> GetDetallePorSlugAsync(
         string slug, CancellationToken ct = default);
 
+    /// <summary>Detalle público por id (uso del chatbot). Mismas reglas que por slug.</summary>
+    Task<InmueblePublicoDetalleDto?> GetDetallePorIdAsync(
+        long id, CancellationToken ct = default);
+
     /// <summary>Similares: mismo barrio + mismo tipo + precio cercano (RF-046).</summary>
     Task<IReadOnlyList<InmueblePublicoListItemDto>> GetSimilaresAsync(
         long inmuebleId, int max, CancellationToken ct = default);
