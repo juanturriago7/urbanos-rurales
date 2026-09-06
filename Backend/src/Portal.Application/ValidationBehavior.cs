@@ -28,8 +28,13 @@ internal sealed class ValidationBehavior<TRequest, TResponse>
 
         var context = new ValidationContext<TRequest>(request);
 
-        var failures = _validators
-            .Select(v => v.Validate(context))
+        // ValidateAsync y no Validate: algunos validadores (p. ej.
+        // InmuebleDatosValidatorBase) tienen reglas CustomAsync, y FluentValidation
+        // lanza AsyncValidatorInvokedSynchronouslyException si se invocan síncronas.
+        var results = await Task.WhenAll(
+            _validators.Select(v => v.ValidateAsync(context, cancellationToken)));
+
+        var failures = results
             .SelectMany(r => r.Errors)
             .Where(f => f is not null)
             .ToList();
