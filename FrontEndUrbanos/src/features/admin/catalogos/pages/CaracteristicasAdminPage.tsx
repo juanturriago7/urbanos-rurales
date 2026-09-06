@@ -4,7 +4,10 @@ import {
   useActualizarCaracteristica,
   useActualizarCategoria,
   useCrearCaracteristica,
-  useCrearCategoria,
+  // TEMP regresión (INM-WEB-001): alta de categoría oculta a pedido. Para
+  // restaurar: descomentar este import, `crearCat`, el state `nuevaCategoria`,
+  // `agregarCategoria` y la <section> "Nueva categoría" de más abajo.
+  // useCrearCategoria,
 } from '@/features/admin/catalogos/hooks/useCaracteristicasAdmin'
 import { Button } from '@/shared/components/ui/Button'
 import { Spinner } from '@/shared/components/ui/Spinner'
@@ -22,29 +25,36 @@ type TipoValor = 'booleano' | 'numero' | 'texto'
  */
 export function CaracteristicasAdminPage() {
   const { data: categorias, isLoading, isError, error } = useCaracteristicas()
-  const crearCat = useCrearCategoria()
+  // TEMP regresión (INM-WEB-001): alta de categoría oculta.
+  // const crearCat = useCrearCategoria()
   const actualizarCat = useActualizarCategoria()
   const crearCaract = useCrearCaracteristica()
   const actualizarCaract = useActualizarCaracteristica()
 
-  const [nuevaCategoria, setNuevaCategoria] = useState('')
+  // TEMP regresión (INM-WEB-001): alta de categoría oculta.
+  // const [nuevaCategoria, setNuevaCategoria] = useState('')
 
-  function agregarCategoria() {
-    const nombre = nuevaCategoria.trim()
-    if (!nombre) return
-    crearCat.mutate({ nombre }, { onSuccess: () => setNuevaCategoria('') })
-  }
+  // function agregarCategoria() {
+  //   const nombre = nuevaCategoria.trim()
+  //   if (!nombre) return
+  //   crearCat.mutate({ nombre }, { onSuccess: () => setNuevaCategoria('') })
+  // }
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold text-text-primary">Características</h2>
         <p className="mt-1 text-sm text-text-secondary">
-          Crea categorías (ej. "Zonas comunes") y características dentro de ellas
-          (ej. "Zona de vacas", "Restaurante interno"). Las marcadas como filtrables
-          aparecen como checkboxes en el filtro público de /inmuebles.
+          Las categorías (ej. "Zonas comunes") agrupan características (ej. "Zona de
+          vacas", "Restaurante interno"). Las marcadas como filtrables aparecen como
+          checkboxes en el filtro público de /inmuebles.
         </p>
       </div>
+
+      {/*
+        TEMP regresión (INM-WEB-001): alta de categoría oculta a pedido. Para
+        restaurar: descomentar esta <section> y sus dependencias arriba (import
+        useCrearCategoria, crearCat, state nuevaCategoria, agregarCategoria).
 
       <section className="rounded-[--radius-card] border border-border bg-white p-5 shadow-sm">
         <h3 className="text-sm font-semibold uppercase tracking-wider text-text-secondary">
@@ -67,6 +77,7 @@ export function CaracteristicasAdminPage() {
           )}
         </div>
       </section>
+      */}
 
       <section className="rounded-[--radius-card] border border-border bg-white p-5 shadow-sm">
         <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-text-secondary">
