@@ -576,7 +576,7 @@ export function HomePage() {
                   className="hidden"
                   aria-hidden="true"
                 />
-                <div className="flex gap-[14px]">
+                <div className="flex flex-col gap-[14px] sm:flex-row">
                   <div className="flex-1 flex flex-col gap-[6px]">
                     <label htmlFor="nombre" className="text-[#41596a] text-[12px] font-semibold tracking-[0.6px] uppercase">Nombre completo</label>
                     <input id="nombre" type="text" placeholder="Su nombre"
