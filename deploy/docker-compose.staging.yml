@@ -122,7 +122,15 @@ services:
       Jwt__Issuer: portal-api
       Jwt__Audience: portal-frontend
       Cors__AllowedOrigins__0: "https://${STAGING_DOMAIN}"
-      Storage__Endpoint: "http://urbanos-minio-staging:9000"
+      # Público a propósito, NO el hostname interno de Docker: el SDK de S3
+      # firma las URLs prefirmadas (SigV4) con este host, y esa firma debe
+      # coincidir con el Host que MinIO recibe. Un cliente fuera del VPS
+      # nunca puede resolver urbanos-minio-staging, así que firmar con el
+      # host interno rompe toda subida desde el navegador. nginx enruta
+      # /portal-inmuebles/ (ver nginx-fragment-staging.conf) preservando
+      # Host y path para que la firma valide. El hairpin del propio backend
+      # hacia este mismo dominio está confirmado que funciona en el VPS.
+      Storage__Endpoint: "https://${STAGING_DOMAIN}"
       Storage__Bucket: portal-inmuebles
       Storage__AccessKey: ${MINIO_ROOT_USER}
       Storage__SecretKey: ${MINIO_ROOT_PASSWORD}
