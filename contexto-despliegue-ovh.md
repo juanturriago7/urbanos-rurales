@@ -133,7 +133,7 @@ nginx compartido pueda alcanzarlo.
 ### Gotchas específicos de este ambiente
 
 - Bind-mounts de un solo archivo en Docker (como `~/tiviplay/nginx/nginx.conf`) pueden quedar "stale" si se editan en el host con una herramienta que hace rename (p. ej. `sed -i`): el contenedor sigue viendo el inodo viejo hasta un `docker compose restart <servicio>`. Antes de confiar en un `nginx -t` corrido dentro del contenedor tras editar el archivo en el host, validar primero con un contenedor efímero: `docker run --rm --network tiviplay_tiviplay-network -v ~/tiviplay/nginx/nginx.conf:/etc/nginx/nginx.conf:ro -v ~/tiviplay/certbot/conf:/etc/letsencrypt:ro nginx:alpine nginx -t`, y solo después reiniciar el contenedor real y confirmar que el md5sum del archivo coincide dentro y fuera.
-- Las imágenes runtime de `aspnet:10.0` no incluyen `curl` ni `wget`. Para probar un endpoint interno de `urbanos-backend-staging` sin publicar su puerto al host, usar un contenedor efímero en la misma red: `docker run --rm --network deploy_urbanos-staging-network curlimages/curl:latest -s http://urbanos-backend-staging:8080/health`.
+- Las imágenes runtime de `aspnet:10.0` no incluyen `curl` ni `wget`. Para probar un endpoint interno de `urbanos-backend-staging` sin publicar su puerto al host, usar un contenedor efímero en la misma red: `docker run --rm --network urbanos-staging_urbanos-staging-network curlimages/curl:latest -s http://urbanos-backend-staging:8080/health` (el nombre de la red lleva el prefijo `urbanos-staging_` por el `name: urbanos-staging` del compose, no `deploy_`).
 
 `deploy/vps-deploy.sh` en el repo es la fuente de verdad, pero la copia que
 realmente se ejecuta (`~/deploy-urbanos-staging.sh`) debe re-copiarse a mano
