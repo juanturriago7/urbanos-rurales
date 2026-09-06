@@ -1,8 +1,9 @@
-import { BedDouble, House, MapPin, Ruler, Search } from 'lucide-react'
+import { BedDouble, ChevronDown, House, MapPin, Ruler, Search, SlidersHorizontal } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { usePublicaciones } from '@/features/public/properties/hooks/usePublicaciones'
-import { useCaracteristicas } from '@/features/admin/catalogos/hooks/useCatalogos'
+import { useBuscarUbicaciones, useCaracteristicas } from '@/features/admin/catalogos/hooks/useCatalogos'
+import type { UbicacionBusquedaDto } from '@/features/admin/catalogos/api/catalogosApi'
 import type {
   FiltroInmueblesPublico,
   InmueblePublicoListItemDto,
@@ -141,6 +142,75 @@ function FiltroSelect({
   )
 }
 
+/* ── Autocomplete de ubicación ───────────────────────────────── */
+/**
+ * El backend filtra por `ubicacion_id` (long), no por texto — este control
+ * busca contra el catálogo (mismo endpoint que usa el autocomplete del panel
+ * admin) y solo fija el filtro cuando el usuario elige una sugerencia real,
+ * nunca con el texto libre que esté escribiendo.
+ */
+function FiltroUbicacion({
+  ubicacionId,
+  nombreInicial,
+  onSeleccionar,
+  onLimpiar,
+}: {
+  ubicacionId: number | undefined
+  nombreInicial: string
+  onSeleccionar: (u: UbicacionBusquedaDto) => void
+  onLimpiar: () => void
+}) {
+  const [termino, setTermino] = useState(nombreInicial)
+  const [abierto, setAbierto] = useState(false)
+  const { data: sugerencias } = useBuscarUbicaciones(termino)
+
+  return (
+    <div className="relative flex flex-col gap-[6px] flex-1 min-w-0">
+      <label htmlFor="f-ubicacion"
+        className="text-[#7a8187] text-[11px] font-semibold tracking-[0.66px] uppercase">
+        Ubicación
+      </label>
+      <input
+        id="f-ubicacion"
+        type="text"
+        value={termino}
+        placeholder="Zona, localidad, UPZ o barrio..."
+        onChange={(e) => {
+          setTermino(e.target.value)
+          setAbierto(true)
+          if (!e.target.value.trim() && ubicacionId) onLimpiar()
+        }}
+        onFocus={() => setAbierto(true)}
+        onBlur={() => setTimeout(() => setAbierto(false), 150)}
+        className="bg-[#eff4f8] border border-[#d2d8dd] rounded-[10px] pl-[19px] pr-4 py-[13px] text-[#0d1c27] text-[14px] outline-none focus:border-[#004b98] focus:bg-white transition-colors placeholder:text-[#7a8187]"
+      />
+      {abierto && termino.trim().length >= 2 && sugerencias && sugerencias.length > 0 && (
+        <ul className="absolute top-full left-0 right-0 mt-1 z-20 max-h-64 overflow-y-auto rounded-[10px] border border-[#d8dfe4] bg-white shadow-lg">
+          {sugerencias.map((s) => (
+            <li key={`${s.tipo}-${s.id}`}>
+              {/* onMouseDown, no onClick: dispara antes que el blur del input,
+                  que si no cerraría la lista antes de registrar la selección. */}
+              <button
+                type="button"
+                onMouseDown={(e) => {
+                  e.preventDefault()
+                  setTermino(s.nombre)
+                  setAbierto(false)
+                  onSeleccionar(s)
+                }}
+                className="block w-full text-left px-4 py-2.5 text-[14px] text-[#0d1c27] hover:bg-[#eff4f8] transition-colors"
+              >
+                {s.nombre}
+                <span className="block text-[12px] text-[#7a8187]">{s.rutaCompleta}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
 /* ── Skeleton ────────────────────────────────────────────────── */
 function Skeleton() {
   return (
@@ -195,11 +265,15 @@ const OPT_ESTRATO = [
 export function InmueblesListPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [busqueda, setBusqueda] = useState(searchParams.get('q') ?? '')
+  const [filtrosAbiertos, setFiltrosAbiertos] = useState(false)
 
   const filtros = useMemo<FiltroInmueblesPublico>(() => ({
     operacion: operacionValida(searchParams.get('operacion')),
     tipo:      searchParams.get('tipo') ?? undefined,
+    ubicacionId: numeroOVacio(searchParams.get('ubicacion_id')),
     areaMin:   numeroOVacio(searchParams.get('area_min')),
+    estrato:   numeroOVacio(searchParams.get('estrato')),
+    q:         searchParams.get('q') ?? undefined,
     caracteristicaIds: idsCaracteristicas(searchParams.get('caracteristicas')),
     page:      numeroOVacio(searchParams.get('page')) ?? 1,
     pageSize:  12,
@@ -238,11 +312,37 @@ export function InmueblesListPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const seleccionarUbicacion = (u: UbicacionBusquedaDto) => {
+    const next = new URLSearchParams(searchParams)
+    next.set('ubicacion_id', String(u.id))
+    next.set('ubicacion_nombre', u.nombre)
+    next.delete('page')
+    setSearchParams(next)
+  }
+
+  const limpiarUbicacion = () => {
+    const next = new URLSearchParams(searchParams)
+    next.delete('ubicacion_id')
+    next.delete('ubicacion_nombre')
+    next.delete('page')
+    setSearchParams(next)
+  }
+
   const hayFiltros = useMemo(() =>
     !!(searchParams.get('operacion') || searchParams.get('tipo') ||
-       searchParams.get('area_min') || searchParams.get('q') ||
+       searchParams.get('area_min') || searchParams.get('estrato') ||
+       searchParams.get('ubicacion_id') || searchParams.get('q') ||
        searchParams.get('caracteristicas')),
     [searchParams])
+
+  const filtrosActivosCount = useMemo(() => [
+    searchParams.get('operacion'),
+    searchParams.get('tipo'),
+    searchParams.get('area_min'),
+    searchParams.get('estrato'),
+    searchParams.get('ubicacion_id'),
+    searchParams.get('caracteristicas'),
+  ].filter(Boolean).length, [searchParams])
 
   const caracteristicasSeleccionadas = useMemo(
     () => new Set(idsCaracteristicas(searchParams.get('caracteristicas')) ?? []),
@@ -300,85 +400,114 @@ export function InmueblesListPage() {
             </button>
           </form>
 
-          {/* Panel de filtros */}
-          <div className="bg-white border border-[#d8dfe4] rounded-[20px] flex flex-wrap gap-4 items-end px-8 py-7 mb-5">
-            <FiltroSelect id="f-tipo" label="Tipo de inmueble"
-              value={searchParams.get('tipo') ?? ''}
-              options={OPT_TIPO}
-              onChange={(v) => setFiltro('tipo', v)} />
-
-            {/* Operación como select */}
-            <div className="flex flex-col gap-[6px] flex-1 min-w-0">
-              <span className="text-[#7a8187] text-[11px] font-semibold tracking-[0.66px] uppercase">Ubicación</span>
-              <input type="text"
-                placeholder="Todas las zonas"
-                defaultValue={searchParams.get('ubicacion') ?? ''}
-                onBlur={(e) => setFiltro('ubicacion', e.target.value)}
-                className="bg-[#eff4f8] border border-[#d2d8dd] rounded-[10px] pl-[19px] pr-4 py-[13px] text-[#0d1c27] text-[14px] outline-none focus:border-[#004b98] focus:bg-white transition-colors placeholder:text-[#7a8187]"
+          {/* Filtros — disclosure colapsable: prioriza mostrar el listado de
+              inmuebles al entrar, en vez de tapar la pantalla con controles. */}
+          <div className="bg-white border border-[#d8dfe4] rounded-[20px] mb-5 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setFiltrosAbiertos((v) => !v)}
+              aria-expanded={filtrosAbiertos}
+              aria-controls="panel-filtros-inmuebles"
+              className="w-full flex items-center justify-between gap-3 px-8 py-5 text-left"
+            >
+              <span className="flex items-center gap-2 text-[#001124] text-[15px] font-bold">
+                <SlidersHorizontal className="w-[16px] h-[16px] text-[#004b98]" aria-hidden="true" />
+                Filtros
+                {filtrosActivosCount > 0 && (
+                  <span className="bg-[#004b98] text-white text-[11px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    {filtrosActivosCount}
+                  </span>
+                )}
+              </span>
+              <ChevronDown
+                className={`w-[18px] h-[18px] text-[#7a8187] transition-transform duration-200 ${filtrosAbiertos ? 'rotate-180' : ''}`}
+                aria-hidden="true"
               />
-            </div>
+            </button>
 
-            <FiltroSelect id="f-area" label="Área"
-              value={searchParams.get('area_min') ?? ''}
-              options={OPT_AREA}
-              onChange={(v) => setFiltro('area_min', v)} />
+            <div
+              id="panel-filtros-inmuebles"
+              className="grid transition-[grid-template-rows] duration-300 ease-in-out"
+              style={{ gridTemplateRows: filtrosAbiertos ? '1fr' : '0fr' }}
+            >
+              <div className="overflow-hidden">
+                <div className="border-t border-[#e0e5e9] flex flex-wrap gap-4 items-end px-8 py-7">
+                  <FiltroSelect id="f-tipo" label="Tipo de inmueble"
+                    value={searchParams.get('tipo') ?? ''}
+                    options={OPT_TIPO}
+                    onChange={(v) => setFiltro('tipo', v)} />
 
-            <FiltroSelect id="f-estrato" label="Estrato"
-              value={searchParams.get('estrato') ?? ''}
-              options={OPT_ESTRATO}
-              onChange={(v) => setFiltro('estrato', v)} />
+                  <FiltroUbicacion
+                    ubicacionId={numeroOVacio(searchParams.get('ubicacion_id'))}
+                    nombreInicial={searchParams.get('ubicacion_nombre') ?? ''}
+                    onSeleccionar={seleccionarUbicacion}
+                    onLimpiar={limpiarUbicacion}
+                  />
 
-            {hayFiltros && (
-              <button type="button" onClick={limpiar}
-                className="border border-[#c8cfd4] text-[#7a8187] text-[13px] font-semibold px-[21px] py-[13px] rounded-[10px] hover:border-[#004b98] hover:text-[#004b98] transition-colors shrink-0 self-end">
-                Limpiar filtros
-              </button>
-            )}
-          </div>
+                  <FiltroSelect id="f-area" label="Área"
+                    value={searchParams.get('area_min') ?? ''}
+                    options={OPT_AREA}
+                    onChange={(v) => setFiltro('area_min', v)} />
 
-          {/* Características (genérico por categoría) */}
-          {categoriasCaracteristicas && categoriasCaracteristicas.length > 0 && (
-            <div className="bg-white border border-[#d8dfe4] rounded-[20px] px-8 py-6 mb-5">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-[#001124] text-[15px] font-bold">Características</h3>
-                {caracteristicasSeleccionadas.size > 0 && (
-                  <button type="button"
-                    onClick={() => setFiltro('caracteristicas', '')}
-                    className="text-[#7a8187] text-[12px] font-semibold hover:text-[#004b98] transition-colors">
-                    Limpiar ({caracteristicasSeleccionadas.size})
-                  </button>
+                  <FiltroSelect id="f-estrato" label="Estrato"
+                    value={searchParams.get('estrato') ?? ''}
+                    options={OPT_ESTRATO}
+                    onChange={(v) => setFiltro('estrato', v)} />
+
+                  {hayFiltros && (
+                    <button type="button" onClick={limpiar}
+                      className="border border-[#c8cfd4] text-[#7a8187] text-[13px] font-semibold px-[21px] py-[13px] rounded-[10px] hover:border-[#004b98] hover:text-[#004b98] transition-colors shrink-0 self-end">
+                      Limpiar filtros
+                    </button>
+                  )}
+                </div>
+
+                {/* Características (genérico por categoría) */}
+                {categoriasCaracteristicas && categoriasCaracteristicas.length > 0 && (
+                  <div className="border-t border-[#e0e5e9] px-8 py-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-[#001124] text-[15px] font-bold">Características</h3>
+                      {caracteristicasSeleccionadas.size > 0 && (
+                        <button type="button"
+                          onClick={() => setFiltro('caracteristicas', '')}
+                          className="text-[#7a8187] text-[12px] font-semibold hover:text-[#004b98] transition-colors">
+                          Limpiar ({caracteristicasSeleccionadas.size})
+                        </button>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4">
+                      {categoriasCaracteristicas.map((cat) => {
+                        const visibles = cat.caracteristicas.filter((c) => c.filtrable)
+                        if (visibles.length === 0) return null
+                        return (
+                          <div key={cat.id}>
+                            <p className="text-[#7a8187] text-[11px] font-semibold tracking-[0.66px] uppercase mb-2">
+                              {cat.nombre}
+                            </p>
+                            <ul className="space-y-1.5">
+                              {visibles.map((c) => (
+                                <li key={c.id}>
+                                  <label className="flex items-center gap-2 cursor-pointer text-[#0d1c27] text-[14px] hover:text-[#004b98] transition-colors">
+                                    <input
+                                      type="checkbox"
+                                      checked={caracteristicasSeleccionadas.has(c.id)}
+                                      onChange={() => toggleCaracteristica(c.id)}
+                                      className="w-4 h-4 accent-[#004b98] cursor-pointer"
+                                    />
+                                    <span>{c.nombre}</span>
+                                  </label>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
                 )}
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4">
-                {categoriasCaracteristicas.map((cat) => {
-                  const visibles = cat.caracteristicas.filter((c) => c.filtrable)
-                  if (visibles.length === 0) return null
-                  return (
-                    <div key={cat.id}>
-                      <p className="text-[#7a8187] text-[11px] font-semibold tracking-[0.66px] uppercase mb-2">
-                        {cat.nombre}
-                      </p>
-                      <ul className="space-y-1.5">
-                        {visibles.map((c) => (
-                          <li key={c.id}>
-                            <label className="flex items-center gap-2 cursor-pointer text-[#0d1c27] text-[14px] hover:text-[#004b98] transition-colors">
-                              <input
-                                type="checkbox"
-                                checked={caracteristicasSeleccionadas.has(c.id)}
-                                onChange={() => toggleCaracteristica(c.id)}
-                                className="w-4 h-4 accent-[#004b98] cursor-pointer"
-                              />
-                              <span>{c.nombre}</span>
-                            </label>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )
-                })}
-              </div>
             </div>
-          )}
+          </div>
 
           {/* Contador */}
           {!isLoading && data && (
