@@ -1,21 +1,22 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useMemo, useState } from 'react'
+import { useNavigate, useParams, type NavigateFunction } from 'react-router-dom'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import {
   useActualizarArticulo,
   useArticuloAdmin,
   useCrearArticulo,
-} from '@/features/admin/blog/hooks/useBlogAdmin'
+} from '@/features/admin/proyectos/hooks/useProyectosAdmin'
+import type { ArticuloBlogAdmin } from '@/features/admin/proyectos/api/proyectosAdminApi'
 import { Button } from '@/shared/components/ui/Button'
 import { Input, Textarea } from '@/shared/components/ui/Field'
 import { Spinner } from '@/shared/components/ui/Spinner'
 
 /**
- * Form de crear/editar artículo — spec 06.
+ * Form de crear/editar proyecto — spec 06.
  * Markdown con preview live + sanitización con DOMPurify antes de inyectar.
  */
-export function BlogAdminFormPage() {
+export function ProyectoAdminFormPage() {
   const navigate = useNavigate()
   const params = useParams<{ id: string }>()
   const isEdit = Boolean(params.id)
@@ -23,25 +24,43 @@ export function BlogAdminFormPage() {
 
   const { data: articuloExistente, isLoading: cargandoExistente } =
     useArticuloAdmin(idArticulo)
+
+  if (isEdit && cargandoExistente) {
+    return <div className="flex justify-center py-12"><Spinner size="lg" /></div>
+  }
+
+  // `key` remonta el formulario cuando cambia el artículo cargado, así el
+  // estado inicial se deriva directamente del dato en vez de sincronizarlo
+  // con un setState dentro de un efecto (evitaba cascading renders).
+  return (
+    <FormularioArticulo
+      key={idArticulo ?? 'nuevo'}
+      idArticulo={idArticulo}
+      articuloExistente={articuloExistente}
+      navigate={navigate}
+    />
+  )
+}
+
+function FormularioArticulo({
+  idArticulo,
+  articuloExistente,
+  navigate,
+}: {
+  idArticulo: number | undefined
+  articuloExistente: ArticuloBlogAdmin | undefined
+  navigate: NavigateFunction
+}) {
+  const isEdit = idArticulo !== undefined
   const crear = useCrearArticulo()
   const actualizar = useActualizarArticulo()
 
-  const [titulo, setTitulo] = useState('')
-  const [resumen, setResumen] = useState('')
-  const [contenido, setContenido] = useState('')
-  const [imagenPortadaUrl, setImagenPortadaUrl] = useState('')
-  const [metaTitulo, setMetaTitulo] = useState('')
-  const [metaDescripcion, setMetaDescripcion] = useState('')
-
-  useEffect(() => {
-    if (!articuloExistente) return
-    setTitulo(articuloExistente.titulo)
-    setResumen(articuloExistente.resumen ?? '')
-    setContenido(articuloExistente.contenido)
-    setImagenPortadaUrl(articuloExistente.imagenPortadaUrl ?? '')
-    setMetaTitulo(articuloExistente.metaTitulo ?? '')
-    setMetaDescripcion(articuloExistente.metaDescripcion ?? '')
-  }, [articuloExistente])
+  const [titulo, setTitulo] = useState(articuloExistente?.titulo ?? '')
+  const [resumen, setResumen] = useState(articuloExistente?.resumen ?? '')
+  const [contenido, setContenido] = useState(articuloExistente?.contenido ?? '')
+  const [imagenPortadaUrl, setImagenPortadaUrl] = useState(articuloExistente?.imagenPortadaUrl ?? '')
+  const [metaTitulo, setMetaTitulo] = useState(articuloExistente?.metaTitulo ?? '')
+  const [metaDescripcion, setMetaDescripcion] = useState(articuloExistente?.metaDescripcion ?? '')
 
   const htmlPreview = useMemo(() => {
     const raw = marked.parse(contenido, { async: false }) as string
@@ -63,15 +82,11 @@ export function BlogAdminFormPage() {
 
     if (isEdit && idArticulo) {
       await actualizar.mutateAsync({ id: idArticulo, input: payload })
-      navigate('/admin/blog')
+      navigate('/admin/proyectos')
     } else {
       const { id } = await crear.mutateAsync(payload)
-      navigate(`/admin/blog/${id}/editar`)
+      navigate(`/admin/proyectos/${id}/editar`)
     }
-  }
-
-  if (isEdit && cargandoExistente) {
-    return <div className="flex justify-center py-12"><Spinner size="lg" /></div>
   }
 
   const pendiente = crear.isPending || actualizar.isPending
@@ -81,13 +96,13 @@ export function BlogAdminFormPage() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-semibold text-text-primary">
-            {isEdit ? 'Editar artículo' : 'Nuevo artículo'}
+            {isEdit ? 'Editar proyecto' : 'Nuevo proyecto'}
           </h2>
           <p className="mt-1 text-sm text-text-secondary">
             Escribe el cuerpo en Markdown. Se sanitiza antes de publicar.
           </p>
         </div>
-        <Button variant="ghost" onClick={() => navigate('/admin/blog')}>Cancelar</Button>
+        <Button variant="ghost" onClick={() => navigate('/admin/proyectos')}>Cancelar</Button>
       </div>
 
       <section className="rounded-[--radius-card] border border-border bg-white p-5 shadow-sm">
