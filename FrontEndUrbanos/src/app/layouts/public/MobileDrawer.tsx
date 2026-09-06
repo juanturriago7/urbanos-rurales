@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { site } from '@/shared/config/site'
 
 /**
@@ -15,16 +15,17 @@ interface MobileDrawerProps {
 const SELECTOR_ENFOCABLES = 'a[href], button:not([disabled]), input, select, textarea'
 
 const NAV_ITEMS = [
-  { label: 'Inicio',        to: '/' },
-  { label: 'Quiénes somos', to: '/quienes-somos' },
-  { label: 'Servicios',     anchor: 'servicios' },
-  { label: 'Inmuebles',     to: '/inmuebles' },
-  { label: 'Contacto',      anchor: 'contacto' },
+  { label: 'Inicio',              to: '/' },
+  { label: 'Quiénes somos',       to: '/quienes-somos' },
+  { label: 'Líneas de servicio',  anchor: 'servicios' },
+  { label: 'Inmuebles',           to: '/inmuebles' },
+  { label: 'Contacto',            anchor: 'contacto' },
 ] as const
 
 export function MobileDrawer({ abierto, onCerrar }: MobileDrawerProps) {
   const panelRef = useRef<HTMLDivElement>(null)
   const location = useLocation()
+  const navigate = useNavigate()
 
   /* Bloquea scroll del body */
   useEffect(() => {
@@ -63,10 +64,16 @@ export function MobileDrawer({ abierto, onCerrar }: MobileDrawerProps) {
   /* Cierra al cambiar de ruta */
   useEffect(() => { onCerrar() }, [location.pathname, onCerrar])
 
+  /**
+   * Si ya estamos en home, hace scroll directo. Si no, navega a home con el
+   * hash del ancla — HomePage detecta location.hash al montar y hace el scroll.
+   */
   function handleAnchor(anchor: string) {
     onCerrar()
     if (location.pathname === '/') {
       setTimeout(() => document.getElementById(anchor)?.scrollIntoView({ behavior: 'smooth' }), 150)
+    } else {
+      navigate(`/#${anchor}`)
     }
   }
 

@@ -30,7 +30,7 @@
 - [ ] **Leads**
   - [ ] Captura de lead (general y por inmueble) con anti-spam (reCAPTCHA v3/honeypot) y rate limit por IP (RNF-023)
   - [ ] Registro de `utm`/origen y consentimiento de datos (RNF-061)
-  - [ ] Notificación (correo/webhook) al crear lead
+  - [x] Notificación (correo/webhook) al crear lead — SMTP real vía `ICorreoService`/`SmtpCorreoService` cuando `Correo:Host` está configurado; cae a log en dev
   - [ ] Endpoints para gestionar/asignar/cambiar estado del lead
 - [ ] **SEO técnico**
   - [ ] Generación dinámica de `sitemap.xml` y `robots.txt` (RNF-051)

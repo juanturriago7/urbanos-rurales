@@ -1,6 +1,6 @@
 import { Mail, MapPin, Phone } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { MobileDrawer } from '@/app/layouts/public/MobileDrawer'
 import { Container } from '@/shared/components/ui/Container'
 import { site } from '@/shared/config/site'
@@ -12,15 +12,16 @@ interface HeaderProps {
 }
 
 const NAV_ITEMS = [
-  { label: 'Inicio',        to: '/' },
-  { label: 'Quiénes somos', to: '/quienes-somos' },
-  { label: 'Servicios',     anchor: 'servicios' },
-  { label: 'Inmuebles',     to: '/inmuebles' },
-  { label: 'Contacto',      anchor: 'contacto' },
+  { label: 'Inicio',              to: '/' },
+  { label: 'Quiénes somos',       to: '/quienes-somos' },
+  { label: 'Líneas de servicio',  anchor: 'servicios' },
+  { label: 'Inmuebles',           to: '/inmuebles' },
+  { label: 'Contacto',            anchor: 'contacto' },
 ] as const
 
 export function Header({ drawerAbierto, onAbrirDrawer, onCerrarDrawer }: HeaderProps) {
   const location = useLocation()
+  const navigate = useNavigate()
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
@@ -32,10 +33,16 @@ export function Header({ drawerAbierto, onAbrirDrawer, onCerrarDrawer }: HeaderP
 
   useEffect(() => { onCerrarDrawer() }, [location.pathname, onCerrarDrawer])
 
+  /**
+   * Si ya estamos en home, hace scroll directo. Si no, navega a home con el
+   * hash del ancla — HomePage detecta location.hash al montar y hace el scroll.
+   */
   function handleAnchorClick(anchor: string) {
     onCerrarDrawer()
     if (location.pathname === '/') {
       document.getElementById(anchor)?.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      navigate(`/#${anchor}`)
     }
   }
 
