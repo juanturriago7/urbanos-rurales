@@ -1,4 +1,7 @@
 import { FormularioTrabajaConNosotros } from '@/features/public/institucional/components/FormularioTrabajaConNosotros'
+import { ClientesCarrusel } from '@/features/public/institucional/components/ClientesCarrusel'
+import { PoliticaIntegral } from '@/features/public/institucional/components/PoliticaIntegral'
+import { CertificacionesISO } from '@/features/public/institucional/components/CertificacionesISO'
 import { useScrollReveal } from '@/shared/hooks/useScrollReveal'
 
 /**
@@ -194,6 +197,15 @@ export function QuienesSomosPage() {
           </ul>
         </div>
       </section>
+
+      {/* Clientes carrusel */}
+      <ClientesCarrusel />
+
+      {/* Política Integral */}
+      <PoliticaIntegral />
+
+      {/* Certificaciones ISO */}
+      <CertificacionesISO />
 
       {/* Trabaja con nosotros */}
       <section id="trabaja-con-nosotros" className="bg-[#eff4f8] px-12 py-20">
