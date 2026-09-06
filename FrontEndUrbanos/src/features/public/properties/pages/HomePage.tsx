@@ -522,19 +522,19 @@ export function HomePage() {
       {/* ═══════════════════════════════════════════════════════
           CONTACTO — form + datos + mapa placeholder
           ═══════════════════════════════════════════════════════ */}
-      <section id="contacto" className="bg-white py-[100px] px-12">
-        <div className="max-w-[1200px] mx-auto flex flex-col gap-14">
+      <section id="contacto" className="bg-white py-16 px-6 sm:py-[100px] sm:px-12">
+        <div className="max-w-[1200px] mx-auto flex flex-col gap-10 sm:gap-14">
           {/* Header */}
           <div className="reveal flex flex-col gap-3">
             <div className="self-start bg-[rgba(0,75,152,0.08)] px-[14px] py-[5px] rounded-full">
               <span className="text-[#004b98] text-[11px] font-semibold tracking-[1.32px] uppercase">Contacto</span>
             </div>
-            <h2 className="font-extrabold text-[#001124] text-[42px] leading-[1.1] tracking-[-0.8px]">
+            <h2 className="font-extrabold text-[#001124] text-[32px] sm:text-[42px] leading-[1.1] tracking-[-0.8px]">
               Hablemos de<br/>su proyecto
             </h2>
           </div>
 
-          <div className="flex gap-20 items-start">
+          <div className="flex flex-col gap-12 lg:flex-row lg:gap-20 lg:items-start">
             {/* Datos de contacto + mapa */}
             <div className="flex-1 flex flex-col gap-6 min-w-0">
               {[
@@ -644,7 +644,7 @@ export function HomePage() {
                     ¡Gracias! Recibimos tu mensaje y te contactaremos pronto.
                   </p>
                 )}
-                <div className="flex gap-3">
+                <div className="flex flex-col gap-3 sm:flex-row">
                   <button type="submit" disabled={crearLead.isPending}
                     className="flex-1 bg-[#004b98] text-white font-bold text-[14px] py-[14px] rounded-[10px] hover:bg-[#003b7a] disabled:opacity-60 disabled:cursor-not-allowed transition-colors duration-200">
                     {crearLead.isPending ? 'Enviando…' : 'Enviar mensaje'}
