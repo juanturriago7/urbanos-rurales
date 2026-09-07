@@ -487,27 +487,27 @@ export function HomePage() {
           completar con las certificaciones reales del cliente; nombres y
           párrafos de abajo son contenido de referencia a editar).
           ═══════════════════════════════════════════════════════ */}
-      <section className="bg-[#001124] py-20 px-12">
-        <div className="max-w-[1200px] mx-auto flex gap-16 items-center">
+      <section className="bg-[#001124] py-16 px-6 sm:py-20 sm:px-12">
+        <div className="max-w-[1200px] mx-auto flex flex-col items-center gap-10 text-center md:flex-row md:items-center md:gap-16 md:text-left">
           {/* Ícono cert */}
           <div className="shrink-0 flex flex-col items-center gap-3">
-            <div className="bg-white rounded-[20px] w-[120px] h-[120px] flex items-center justify-center text-[#004b98] shadow-[0px_12px_20px_rgba(0,0,0,0.3)]">
-              <Award className="w-14 h-14" aria-label="Certificación" />
+            <div className="bg-white rounded-[20px] w-[96px] h-[96px] sm:w-[120px] sm:h-[120px] flex items-center justify-center text-[#004b98] shadow-[0px_12px_20px_rgba(0,0,0,0.3)]">
+              <Award className="w-12 h-12 sm:w-14 sm:h-14" aria-label="Certificación" />
             </div>
             <p className="text-[#7aa7b0] text-[12px] font-semibold tracking-[0.96px] uppercase text-center">Certificaciones</p>
           </div>
           {/* Texto */}
-          <div className="flex-1 flex flex-col gap-4 min-w-0">
-            <h3 className="reveal font-bold text-white text-[26px] leading-tight">
+          <div className="flex-1 flex flex-col items-center gap-4 min-w-0 md:items-start">
+            <h3 className="reveal font-bold text-white text-[22px] sm:text-[26px] leading-tight">
               Certificaciones y respaldos
             </h3>
-            <p className="reveal text-[#7ca6b4] text-[15px] leading-[1.7] max-w-[580px]">
+            <p className="reveal text-[#7ca6b4] text-[14px] sm:text-[15px] leading-[1.7] max-w-[580px]">
               Contamos con certificaciones que respaldan nuestros procesos de consultoría
               y gestión predial. Esta sección es una plantilla: reemplaza el texto y
               los sellos de abajo con las certificaciones reales de la empresa cuando
               estén listas.
             </p>
-            <div className="reveal flex flex-wrap gap-3">
+            <div className="reveal flex flex-wrap justify-center gap-3 md:justify-start">
               {CERTIFICACIONES_PLANTILLA.map((tag) => (
                 <span key={tag}
                   className="border border-[rgba(255,255,255,0.15)] bg-[rgba(255,255,255,0.08)] text-[#6bd8de] text-[12px] font-semibold tracking-[0.6px] px-[17px] py-2 rounded-full">
