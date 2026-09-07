@@ -1,6 +1,25 @@
 @Portal.Api_HostAddress = http://localhost:5095
 
-GET {{Portal.Api_HostAddress}}/weatherforecast/
+GET {{Portal.Api_HostAddress}}/health
 Accept: application/json
+
+###
+
+# Agendar visita a un inmueble (público). Ajusta inmuebleId y una fecha futura
+# entre semana (L–V 08–18, Sáb 09–13). Sin Graph configurado, el evento solo se
+# loguea (AgendaLogService) y responde { agendada: true, inicioLocal }.
+POST {{Portal.Api_HostAddress}}/api/visitas
+Content-Type: application/json
+
+{
+  "inmuebleId": 1,
+  "nombre": "Cliente de Prueba",
+  "correo": "cliente@example.com",
+  "telefono": "3001234567",
+  "fecha": "2026-09-11",
+  "franja": "10:00",
+  "mensaje": "Quisiera ver el inmueble por la tarde si es posible.",
+  "aceptoTratamientoDatos": true
+}
 
 ###

@@ -17,10 +17,22 @@ internal sealed class CorreoLogService : ICorreoService
     }
 
     public Task EnviarAsync(string para, string asunto, string cuerpo, CancellationToken ct = default)
+        => EnviarAsync(para, asunto, cuerpo, [], ct);
+
+    public Task EnviarAsync(
+        string para,
+        string asunto,
+        string cuerpo,
+        IReadOnlyCollection<AdjuntoCorreo> adjuntos,
+        CancellationToken ct = default)
     {
+        var resumenAdjuntos = adjuntos.Count == 0
+            ? "(sin adjuntos)"
+            : string.Join(", ", adjuntos.Select(a => $"{a.NombreArchivo} ({a.Contenido.Length} bytes)"));
+
         _logger.LogInformation(
-            "📧 [CorreoLogService] Para: {Para} | Asunto: {Asunto}\n{Cuerpo}",
-            para, asunto, cuerpo);
+            "📧 [CorreoLogService] Para: {Para} | Asunto: {Asunto} | Adjuntos: {Adjuntos}\n{Cuerpo}",
+            para, asunto, resumenAdjuntos, cuerpo);
 
         return Task.CompletedTask;
     }

@@ -90,6 +90,15 @@ services:
       Storage__SecretKey: "portal_minio_pass"
       Storage__UrlPublicaBase: "http://localhost:9002/portal-inmuebles"
       Storage__ForcePathStyle: "true"
+      # Destinatarios de correos internos. Vacío => no se envía (solo se loguea).
+      Notificaciones__CorreoPostulaciones: "${RRHH_EMAIL:-}"
+      Notificaciones__CorreoVisitas: "${VISITAS_EMAIL:-}"
+      # Agenda de visitas (Microsoft Graph). Vacío/CHANGE_ME => stub que loguea el evento.
+      Graph__TenantId: "${GRAPH_TENANT_ID:-}"
+      Graph__ClientId: "${GRAPH_CLIENT_ID:-}"
+      Graph__ClientSecret: "${GRAPH_CLIENT_SECRET:-}"
+      Graph__MailboxVisitas: "${GRAPH_MAILBOX_VISITAS:-}"
+      Graph__ZonaHoraria: "America/Bogota"
     ports:
       - "8080:8080"
 

@@ -37,6 +37,13 @@ public interface IAlmacenamientoObjetos
     /// </summary>
     Task<ObjetoAlmacenado> ObtenerInfoAsync(string storageKey, CancellationToken ct = default);
 
+    /// <summary>
+    /// Descarga el objeto completo en memoria. Solo para objetos pequeños que el
+    /// servidor sí necesita procesar (ej. adjuntar el CV de una postulación a un
+    /// correo). El grueso de los binarios (imágenes) nunca pasa por aquí.
+    /// </summary>
+    Task<byte[]> DescargarAsync(string storageKey, CancellationToken ct = default);
+
     Task EliminarObjetoAsync(string storageKey, CancellationToken ct = default);
 
     /// <summary>

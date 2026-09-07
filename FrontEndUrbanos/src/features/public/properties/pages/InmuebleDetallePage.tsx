@@ -8,6 +8,7 @@ import type {
   OperacionDto,
 } from '@/features/public/properties/api/inmueblesPublicApi'
 import { WhatsAppIcon } from '@/shared/components/icons/WhatsAppIcon'
+import { AgendarVisitaModal } from '@/features/public/visitas/components/AgendarVisitaModal'
 import { site } from '@/shared/config/site'
 
 /* ── Helpers ─────────────────────────────────────────────────── */
@@ -150,6 +151,7 @@ function Skeleton() {
 export function InmuebleDetallePage() {
   const { slug } = useParams<{ slug: string }>()
   const { data: inmueble, isLoading, isError } = useInmuebleDetalle(slug)
+  const [visitaOpen, setVisitaOpen] = useState(false)
 
   const imagenesOrdenadas = useMemo(
     () => (inmueble ? ordenarImagenes(inmueble.imagenes) : []),
@@ -416,9 +418,28 @@ export function InmuebleDetallePage() {
             <p className="mt-3 text-center text-[12px] text-[#7a8187]">
               Te atenderemos por WhatsApp en minutos
             </p>
+
+            <div className="my-4 border-t border-[#e3e8ec]" />
+
+            <button type="button" onClick={() => setVisitaOpen(true)}
+              className="flex w-full items-center justify-center gap-2 rounded-[12px] border border-[#004b98] px-6 py-4 text-[15px] font-bold text-[#004b98] transition-colors hover:bg-[#004b98] hover:text-white">
+              Agendar visita
+            </button>
+            <p className="mt-3 text-center text-[12px] text-[#7a8187]">
+              Elige una fecha y una franja; un asesor te confirma
+            </p>
           </aside>
         </div>
       </div>
+
+      {visitaOpen && (
+        <AgendarVisitaModal
+          inmuebleId={inmueble.id}
+          codigoReferencia={inmueble.codigoReferencia}
+          titulo={inmueble.titulo}
+          onClose={() => setVisitaOpen(false)}
+        />
+      )}
     </div>
   )
 }

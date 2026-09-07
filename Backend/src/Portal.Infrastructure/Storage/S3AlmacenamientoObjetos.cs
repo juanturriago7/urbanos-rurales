@@ -68,6 +68,17 @@ internal sealed class S3AlmacenamientoObjetos : IAlmacenamientoObjetos
         }
     }
 
+    public async Task<byte[]> DescargarAsync(string storageKey, CancellationToken ct = default)
+    {
+        using var respuesta = await _s3.GetObjectAsync(
+            new GetObjectRequest { BucketName = _opciones.Bucket, Key = storageKey },
+            ct);
+
+        using var memoria = new MemoryStream();
+        await respuesta.ResponseStream.CopyToAsync(memoria, ct);
+        return memoria.ToArray();
+    }
+
     public async Task EliminarObjetoAsync(string storageKey, CancellationToken ct = default)
     {
         await _s3.DeleteObjectAsync(
