@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Portal.Application.Common;
 using Portal.Application.Interfaces;
 using Portal.Domain.Entities;
@@ -13,13 +14,19 @@ public sealed class CrearPostulacionCommandHandler
 
     private readonly IPostulacionLaboralRepository _repo;
     private readonly IAlmacenamientoObjetos _almacenamiento;
+    private readonly INotificadorPostulaciones _notificador;
+    private readonly ILogger<CrearPostulacionCommandHandler> _logger;
 
     public CrearPostulacionCommandHandler(
         IPostulacionLaboralRepository repo,
-        IAlmacenamientoObjetos almacenamiento)
+        IAlmacenamientoObjetos almacenamiento,
+        INotificadorPostulaciones notificador,
+        ILogger<CrearPostulacionCommandHandler> logger)
     {
         _repo = repo;
         _almacenamiento = almacenamiento;
+        _notificador = notificador;
+        _logger = logger;
     }
 
     public async Task<Result<long>> Handle(CrearPostulacionCommand request, CancellationToken ct)
@@ -53,6 +60,18 @@ public sealed class CrearPostulacionCommandHandler
             request.Mensaje, request.CvStorageKey, cvUrl, request.IpOrigen);
 
         var id = await _repo.CreateAsync(postulacion, ct);
+
+        // La postulación ya quedó persistida: un fallo de correo (SMTP caído,
+        // credenciales, storage) no debe tumbar la respuesta — se loguea y sigue.
+        try
+        {
+            await _notificador.NotificarNuevaPostulacionAsync(postulacion, ct);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "No se pudo notificar por correo la postulación #{Id}", id);
+        }
+
         return Result.Success(id);
     }
 }

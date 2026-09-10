@@ -22,7 +22,15 @@ internal sealed class SmtpCorreoService : ICorreoService
         _logger = logger;
     }
 
-    public async Task EnviarAsync(string para, string asunto, string cuerpo, CancellationToken ct = default)
+    public Task EnviarAsync(string para, string asunto, string cuerpo, CancellationToken ct = default)
+        => EnviarAsync(para, asunto, cuerpo, [], ct);
+
+    public async Task EnviarAsync(
+        string para,
+        string asunto,
+        string cuerpo,
+        IReadOnlyCollection<AdjuntoCorreo> adjuntos,
+        CancellationToken ct = default)
     {
         using var mensaje = new MailMessage
         {
@@ -32,6 +40,13 @@ internal sealed class SmtpCorreoService : ICorreoService
             IsBodyHtml = false,
         };
         mensaje.To.Add(para);
+
+        // Cada MemoryStream lo libera MailMessage.Dispose() junto con su Attachment.
+        foreach (var adjunto in adjuntos)
+        {
+            var stream = new MemoryStream(adjunto.Contenido, writable: false);
+            mensaje.Attachments.Add(new Attachment(stream, adjunto.NombreArchivo, adjunto.ContentType));
+        }
 
         using var cliente = new SmtpClient(_opciones.Host, _opciones.Puerto)
         {

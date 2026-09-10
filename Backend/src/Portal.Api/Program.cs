@@ -109,6 +109,18 @@ try
                     Window = TimeSpan.FromMinutes(1),
                     QueueLimit = 0
                 }));
+
+        // Solicitud pública de visita: anónima y crea un evento de calendario +
+        // correos, así que se limita por IP igual que los leads.
+        options.AddPolicy("visitas", httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "desconocida",
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 5,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueLimit = 0
+                }));
     });
 
     // ─── Health Checks ────────────────────────────────────────────────────────

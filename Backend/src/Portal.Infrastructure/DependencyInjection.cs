@@ -47,6 +47,56 @@ public static class DependencyInjection
 
         services.AddCorreo(configuration);
         services.AddAlmacenamientoObjetos(configuration);
+        services.AddNotificaciones(configuration);
+        services.AddAgenda(configuration);
+
+        return services;
+    }
+
+    /// <summary>
+    /// Destinatarios de correos internos (RR. HH., equipo comercial) y los
+    /// notificadores que los usan. Sin estado: Singleton.
+    /// </summary>
+    private static IServiceCollection AddNotificaciones(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.Configure<OpcionesNotificaciones>(
+            configuration.GetSection(OpcionesNotificaciones.Seccion));
+
+        services.AddSingleton<INotificadorPostulaciones, NotificadorPostulacionesCorreo>();
+        services.AddSingleton<INotificadorVisitas, NotificadorVisitasCorreo>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Agenda real sobre Microsoft Graph si la sección "Graph" trae tenant,
+    /// cliente, secreto y buzón; si no (desarrollo/staging sin registro de app),
+    /// cae al stub que solo escribe el evento al log.
+    /// </summary>
+    private static IServiceCollection AddAgenda(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        var seccion = configuration.GetSection(OpcionesGraph.Seccion);
+        services.Configure<OpcionesGraph>(seccion);
+
+        static bool Configurado(string? valor)
+            => !string.IsNullOrWhiteSpace(valor) && valor != "CHANGE_ME";
+
+        var graphConfigurado =
+            Configurado(seccion["TenantId"]) && Configurado(seccion["ClientId"])
+            && Configurado(seccion["ClientSecret"]) && Configurado(seccion["MailboxVisitas"]);
+
+        if (graphConfigurado)
+        {
+            services.AddSingleton<IAgendaVisitasService, GraphAgendaService>();
+        }
+        else
+        {
+            services.AddSingleton<IAgendaVisitasService, AgendaLogService>();
+        }
 
         return services;
     }

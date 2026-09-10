@@ -13,8 +13,10 @@ export function DashboardPage() {
       </h2>
       <p className="mt-1 text-sm text-text-secondary">Rol: {user?.role}</p>
 
-      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {['Propiedades', 'Leads', 'Usuarios', 'Visitas'].map((label) => (
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {/* 'Visitas' fuera por ahora: el conteo de visitas se retiró del alcance
+            (el agendamiento vive en el calendario de Microsoft 365, sin tabla). */}
+        {['Propiedades', 'Leads', 'Usuarios'].map((label) => (
           <div
             key={label}
             className="rounded-[--radius-card] border border-border bg-white p-5 shadow-sm"

@@ -13,6 +13,9 @@
 | `/api/catalogos/tipos-inmueble` | GET | — | Lista de tipos (apartamento, casa, etc.) |
 | `/api/catalogos/caracteristicas` | GET | — | Lista de características agrupadas por categoría, con bandera `filtrable` |
 | `/api/leads` | POST | `nombre`, `correo`, `telefono`, `mensaje`, `inmueble_id?`, `origen`, `acepto_tratamiento_datos` | Captura de lead (general o por inmueble) |
+| `/api/postulaciones/presign` | POST | `nombreArchivo`, `contentType` | URL prefirmada para subir la hoja de vida (PDF) |
+| `/api/postulaciones` | POST | `nombre`, `correo`, `telefono?`, `cargoInteres?`, `mensaje?`, `cvStorageKey` | Crea la postulación; RR. HH. recibe el CV adjunto por correo |
+| `/api/visitas` | POST | `inmuebleId`, `nombre`, `correo`, `telefono?`, `fecha` (yyyy-MM-dd), `franja` (HH:mm), `mensaje?`, `aceptoTratamientoDatos`, `sitio?` | Solicita visita a un inmueble → evento en agenda M365 + correos. Responde `{ agendada, inicioLocal }`. Franjas L–V 08–18 / Sáb 09–13, 1 h, ≥3 h de antelación |
 | `/api/sitemap.xml` | GET | — | Sitemap dinámico |
 
 ### 2.2 Endpoints de autenticación y panel admin
