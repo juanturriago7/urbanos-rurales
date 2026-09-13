@@ -1,0 +1,10 @@
+# Todo esto se ejecuta dentro de contenedores Linux. Si un checkout en Windows
+# los deja con finales CRLF, bash falla con "$'\r': command not found" y nginx
+# con errores de sintaxis crípticos — fallas que no se reproducen en local.
+# Forzar LF acá lo hace independiente del core.autocrlf de cada máquina.
+*.sh         text eol=lf
+*.conf       text eol=lf
+Dockerfile   text eol=lf
+Dockerfile.* text eol=lf
+*.yml        text eol=lf
+*.yaml       text eol=lf
