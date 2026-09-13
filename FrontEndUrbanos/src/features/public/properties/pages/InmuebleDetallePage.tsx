@@ -284,7 +284,14 @@ export function InmuebleDetallePage() {
                     <div className="relative mt-3 overflow-hidden rounded-[16px] border border-[#d8dfe4] bg-white"
                       style={{ aspectRatio: '16/9' }}>
                       <iframe
-                        src={`https://www.youtube.com/embed/${id}`}
+                        // Dominio "privacy-enhanced" de YouTube: el embed de
+                        // www.youtube.com necesita cookies de terceros y, cuando el
+                        // navegador las bloquea (ajuste de Chrome o extensión de
+                        // privacidad), el reproductor se queda en negro sin carátula,
+                        // sin botón de play y sin barra de controles. Verificado en
+                        // vivo: mismo marcado, www.youtube.com en negro y
+                        // youtube-nocookie.com con el reproductor completo.
+                        src={`https://www.youtube-nocookie.com/embed/${id}`}
                         title="Video del inmueble"
                         // "fullscreen" es imprescindible en `allow`: Chrome ignora el
                         // atributo legado allowFullScreen en cuanto hay un `allow`
