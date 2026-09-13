@@ -25,6 +25,12 @@ Esta es la parte que hay que respetar al agregar aplicaciones nuevas.
 2. Todo puerto de servicio se publica **exclusivamente en `127.0.0.1`**
    (`"127.0.0.1:5434:5432"`, nunca `"5434:5432"`). Se alcanzan por túnel SSH:
    `ssh -L 5434:127.0.0.1:5434 ubuntu@51.161.114.45`.
+
+   > **Esta regla es la que realmente protege la máquina, no `ufw`.** Docker
+   > inserta sus reglas en la cadena `DOCKER` de iptables, que se evalúa *antes*
+   > que las de ufw. Un `"5432:5432"` queda **abierto a internet aunque
+   > `ufw status` diga que solo 22/80/443 están permitidos**, y el `ufw status`
+   > no lo delata. El bind explícito a `127.0.0.1` es lo único que lo impide.
 3. Lo que solo necesita hablar con nginx (backends, frontends) **no publica puerto
    alguno**: usa `expose` y se alcanza por nombre dentro de la red de compose.
 4. Cada app declara `name:` en su compose y prefija sus contenedores, para que las

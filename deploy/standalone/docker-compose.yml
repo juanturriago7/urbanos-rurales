@@ -21,8 +21,8 @@ services:
     image: postgis/postgis:16-3.4
     container_name: urbanos-db-staging
     restart: unless-stopped
-    mem_limit: 300m
-    memswap_limit: 300m
+    mem_limit: 1g
+    memswap_limit: 1g
     logging: *default-logging
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-portal_db}
@@ -44,8 +44,8 @@ services:
     image: minio/minio:RELEASE.2024-10-13T13-34-11Z
     container_name: urbanos-minio-staging
     restart: unless-stopped
-    mem_limit: 256m
-    memswap_limit: 256m
+    mem_limit: 512m
+    memswap_limit: 512m
     logging: *default-logging
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:?falta MINIO_ROOT_USER en .env}
@@ -105,8 +105,8 @@ services:
       target: runtime
     container_name: urbanos-backend-staging
     restart: unless-stopped
-    mem_limit: 350m
-    memswap_limit: 350m
+    mem_limit: 1g
+    memswap_limit: 1g
     logging: *default-logging
     networks:
       - urbanos-net
@@ -150,8 +150,8 @@ services:
         VITE_APP_NAME: "Portal Inmobiliario (Staging)"
     container_name: urbanos-frontend-staging
     restart: unless-stopped
-    mem_limit: 32m
-    memswap_limit: 32m
+    mem_limit: 64m
+    memswap_limit: 64m
     logging: *default-logging
     networks:
       - urbanos-net
@@ -173,8 +173,8 @@ services:
     image: nginx:1.27-alpine
     container_name: urbanos-nginx
     restart: unless-stopped
-    mem_limit: 64m
-    memswap_limit: 64m
+    mem_limit: 128m
+    memswap_limit: 128m
     logging: *default-logging
     ports:
       - "80:80"
