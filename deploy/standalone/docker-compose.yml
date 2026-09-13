@@ -1,0 +1,212 @@
+# Ambiente de pruebas de urbanos-rurales — VPS STANDALONE (vps-5507c5dd, 51.161.114.45).
+#
+# Diferencia clave con deploy/docker-compose.staging.yml (que sigue vivo en la VPS
+# 51.222.140.140): allí nginx y certbot son AJENOS — los presta el stack de TiviPlay y
+# se editan a mano fuera del repo. Acá son propios y están versionados, y no existe
+# ninguna red `external`.
+#
+# El reparto de puertos está documentado en README.md de esta misma carpeta. Regla
+# invariante: todo puerto de servicio se publica SOLO en 127.0.0.1. Al mundo salen
+# unicamente 80 y 443, por nginx.
+name: urbanos-staging
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: urbanos-db-staging
+    restart: unless-stopped
+    mem_limit: 300m
+    memswap_limit: 300m
+    logging: *default-logging
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-portal_db}
+      POSTGRES_USER: ${POSTGRES_USER:-portal_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?falta POSTGRES_PASSWORD en .env}
+    ports:
+      - "127.0.0.1:5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - urbanos-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-portal_user} -d ${POSTGRES_DB:-portal_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:RELEASE.2024-10-13T13-34-11Z
+    container_name: urbanos-minio-staging
+    restart: unless-stopped
+    mem_limit: 256m
+    memswap_limit: 256m
+    logging: *default-logging
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?falta MINIO_ROOT_USER en .env}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?falta MINIO_ROOT_PASSWORD en .env}
+    command: server /data --console-address ":9001"
+    ports:
+      - "127.0.0.1:9004:9000"
+      - "127.0.0.1:9005:9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - urbanos-net
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio-init:
+    image: minio/mc:RELEASE.2024-10-08T09-37-26Z
+    container_name: urbanos-minio-init-staging
+    depends_on:
+      minio:
+        condition: service_healthy
+    networks:
+      - urbanos-net
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://urbanos-minio-staging:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} &&
+      mc mb --ignore-existing local/portal-inmuebles &&
+      mc anonymous set download local/portal-inmuebles &&
+      echo 'Bucket portal-inmuebles listo'
+      "
+
+  # Contenedor de un solo uso. Corre bajo el perfil "migration" para que un
+  # `compose up -d` normal no lo levante. Verificado el 2026-09-13: las 8
+  # migraciones aplican limpio sobre una base vacia.
+  migrator:
+    build:
+      context: ../../Backend
+      dockerfile: src/Portal.Api/Dockerfile
+      target: migrator
+    container_name: urbanos-migrator-staging
+    profiles: ["migration"]
+    networks:
+      - urbanos-net
+    environment:
+      ConnectionStrings__Default: "Host=urbanos-db-staging;Port=5432;Database=${POSTGRES_DB:-portal_db};Username=${POSTGRES_USER:-portal_user};Password=${POSTGRES_PASSWORD}"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    build:
+      context: ../../Backend
+      dockerfile: src/Portal.Api/Dockerfile
+      target: runtime
+    container_name: urbanos-backend-staging
+    restart: unless-stopped
+    mem_limit: 350m
+    memswap_limit: 350m
+    logging: *default-logging
+    networks:
+      - urbanos-net
+    # Sin `ports`: nginx lo alcanza por la red de compose. No se publica al host.
+    expose:
+      - "8080"
+    environment:
+      # "Development" a proposito: Program.cs solo mapea /openapi y /scalar cuando
+      # IsDevelopment() es true, y esto es un ambiente de PRUEBAS. Para produccion
+      # esto cambia a Production y se pierden esos dos endpoints.
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Default: "Host=urbanos-db-staging;Port=5432;Database=${POSTGRES_DB:-portal_db};Username=${POSTGRES_USER:-portal_user};Password=${POSTGRES_PASSWORD}"
+      Jwt__Key: ${JWT_KEY:?falta JWT_KEY en .env}
+      Jwt__Issuer: portal-api
+      Jwt__Audience: portal-frontend
+      Cors__AllowedOrigins__0: "https://${STAGING_DOMAIN:?falta STAGING_DOMAIN en .env}"
+      # Publico a proposito, NO el hostname interno de Docker: el SDK de S3 firma las
+      # URLs prefirmadas (SigV4) con este host, y esa firma debe coincidir con el Host
+      # que MinIO recibe. Un cliente fuera del VPS nunca resuelve urbanos-minio-staging,
+      # asi que firmar con el host interno rompe toda subida desde el navegador.
+      # nginx enruta /portal-inmuebles/ preservando Host y path para que la firma valide.
+      Storage__Endpoint: "https://${STAGING_DOMAIN}"
+      Storage__Bucket: portal-inmuebles
+      Storage__AccessKey: ${MINIO_ROOT_USER}
+      Storage__SecretKey: ${MINIO_ROOT_PASSWORD}
+      Storage__ForcePathStyle: "true"
+      Storage__UrlPublicaBase: "https://${STAGING_DOMAIN}/storage/portal-inmuebles"
+    depends_on:
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ../../FrontEndUrbanos
+      dockerfile: Dockerfile
+      args:
+        # Vacio = el frontend pega a /api del mismo origen, que nginx enruta al backend.
+        VITE_API_BASE_URL: ""
+        VITE_APP_NAME: "Portal Inmobiliario (Staging)"
+    container_name: urbanos-frontend-staging
+    restart: unless-stopped
+    mem_limit: 32m
+    memswap_limit: 32m
+    logging: *default-logging
+    networks:
+      - urbanos-net
+    expose:
+      - "80"
+    depends_on:
+      - api
+
+  # Unico servicio con puertos abiertos al mundo.
+  #
+  # NGINX_CONF elige que config se monta. El arranque en frio va en dos pasos porque
+  # un bloque `listen 443 ssl` que apunta a un certificado inexistente tumba nginx en
+  # crash-loop:
+  #   1. NGINX_CONF=nginx-bootstrap.conf  -> solo :80, sirve el challenge ACME
+  #   2. certbot emite el certificado
+  #   3. NGINX_CONF=nginx.conf            -> :80 + :443, config completa
+  # deploy.sh hace esto solo.
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: urbanos-nginx
+    restart: unless-stopped
+    mem_limit: 64m
+    memswap_limit: 64m
+    logging: *default-logging
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      # Lo consume envsubst en el entrypoint de la imagen, al expandir la
+      # template. Solo sustituye variables presentes en el environment, asi que
+      # $host / $remote_addr / $scheme de nginx pasan intactas.
+      STAGING_DOMAIN: ${STAGING_DOMAIN:?falta STAGING_DOMAIN en .env}
+    volumes:
+      - ./${NGINX_CONF:-nginx-bootstrap.conf}:/etc/nginx/templates/default.conf.template:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+    networks:
+      - urbanos-net
+
+  # Solo corre bajo demanda (perfil "certbot"), nunca en un `up -d`. La emision
+  # inicial y la renovacion las dispara deploy.sh / el cron, no compose.
+  certbot:
+    image: certbot/certbot:latest
+    container_name: urbanos-certbot
+    profiles: ["certbot"]
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    networks:
+      - urbanos-net
+
+networks:
+  urbanos-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  minio_data:
