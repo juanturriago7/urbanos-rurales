@@ -91,3 +91,9 @@ $RECYCLE.BIN/
 
 # Worktrees de Claude Code (ramas aisladas en .claude/worktrees/<slug>)
 .claude/worktrees/
+
+## ─────────────────────────────────────────────
+## Notas locales con credenciales — el repo es PUBLICO
+## ─────────────────────────────────────────────
+OvhCloud.md
+tareasdehoy.md
