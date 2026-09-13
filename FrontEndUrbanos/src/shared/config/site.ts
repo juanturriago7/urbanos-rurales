@@ -33,6 +33,7 @@ export const site = {
   redes: {
     facebook: 'https://www.facebook.com/urbanosrurales.sas',
     instagram: 'https://www.instagram.com/urbanos.rurales',
+    tiktok: 'https://www.tiktok.com/@urbanosrurales',
     youtube: 'https://www.youtube.com/channel/UCuX5QknUzLWEqT-xmk6WPAg',
     linkedin: 'https://www.linkedin.com/in/urbanos-rurales-41047b21a/',
   },

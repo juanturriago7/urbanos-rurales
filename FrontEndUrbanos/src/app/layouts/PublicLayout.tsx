@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { Footer } from '@/app/layouts/public/Footer'
 import { Header } from '@/app/layouts/public/Header'
-import { WhatsAppFab } from '@/shared/components/WhatsAppFab'
+import { RedesFab } from '@/shared/components/RedesFab'
 
 /**
  * Shell del sitio público: ensambla las piezas y es dueño del estado del drawer.
@@ -62,9 +62,12 @@ export function PublicLayout() {
         <Outlet />
       </main>
 
+      {/* El FAB vive aquí y no en cada página: antes la landing y el listado de
+          inmuebles traían cada uno su propia copia, con tamaños y z-index
+          distintos. Ahora es una sola pila, igual en todas las rutas. */}
       <div inert={drawerAbierto}>
         <Footer />
-        {!esLanding && <WhatsAppFab />}
+        <RedesFab />
       </div>
     </div>
   )

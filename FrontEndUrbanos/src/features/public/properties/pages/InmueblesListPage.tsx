@@ -8,8 +8,6 @@ import type {
   FiltroInmueblesPublico,
   InmueblePublicoListItemDto,
 } from '@/features/public/properties/api/inmueblesPublicApi'
-import { WhatsAppIcon } from '@/shared/components/icons/WhatsAppIcon'
-import { site } from '@/shared/config/site'
 
 /* ── Helpers ─────────────────────────────────────────────────── */
 const formatoPesos = new Intl.NumberFormat('es-CO', {
@@ -593,13 +591,7 @@ export function InmueblesListPage() {
         </div>
       </section>
 
-      {/* WhatsApp FAB */}
-      <a href={`https://wa.me/${site.contacto.whatsapp}`}
-        target="_blank" rel="noopener noreferrer"
-        aria-label="Contactar por WhatsApp"
-        className="fixed bottom-7 right-7 z-50 w-[52px] h-[52px] bg-[#25d366] rounded-[26px] flex items-center justify-center text-white shadow-[0px_4px_10px_rgba(37,211,102,0.5)] hover:scale-110 transition-transform duration-200">
-        <WhatsAppIcon className="w-[26px] h-[26px]" />
-      </a>
+      {/* El FAB de redes lo pinta PublicLayout para todas las rutas. */}
 
     </div>
   )
