@@ -167,6 +167,81 @@ en el VPS se edita a mano y puede haber divergido de él.
 
 ---
 
+---
+
+# SEGUNDA VPS — `vps-5507c5dd` (`51.161.114.45`)
+
+Máquina aparte, desplegada el **2026-09-13**. No comparte nada con
+`51.222.140.140`: nginx y certbot son propios. Pensada para alojar varias
+aplicaciones, de ahí el reparto de puertos por rangos.
+
+| Dato | Valor |
+|---|---|
+| Nombre VPS | `vps-5507c5dd.vps.ovh.ca` |
+| IPv4 / IPv6 | `51.161.114.45` / `2607:5300:205:200::9111` |
+| Especificaciones | 4 vCPU, 7.6 GB RAM, 72 GB SSD |
+| OS | Ubuntu 26.04 LTS (`resolute`) |
+| Acceso | `ssh -i ~/.ssh/urbanos-ovh-key ubuntu@51.161.114.45` |
+| Autenticación | **Solo llave.** Login por contraseña deshabilitado en `sshd_config.d/01-hardening.conf` |
+| Llave privada | `C:\Users\Invitado\.ssh\urbanos-ovh-key` (NO subir a Git) |
+| Firewall | `ufw` activo: solo 22/80/443 |
+| Swap | 2 GB (`/swapfile`), swappiness=10 |
+| Docker | 29.8.0 + Compose v5.5.1, repo oficial |
+
+> La contraseña temporal que mandó OVH venía **expirada** (el primer login exige
+> cambiarla, y `passwd` necesita un TTY). Se rotó durante el bootstrap y ya no
+> sirve para nada: el login por contraseña está deshabilitado.
+
+## Ambiente de pruebas de urbanos-rurales
+
+| | Valor |
+|---|---|
+| URL | `https://51.161.114.45.sslip.io` |
+| Certificado | Let's Encrypt real, vence 2026-12-12, renovación por cron |
+| Directorio | `~/urbanos-rurales-staging/` (clon de `develop`) |
+| Compose | `deploy/standalone/docker-compose.yml` |
+| Secretos | `deploy/standalone/.env` (no versionado, generados con `openssl rand -hex`) |
+| Contenedores | `urbanos-db-staging`, `urbanos-minio-staging`, `urbanos-backend-staging`, `urbanos-frontend-staging`, `urbanos-nginx` |
+| Redeploy | `~/deploy-urbanos.sh [rama]` |
+| Renovación TLS | `~/renew-certs.sh`, cron `17 3 * * *` |
+
+`sslip.io` resuelve solo a la IP embebida en el nombre: **no hay DNS que
+configurar en ningún lado**, y Let's Encrypt emite certificados normalmente.
+
+### Puertos
+
+Solo `22`, `80` y `443` alcanzables desde internet — verificado escaneando desde
+fuera, no solo leyendo el compose. `5434` (postgres), `9004`/`9005` (MinIO) están
+publicados **solo en `127.0.0.1`**; backend y frontend no publican puerto alguno.
+Rangos reservados para apps futuras en `deploy/standalone/README.md`.
+
+> **`ufw` no protege los puertos de Docker.** Docker escribe en la cadena
+> `DOCKER` de iptables, que se evalúa antes que ufw: un puerto publicado sin
+> `127.0.0.1:` queda abierto a internet aunque `ufw status` diga lo contrario.
+
+### Gotchas encontrados al montarla
+
+- **Docker Hub ya no sirve `minio/minio` ni `minio/mc`.** El pull falla con
+  `pull access denied ... repository does not exist`, que despista porque suena
+  a falta de credenciales. `quay.io/minio/*` tiene los mismos RELEASE tags.
+- **certbot deja `live/` y `archive/` en 0700 root:root.** Un `test -f` sobre el
+  certificado desde el host, como usuario `ubuntu`, da falso *aunque el
+  certificado exista*. Hay que comprobarlo con `sudo`, o el script vuelve a
+  pedir certificado en cada corrida hasta chocar con el rate-limit.
+- **`50-cloud-init.conf` fuerza `PasswordAuthentication yes`.** sshd toma el
+  **primer** valor que encuentra, así que el drop-in que lo desactiva tiene que
+  ordenar *antes* del 50 — un `99-` no tendría ningún efecto.
+- **Compose rechaza `--scale` en servicios con `container_name`.**
+
+### Pendiente conocido
+
+`Program.cs` siembra `admin@portal.local` / `Admin123*` **en cada arranque y sin
+guarda de entorno**. Aceptable en pruebas (decisión explícita), pero hay que
+quitarlo o condicionarlo a `IsDevelopment()` antes de producción: contradice la
+regla de CLAUDE.md sobre no enviar credenciales conocidas a producción.
+
+---
+
 ## Servidor AWS (legacy, en desuso tras el corte)
 
 Ver `contexto-despliegue.md` para el detalle completo. Resumen: IP `44.222.156.217`, IP dinámica (no Elástica — al detener la instancia se pierde permanentemente), instancia `i-007480d3e1b0d08ff` (t3.small), volumen raíz `vol-0e58498eb15c42424` (20GB, se borra solo al *terminar*, no al *detener*).
