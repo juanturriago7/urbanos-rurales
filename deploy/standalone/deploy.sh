@@ -36,7 +36,15 @@ compose --profile migration run --rm migrator
 
 CERT_PATH="$DEPLOY_DIR/certbot/conf/live/$STAGING_DOMAIN/fullchain.pem"
 
-if [[ ! -f "$CERT_PATH" ]]; then
+# Con sudo a proposito: certbot corre como root dentro del contenedor y deja
+# live/ y archive/ en 0700 root:root. Desde el host, como usuario ubuntu, un
+# `test -f` sobre el certificado da falso AUNQUE EL CERTIFICADO EXISTA — no
+# puede ni atravesar el directorio. Sin el sudo, este script vuelve a pedir un
+# certificado en cada corrida y acaba chocando contra el rate-limit de Let's
+# Encrypt. nginx si puede leerlos porque su proceso master tambien es root.
+cert_existe() { sudo test -f "$CERT_PATH"; }
+
+if ! cert_existe; then
   # ─── Arranque en frio ──────────────────────────────────────────────────────
   # nginx no puede arrancar con la config de :443 porque el certificado no
   # existe, y certbot no puede emitirlo sin un nginx sirviendo el challenge.
@@ -59,7 +67,7 @@ if [[ ! -f "$CERT_PATH" ]]; then
     --email "$LETSENCRYPT_EMAIL" \
     --agree-tos --no-eff-email --non-interactive
 
-  [[ -f "$CERT_PATH" ]] || { echo "ERROR: certbot no dejo el certificado en $CERT_PATH"; exit 1; }
+  cert_existe || { echo "ERROR: certbot no dejo el certificado en $CERT_PATH"; exit 1; }
   echo "    -> certificado emitido"
 fi
 
