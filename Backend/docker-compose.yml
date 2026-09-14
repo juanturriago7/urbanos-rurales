@@ -32,7 +32,7 @@ services:
   # En producción se apunta a AWS S3, DigitalOcean Spaces o Cloudflare R2 cambiando
   # solo la sección Storage de la configuración: el protocolo es el mismo.
   minio:
-    image: minio/minio:RELEASE.2024-10-13T13-34-11Z
+    image: quay.io/minio/minio:RELEASE.2024-10-13T13-34-11Z
     container_name: portal_minio
     restart: unless-stopped
     environment:
@@ -53,7 +53,7 @@ services:
   # Crea el bucket y lo deja de lectura pública para que el navegador muestre las
   # imágenes por URL directa. Corre una vez y termina.
   minio-init:
-    image: minio/mc:RELEASE.2024-10-08T09-37-26Z
+    image: quay.io/minio/mc:RELEASE.2024-10-08T09-37-26Z
     container_name: portal_minio_init
     depends_on:
       minio:

@@ -41,7 +41,10 @@ services:
       retries: 5
 
   minio:
-    image: minio/minio:RELEASE.2024-10-13T13-34-11Z
+    # quay.io y no Docker Hub: MinIO retiro minio/minio y minio/mc de Docker Hub
+    # (verificado el 2026-09-13: "pull access denied ... repository does not
+    # exist"). quay.io sirve exactamente los mismos RELEASE tags.
+    image: quay.io/minio/minio:RELEASE.2024-10-13T13-34-11Z
     container_name: urbanos-minio-staging
     restart: unless-stopped
     mem_limit: 512m
@@ -65,7 +68,7 @@ services:
       retries: 5
 
   minio-init:
-    image: minio/mc:RELEASE.2024-10-08T09-37-26Z
+    image: quay.io/minio/mc:RELEASE.2024-10-08T09-37-26Z
     container_name: urbanos-minio-init-staging
     depends_on:
       minio:
