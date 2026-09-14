@@ -64,11 +64,12 @@ if [[ ! -f "$CERT_PATH" ]]; then
 fi
 
 echo "==> Levantando servicios"
-# nginx queda excluido: se recrea aparte, despues, para que sus upstreams ya
-# existan. Con la config de :443 montada y un upstream inexistente, nginx muere
-# con "host not found in upstream".
-compose up -d --remove-orphans --scale nginx=0
-compose up -d db minio minio-init api frontend
+# nginx se nombra aparte, despues, para que sus upstreams ya existan: con la
+# config de :443 montada y un upstream inexistente, nginx muere con "host not
+# found in upstream". Se listan los servicios uno por uno en vez de usar
+# `--scale nginx=0` porque Compose rechaza escalar servicios que declaran
+# container_name.
+compose up -d --remove-orphans db minio minio-init api frontend
 
 echo "==> Recreando nginx con la config completa (:80 + :443)"
 # --force-recreate es obligatorio: al cambiar el bind-mount de un archivo suelto,
