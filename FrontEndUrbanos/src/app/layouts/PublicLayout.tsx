@@ -57,7 +57,11 @@ export function PublicLayout() {
         // el foco se queda donde estaba, y el salto de teclado no sirve de nada.
         tabIndex={-1}
         inert={drawerAbierto}
-        className={['flex-1 focus:outline-none', esLanding ? '' : 'pt-[102px]'].join(' ')}
+        // El hueco tiene que medir lo mismo que el header: 64px hasta `md`, y
+        // 102px a partir de ahí, que es cuando aparece la barra de contacto
+        // superior (`hidden md:flex`). Con 102px fijos quedaba una franja vacía
+        // de casi 40px sobre el contenido en móvil.
+        className={['flex-1 focus:outline-none', esLanding ? '' : 'pt-16 md:pt-[102px]'].join(' ')}
       >
         <Outlet />
       </main>

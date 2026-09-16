@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Container } from '@/shared/components/ui/Container'
 import { FacebookIcon, InstagramIcon, LinkedinIcon } from '@/shared/components/icons/SocialIcons'
+import { Logo } from '@/shared/components/ui/Logo'
 import { site } from '@/shared/config/site'
 
 export function Footer() {
@@ -10,15 +11,7 @@ export function Footer() {
         {/* Fila principal */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 py-10">
           {/* Logo */}
-          <div className="flex items-center gap-[10px]">
-            <div className="bg-[rgba(255,255,255,0.12)] rounded-[8px] w-9 h-9 flex items-center justify-center">
-              <span className="font-extrabold text-white text-[12px]">U&amp;R</span>
-            </div>
-            <div className="flex flex-col gap-[2px]">
-              <span className="font-semibold text-white text-[14px]">Urbanos &amp; Rurales S.A.S</span>
-              <span className="text-[#577782] text-[11px]">www.urbanosrurales.com</span>
-            </div>
-          </div>
+          <Logo variant="light" tagline="www.urbanosrurales.com" />
 
           {/* Links nav */}
           <nav className="flex flex-wrap items-center gap-6">

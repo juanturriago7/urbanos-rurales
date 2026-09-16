@@ -1,3 +1,4 @@
+import { Container } from '@/shared/components/ui/Container'
 import { Link } from 'react-router-dom'
 import { useArticulosPublico } from '@/features/public/proyectos/hooks/useProyectosPublico'
 import { Spinner } from '@/shared/components/ui/Spinner'
@@ -14,18 +15,18 @@ export function ProyectosListPage() {
   const { data, isLoading, isError, error } = useArticulosPublico(1, 12)
 
   return (
-    <div className="bg-[#eff4f8] min-h-screen px-6 py-16 sm:px-12">
-      <div className="mx-auto max-w-[1100px]">
-        <header className="mb-12 flex flex-col gap-3">
+    <div className="min-h-screen bg-[#eff4f8] py-16">
+      <Container>
+        <header className="mb-10 flex flex-col gap-3 sm:mb-12">
           <span className="self-start rounded-full bg-[rgba(0,75,152,0.08)] px-3 py-1">
             <span className="text-[11px] font-semibold uppercase tracking-[1.32px] text-[#004b98]">
               Proyectos
             </span>
           </span>
-          <h1 className="text-[42px] font-extrabold leading-[1.1] tracking-[-0.8px] text-[#001124]">
+          <h1 className="titulo-seccion text-[#001124]">
             Artículos y noticias
           </h1>
-          <p className="max-w-[640px] text-[16px] leading-[1.65] text-[#7a8187]">
+          <p className="texto-lead max-w-[640px] text-[#7a8187]">
             Análisis y contenido sobre el mercado inmobiliario, gestión predial y consultoría.
           </p>
         </header>
@@ -87,7 +88,7 @@ export function ProyectosListPage() {
             ))}
           </div>
         )}
-      </div>
+      </Container>
     </div>
   )
 }

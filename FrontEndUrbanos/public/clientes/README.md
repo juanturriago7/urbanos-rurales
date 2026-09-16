@@ -1,23 +1,40 @@
-# Logos de Clientes
+# Logos de clientes
 
-Coloca aquí los logos de los clientes que aparecen en el carrusel con los siguientes nombres exactos:
+Los logos que aparecen en el carrusel de clientes (home y Quiénes somos).
 
-| Archivo                        | Cliente                        |
-|--------------------------------|--------------------------------|
-| `invias.png`                   | INVÍAS                         |
-| `ani.png`                      | ANI                            |
-| `findeter.png`                 | FINDETER                       |
-| `ideam.png`                    | IDEAM                          |
-| `epm.png`                      | EPM                            |
-| `isa.png`                      | ISA                            |
-| `gobernacion-cundinamarca.png` | Gobernación de Cundinamarca    |
-| `alcaldia-bogota.png`          | Alcaldía de Bogotá             |
+## Estado actual
 
-## Para agregar más clientes
-Edita el array `CLIENTES` en:
-`src/features/public/quienes-somos/components/ClientesCarrusel.tsx`
+Verificado abriendo cada archivo, no por su nombre — los nombres estaban mal.
 
-## Recomendaciones
-- Formato: PNG o SVG con fondo transparente o blanco
-- Tamaño sugerido: ancho ~300 px, alto ~120 px
-- Si una imagen no se encuentra, el carrusel mostrará el nombre del cliente como texto
+| Archivo             | Contiene                                  | Estado |
+|---------------------|-------------------------------------------|--------|
+| `ani.png`           | Agencia Nacional de Infraestructura        | ✅ en uso |
+| `compensar.png`     | Compensar                                  | ✅ en uso |
+| `geb.png`           | Grupo Energía Bogotá                       | ✅ en uso |
+| `minsalud.png`      | Ministerio de Salud y Protección Social    | ✅ en uso — el archivo se llamaba `invias.png` |
+| `sae.png`           | Sociedad de Activos Especiales             | ✅ en uso — el archivo se llamaba `findeter.png` |
+| `cundinamarca.png`  | Gobernación de Cundinamarca                | ✅ en uso — el archivo se llamaba `ideam.png` |
+| `epm.jpg` / `epm.png` | foto de stock, no es un logo             | ❌ sin usar |
+| `isa.jpg` / `isa.png` | foto de stock, no es un logo             | ❌ sin usar |
+| `alcaldia-bogota.jpg` / `.png` | foto de stock, no es un logo    | ❌ sin usar |
+| `gobernacion-cundinamarca.jpg` / `.png` | foto de stock, no es un logo | ❌ sin usar |
+
+Los archivos marcados ❌ se pueden borrar: son fotos genéricas de manos y
+teclados que alguien dejó como marcador de posición.
+
+## Logos que faltan
+
+Estas entidades salen en el carrusel como texto, a la espera de su logo:
+INVÍAS, FINDETER, IDEAM, EPM, ISA, Alcaldía de Bogotá, Ministerio de Vivienda
+y Fondo Nacional del Ahorro.
+
+## Cómo agregar uno
+
+1. Guarda el archivo aquí con el nombre de la entidad (`invias.png`, `epm.png`…).
+2. **Ábrelo y comprueba que es el logo correcto** antes de referenciarlo.
+3. Añade la ruta al array `CLIENTES` de
+   `src/features/public/institucional/components/ClientesCarrusel.tsx`.
+
+Formato: PNG o SVG con fondo transparente o blanco, ancho ~300 px y alto
+~120 px. Si el archivo no existe o falla la carga, la tarjeta cae de vuelta al
+nombre en texto, sin romper la fila.

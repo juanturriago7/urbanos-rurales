@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Logo } from '@/shared/components/ui/Logo'
 import { site } from '@/shared/config/site'
 
 /**
@@ -81,7 +82,7 @@ export function MobileDrawer({ abierto, onCerrar }: MobileDrawerProps) {
   if (!abierto) return null
 
   return (
-    <div className="fixed inset-0 z-50 md:hidden">
+    <div className="fixed inset-0 z-50 xl:hidden">
 
       {/* Overlay oscuro */}
       <div
@@ -96,7 +97,7 @@ export function MobileDrawer({ abierto, onCerrar }: MobileDrawerProps) {
         role="dialog"
         aria-modal="true"
         aria-label="Menú de navegación"
-        className="animate-drawer-in absolute top-0 right-0 h-full w-[82%] max-w-sm flex flex-col bg-white shadow-[−8px_0_32px_rgba(0,17,36,0.18)]"
+        className="animate-drawer-in absolute top-0 right-0 h-full w-[82%] max-w-sm flex flex-col bg-white shadow-[-8px_0_32px_rgba(0,17,36,0.18)]"
       >
         {/* Franja cian superior */}
         <div className="h-1 w-full bg-[#00b5c5] shrink-0" />
@@ -104,15 +105,7 @@ export function MobileDrawer({ abierto, onCerrar }: MobileDrawerProps) {
         {/* Cabecera del panel */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#e8edf2] shrink-0">
           {/* Logo compacto */}
-          <div className="flex items-center gap-2.5">
-            <div className="bg-[#004b98] rounded-lg w-9 h-9 flex items-center justify-center shrink-0">
-              <span className="font-extrabold text-white text-[12px] tracking-tight">U&amp;R</span>
-            </div>
-            <div className="flex flex-col leading-none">
-              <span className="font-bold text-[#001124] text-[13px] tracking-tight">Urbanos &amp; Rurales</span>
-              <span className="text-[#7a8187] text-[9px] tracking-[0.7px] uppercase mt-0.5">Gestión Inmobiliaria</span>
-            </div>
-          </div>
+          <Logo tagline="Gestión Inmobiliaria" className="min-w-0" />
 
           {/* Botón cerrar */}
           <button

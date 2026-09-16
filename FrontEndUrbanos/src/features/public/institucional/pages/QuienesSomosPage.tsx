@@ -3,6 +3,7 @@ import { ClientesCarrusel } from '@/features/public/institucional/components/Cli
 import { PoliticaIntegral } from '@/features/public/institucional/components/PoliticaIntegral'
 import { CertificacionesISO } from '@/features/public/institucional/components/CertificacionesISO'
 import { useScrollReveal } from '@/shared/hooks/useScrollReveal'
+import { Container } from '@/shared/components/ui/Container'
 
 /**
  * Página Quiénes somos — spec 07.
@@ -29,31 +30,31 @@ export function QuienesSomosPage() {
   return (
     <div className="bg-white">
       {/* Hero */}
-      <section className="bg-[#001124] py-24 px-12">
-        <div className="mx-auto max-w-[1100px]">
+      <section className="bg-[#001124] py-16 sm:py-24">
+        <Container>
           <span className="reveal inline-block rounded-full bg-[rgba(0,181,197,0.08)] px-3 py-1">
             <span className="text-[11px] font-semibold uppercase tracking-[1.32px] text-[#00b5c5]">
               Quiénes somos
             </span>
           </span>
-          <h1 className="reveal mt-4 text-[48px] font-extrabold leading-[1.05] tracking-[-1px] text-white">
-            Una empresa con visión,<br />ejecutada con oficio.
+          <h1 className="reveal titulo-display mt-4 text-white">
+            Una empresa con visión, ejecutada con oficio.
           </h1>
-          <p className="reveal mt-4 max-w-[640px] text-[16px] leading-[1.65] text-[#8bb6c4]">
+          <p className="reveal texto-lead mt-4 max-w-[640px] text-[#8bb6c4]">
             Somos una firma de consultoría y gestión predial con más de una década
             acompañando al sector público y privado en Colombia.
           </p>
-        </div>
+        </Container>
       </section>
 
       {/* Quiénes somos */}
-      <section className="bg-[#eff4f8] px-12 py-20">
-        <div className="mx-auto grid max-w-[1100px] grid-cols-1 gap-12 lg:grid-cols-2">
+      <section className="bg-[#eff4f8] py-16 sm:py-24">
+        <Container className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-12">
           <div className="reveal">
-            <h2 className="text-[36px] font-extrabold leading-[1.1] tracking-[-0.5px] text-[#001124]">
+            <h2 className="titulo-seccion text-[#001124]">
               Quiénes somos
             </h2>
-            <p className="mt-4 text-[16px] leading-[1.7] text-[#44403c]">
+            <p className="texto-lead mt-4 text-[#44403c]">
               Somos una compañía especializada en consultorías, asesorías y desarrollo en proyectos
               de gestión predial integral y otros servicios, con el compromiso de satisfacer a
               nuestros clientes del sector público y privado cumpliendo los compromisos contractuales
@@ -74,21 +75,21 @@ export function QuienesSomosPage() {
               </div>
             </div>
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* Misión */}
-      <section className="px-12 py-20">
-        <div className="reveal mx-auto max-w-[900px] text-center">
+      <section className="py-16 sm:py-24">
+        <Container width="narrow" className="reveal text-center">
           <span className="inline-block rounded-full bg-[rgba(0,75,152,0.08)] px-3 py-1">
             <span className="text-[11px] font-semibold uppercase tracking-[1.32px] text-[#004b98]">
               Misión
             </span>
           </span>
-          <h2 className="mt-4 text-[36px] font-extrabold tracking-[-0.5px] text-[#001124]">
+          <h2 className="titulo-seccion mt-4 text-[#001124]">
             Nuestra misión
           </h2>
-          <p className="mt-4 text-[18px] leading-[1.6] text-[#44403c]">
+          <p className="texto-lead mt-4 text-[#44403c]">
             Somos una compañía especializada en consultorías, asesorías y desarrollo en proyectos
             de gestión predial integral y otros servicios, con el compromiso de satisfacer a
             nuestros clientes del sector público y privado cumpliendo los compromisos contractuales
@@ -96,39 +97,39 @@ export function QuienesSomosPage() {
             productos y servicios, buscando mejorar los procesos para el beneficio de nuestros
             colaboradores, proveedores y partes interesadas.
           </p>
-        </div>
+        </Container>
       </section>
 
       {/* Visión */}
-      <section className="bg-[#001124] px-12 py-20">
-        <div className="reveal mx-auto max-w-[900px] text-center">
+      <section className="bg-[#001124] py-16 sm:py-24">
+        <Container width="narrow" className="reveal text-center">
           <span className="inline-block rounded-full bg-[rgba(0,181,197,0.08)] px-3 py-1">
             <span className="text-[11px] font-semibold uppercase tracking-[1.32px] text-[#00b5c5]">
               Visión
             </span>
           </span>
-          <h2 className="mt-4 text-[36px] font-extrabold tracking-[-0.5px] text-white">
+          <h2 className="titulo-seccion mt-4 text-white">
             Nuestra visión
           </h2>
-          <p className="mt-4 text-[18px] leading-[1.6] text-[#8bb6c4]">
+          <p className="texto-lead mt-4 text-[#8bb6c4]">
             Para el 2026 seremos una de las empresas líderes en consultoría y asesorías en gestión
             predial y servicios inmobiliarios, implementando los más altos estándares de calidad y
             confiabilidad, a través de la efectividad de los diferentes procesos para satisfacer a
             las partes interesadas.
           </p>
-        </div>
+        </Container>
       </section>
 
       {/* No Aplicabilidad de la Norma */}
-      <section className="px-12 py-20">
-        <div className="mx-auto max-w-[900px]">
+      <section className="py-16 sm:py-24">
+        <Container width="narrow">
           <div className="reveal">
             <span className="inline-block rounded-full bg-[rgba(0,75,152,0.08)] px-3 py-1">
               <span className="text-[11px] font-semibold uppercase tracking-[1.32px] text-[#004b98]">
                 No Aplicabilidad de la Norma
               </span>
             </span>
-            <h2 className="mt-4 text-[36px] font-extrabold tracking-[-0.5px] text-[#001124]">
+            <h2 className="titulo-seccion mt-4 text-[#001124]">
               Exclusiones normativas
             </h2>
           </div>
@@ -165,19 +166,19 @@ export function QuienesSomosPage() {
               </p>
             </div>
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* Objetivos SIG */}
-      <section className="bg-[#001124] px-12 py-20">
-        <div className="mx-auto max-w-[900px]">
+      <section className="bg-[#001124] py-16 sm:py-24">
+        <Container width="narrow">
           <div className="reveal">
             <span className="inline-block rounded-full bg-[rgba(0,181,197,0.08)] px-3 py-1">
               <span className="text-[11px] font-semibold uppercase tracking-[1.32px] text-[#00b5c5]">
                 Objetivos SIG
               </span>
             </span>
-            <h2 className="mt-4 text-[36px] font-extrabold tracking-[-0.5px] text-white">
+            <h2 className="titulo-seccion mt-4 text-white">
               Sistema Integrado de Gestión
             </h2>
           </div>
@@ -195,7 +196,7 @@ export function QuienesSomosPage() {
               </li>
             ))}
           </ul>
-        </div>
+        </Container>
       </section>
 
       {/* Clientes carrusel */}
@@ -208,26 +209,26 @@ export function QuienesSomosPage() {
       <CertificacionesISO />
 
       {/* Trabaja con nosotros */}
-      <section id="trabaja-con-nosotros" className="bg-[#eff4f8] px-12 py-20">
-        <div className="mx-auto max-w-[720px]">
+      <section id="trabaja-con-nosotros" className="bg-[#eff4f8] py-16 sm:py-24">
+        <Container width="prose">
           <div className="reveal">
             <span className="inline-block rounded-full bg-[rgba(0,75,152,0.08)] px-3 py-1">
               <span className="text-[11px] font-semibold uppercase tracking-[1.32px] text-[#004b98]">
                 Trabaja con nosotros
               </span>
             </span>
-            <h2 className="mt-4 text-[36px] font-extrabold tracking-[-0.5px] text-[#001124]">
+            <h2 className="titulo-seccion mt-4 text-[#001124]">
               ¿Te gustaría hacer parte del equipo?
             </h2>
-            <p className="mt-3 text-[16px] leading-[1.65] text-[#7a8187]">
+            <p className="texto-lead mt-3 text-[#7a8187]">
               Envíanos tu hoja de vida. Revisamos cada postulación y te contactamos
               si hay un match con alguna de nuestras vacantes.
             </p>
           </div>
-          <div className="reveal-scale mt-8 rounded-[20px] border border-[#d8dfe4] bg-white p-8">
+          <div className="reveal-scale mt-8 rounded-[20px] border border-[#d8dfe4] bg-white p-6 sm:p-8">
             <FormularioTrabajaConNosotros />
           </div>
-        </div>
+        </Container>
       </section>
     </div>
   )

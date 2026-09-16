@@ -1,3 +1,4 @@
+import { Container } from '@/shared/components/ui/Container'
 import { BedDouble, ChevronDown, House, MapPin, Ruler, Search, SlidersHorizontal } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
@@ -361,22 +362,22 @@ export function InmueblesListPage() {
 
       {/* ══ HERO HEADER ══════════════════════════════════════════ */}
       <section
-        className="relative overflow-hidden bg-[#001124] pt-[150px] pb-16 px-12"
+        className="relative overflow-hidden bg-[#001124] pt-28 pb-16 sm:pt-32 lg:pt-[150px]"
         style={{ backgroundImage: 'linear-gradient(180deg, rgba(0,181,197,0.06) 1.67%, transparent 1.67%), linear-gradient(90deg, rgba(0,181,197,0.06) 1.67%, transparent 1.67%)' }}>
-        <div className="max-w-[1200px] mx-auto flex flex-col gap-3">
-          <h1 className="font-extrabold text-white text-[48px] tracking-[-1px] leading-none">
+        <Container className="flex flex-col gap-3">
+          <h1 className="titulo-display text-white">
             Portafolio de Inmuebles
           </h1>
-          <p className="text-[#8bb6c4] text-[16px] font-normal max-w-[600px] leading-[1.65]">
+          <p className="texto-lead max-w-[600px] text-[#8bb6c4]">
             Explore nuestra selección actual de propiedades urbanas y rurales disponibles en
             venta y arriendo a nivel nacional.
           </p>
-        </div>
+        </Container>
       </section>
 
       {/* ══ CONTENT ══════════════════════════════════════════════ */}
-      <section className="px-12 pb-16">
-        <div className="max-w-[1200px] mx-auto">
+      <section className="pb-16">
+        <Container>
 
           {/* Barra de búsqueda */}
           <form onSubmit={handleBuscar}
@@ -391,10 +392,10 @@ export function InmueblesListPage() {
               placeholder="Buscar por título, zona o ciudad..."
               className="flex-1 min-w-0 px-4 py-[14px] text-[15px] text-[#0d1c27] placeholder:text-[#757575] bg-transparent outline-none"
             />
-            <button type="submit"
-              className="flex items-center gap-2 bg-[#004b98] text-white font-bold text-[14px] px-[26px] py-[14px] rounded-[10px] hover:bg-[#003b7a] transition-colors shrink-0">
+            <button type="submit" aria-label="Buscar"
+              className="flex shrink-0 items-center gap-2 rounded-[10px] bg-[#004b98] px-4 py-[14px] text-[14px] font-bold text-white transition-colors hover:bg-[#003b7a] sm:px-[26px]">
               <Search className="w-[15px] h-[15px]" aria-hidden="true" />
-              Buscar
+              <span className="hidden sm:inline">Buscar</span>
             </button>
           </form>
 
@@ -406,7 +407,7 @@ export function InmueblesListPage() {
               onClick={() => setFiltrosAbiertos((v) => !v)}
               aria-expanded={filtrosAbiertos}
               aria-controls="panel-filtros-inmuebles"
-              className="w-full flex items-center justify-between gap-3 px-8 py-5 text-left"
+              className="flex w-full items-center justify-between gap-3 px-5 py-5 text-left sm:px-8"
             >
               <span className="flex items-center gap-2 text-[#001124] text-[15px] font-bold">
                 <SlidersHorizontal className="w-[16px] h-[16px] text-[#004b98]" aria-hidden="true" />
@@ -429,7 +430,7 @@ export function InmueblesListPage() {
               style={{ gridTemplateRows: filtrosAbiertos ? '1fr' : '0fr' }}
             >
               <div className="overflow-hidden">
-                <div className="border-t border-[#e0e5e9] flex flex-wrap gap-4 items-end px-8 py-7">
+                <div className="flex flex-wrap items-end gap-4 border-t border-[#e0e5e9] px-5 py-6 sm:px-8 sm:py-7">
                   <FiltroSelect id="f-tipo" label="Tipo de inmueble"
                     value={searchParams.get('tipo') ?? ''}
                     options={OPT_TIPO}
@@ -462,7 +463,7 @@ export function InmueblesListPage() {
 
                 {/* Características (genérico por categoría) */}
                 {categoriasCaracteristicas && categoriasCaracteristicas.length > 0 && (
-                  <div className="border-t border-[#e0e5e9] px-8 py-6">
+                  <div className="border-t border-[#e0e5e9] px-5 py-6 sm:px-8">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-[#001124] text-[15px] font-bold">Características</h3>
                       {caracteristicasSeleccionadas.size > 0 && (
@@ -588,7 +589,7 @@ export function InmueblesListPage() {
               )}
             </>
           )}
-        </div>
+        </Container>
       </section>
 
       {/* El FAB de redes lo pinta PublicLayout para todas las rutas. */}

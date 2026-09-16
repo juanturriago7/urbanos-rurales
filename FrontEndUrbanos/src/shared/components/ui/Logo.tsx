@@ -1,46 +1,68 @@
 /**
- * Logotipo tipográfico de Urbanos & Rurales.
+ * Lockup de marca de Urbanos & Rurales: monograma + nombre + bajada.
  *
- * Serif principal (Playfair Display) + tagline en tracking ultrawido.
- * Variante `dark` : carbón sobre fondos claros/crema.
- * Variante `light`: crema/blanco sobre fondos oscuros o fotos.
+ * Antes estaba escrito a mano tres veces (Header, Footer y MobileDrawer), con
+ * una caja y un tracking distinto en cada sitio. De ahí venía el monograma
+ * descentrado: el `tracking` del texto se aplica también DESPUÉS del último
+ * carácter, así que la caja del span queda más ancha que la tinta y el centrado
+ * por flex reparte mal ese sobrante. Aquí el monograma va sin tracking y con
+ * `leading-none`, y la caja se centra con grid.
  *
- * TODO(cliente): reemplazar por el SVG oficial cuando el cliente lo provea.
+ * TODO(cliente): cuando llegue el logo oficial, sustituir solo <Monograma> por
+ * un <img>/<svg>; el resto del lockup y sus tres usos no cambian.
  */
 interface LogoProps {
+  /** `dark` para fondos claros, `light` para el navy del footer. */
   variant?: 'dark' | 'light'
+  /** Bajada bajo el nombre. `false` la oculta (menú móvil, espacios estrechos). */
+  tagline?: string | false
   className?: string
 }
 
-export function Logo({ variant = 'dark', className = '' }: LogoProps) {
+const TAGLINE_POR_DEFECTO = 'Gestión Inmobiliaria · S.A.S'
+
+export function Logo({
+  variant = 'dark',
+  tagline = TAGLINE_POR_DEFECTO,
+  className = '',
+}: LogoProps) {
   const isLight = variant === 'light'
 
   return (
-    <span className={['flex flex-col items-start leading-none select-none', className].join(' ')}>
+    <span className={['flex items-center gap-2.5 select-none', className].join(' ')}>
+      {/* Monograma — `grid place-items-center` centra la caja del texto sin que
+          la altura de línea arrastre la posición, como sí pasa con flex+baseline. */}
       <span
         className={[
-          'font-serif text-[19px] font-bold tracking-[0.06em]',
-          isLight ? 'text-[#faf8f5]' : 'text-[#1c1917]',
+          'grid h-10 w-10 shrink-0 place-items-center rounded-[8px] sm:h-11 sm:w-11',
+          isLight ? 'bg-white/12' : 'bg-[#004b98]',
         ].join(' ')}
+        aria-hidden="true"
       >
-        URBANOS
+        <span className="text-[13px] leading-none font-extrabold text-white sm:text-[14px]">
+          U&amp;R
+        </span>
+      </span>
+
+      <span className="flex min-w-0 flex-col gap-[3px] leading-none">
         <span
           className={[
-            'mx-1.5 inline-block text-[12px] font-light',
-            isLight ? 'text-[#faf8f5]/40' : 'text-[#8b6f4e]/60',
+            'text-[14px] font-bold tracking-[-0.3px] whitespace-nowrap sm:text-[15px]',
+            isLight ? 'text-white' : 'text-[#001124]',
           ].join(' ')}
         >
-          &amp;
+          Urbanos &amp; Rurales
         </span>
-        RURALES
-      </span>
-      <span
-        className={[
-          'mt-1 text-[7px] font-semibold tracking-[0.32em] uppercase',
-          isLight ? 'text-[#faf8f5]/40' : 'text-[#1c1917]/35',
-        ].join(' ')}
-      >
-        Bienes Raíces · Colombia
+        {tagline !== false && (
+          <span
+            className={[
+              'text-[10px] tracking-[0.8px] whitespace-nowrap uppercase',
+              isLight ? 'text-[#577782]' : 'text-[#7a8187]',
+            ].join(' ')}
+          >
+            {tagline}
+          </span>
+        )}
       </span>
     </span>
   )
