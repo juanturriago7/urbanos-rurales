@@ -99,6 +99,14 @@ services:
       Graph__ClientSecret: "${GRAPH_CLIENT_SECRET:-}"
       Graph__MailboxVisitas: "${GRAPH_MAILBOX_VISITAS:-}"
       Graph__ZonaHoraria: "America/Bogota"
+      # Correo transaccional por SMTP (buzón de Microsoft 365). Vacío => stub que loguea el correo.
+      Correo__Host: "${SMTP_HOST:-}"
+      Correo__Puerto: "${SMTP_PORT:-587}"
+      Correo__Usuario: "${SMTP_USER:-}"
+      Correo__Password: "${SMTP_PASS:-}"
+      Correo__UsarSsl: "true"
+      Correo__RemitenteNombre: "Urbanos & Rurales"
+      Correo__RemitenteCorreo: "${SMTP_FROM:-}"
     ports:
       - "8080:8080"
 

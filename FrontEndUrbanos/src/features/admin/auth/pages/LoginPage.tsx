@@ -21,7 +21,7 @@ export function LoginPage() {
   const location = useLocation()
   const { mutateAsync: iniciarSesion, isPending } = useLogin()
 
-  const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? '/admin/dashboard'
+  const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? '/admin/properties'
 
   const {
     register,

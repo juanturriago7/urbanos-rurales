@@ -10,7 +10,6 @@ import { InmuebleDetallePage } from '@/features/public/properties/pages/Inmueble
 
 // ─── Páginas admin ────────────────────────────────────────────────────────────
 import { LoginPage } from '@/features/admin/auth/pages/LoginPage'
-import { DashboardPage } from '@/features/admin/dashboard/pages/DashboardPage'
 import { RolesPage } from '@/features/admin/users/pages/RolesPage'
 import { InmueblesPage } from '@/features/admin/properties/pages/InmueblesPage'
 import { InmuebleFormPage } from '@/features/admin/properties/pages/InmuebleFormPage'
@@ -52,15 +51,12 @@ const router = createBrowserRouter([
         element: <AdminLayout />,
         children: [
           // Una ruta no puede ser índice y tener path a la vez: React Router
-          // ignora el flag y la registra solo como '/admin/dashboard', dejando
+          // ignora el flag y la registra solo como '/admin/properties', dejando
           // '/admin' sin nada que renderizar en el Outlet (pantalla en blanco).
-          { index: true, element: <Navigate to="/admin/dashboard" replace /> },
-          { path: 'dashboard', element: <DashboardPage /> },
+          { index: true, element: <Navigate to="/admin/properties" replace /> },
           { path: 'properties', element: <InmueblesPage /> },
           { path: 'properties/nuevo', element: <InmuebleFormPage /> },
           { path: 'properties/:id/editar', element: <InmuebleEditarPage /> },
-          { path: 'leads', element: <div className="p-4">Leads</div> },
-          { path: 'media', element: <div className="p-4">Multimedia</div> },
           { path: 'users', element: <RolesPage /> },
           { path: 'catalogos/ubicaciones', element: <UbicacionesAdminPage /> },
           { path: 'catalogos/tipos-inmueble', element: <TiposInmuebleAdminPage /> },

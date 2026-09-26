@@ -4,10 +4,7 @@ import { useAuthStore } from '@/shared/hooks/useAuthStore'
 import { useLogout } from '@/features/admin/auth/hooks/useLogin'
 
 const navItems = [
-  { to: '/admin/dashboard', label: 'Dashboard' },
   { to: '/admin/properties', label: 'Propiedades' },
-  { to: '/admin/leads', label: 'Leads' },
-  { to: '/admin/media', label: 'Multimedia' },
   { to: '/admin/users', label: 'Usuarios' },
   { to: '/admin/catalogos/ubicaciones', label: 'Ubicaciones' },
   { to: '/admin/catalogos/tipos-inmueble', label: 'Tipos de inmueble' },
@@ -60,7 +57,7 @@ export function AdminLayout() {
       {/* Sidebar (desktop) */}
       <aside className="hidden w-64 flex-col border-r border-border bg-white shadow-sm md:flex">
         <div className="flex h-16 items-center border-b border-border px-6">
-          <Link to="/admin/dashboard" className="text-lg font-bold text-brand-700">
+          <Link to="/admin/properties" className="text-lg font-bold text-brand-700">
             Portal Admin
           </Link>
         </div>
@@ -94,7 +91,7 @@ export function AdminLayout() {
           >
             <div className="flex h-16 items-center justify-between border-b border-border px-6">
               <Link
-                to="/admin/dashboard"
+                to="/admin/properties"
                 onClick={cerrarMenu}
                 className="text-lg font-bold text-brand-700"
               >

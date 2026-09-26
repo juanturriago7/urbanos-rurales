@@ -1,5 +1,67 @@
 # Configuración de correo y agenda de visitas (Microsoft Graph + SMTP)
 
+> ## ✅ Estado actual (2026-09-26) — YA CONFIGURADO EN PRODUCCIÓN
+>
+> Se ejecutó este runbook de punta a punta contra el tenant real de
+> **URBANOS Y RURALES SAS** (M365), con `asesoriainmobiliaria@urbanosrurales.com`
+> como administrador. Resumen de lo que quedó hecho — el detalle de cada paso
+> sigue más abajo, sección por sección:
+>
+> 1. **Dominio confirmado en Microsoft 365** (sección 1) — `NameSpaceType=Managed`.
+> 2. **App registrada en Entra ID**: `portal-inmobiliario-agenda`
+>    - `Graph:TenantId` = `06000e7a-b511-4029-a6ef-79a38edf97e6`
+>    - `Graph:ClientId` = `ef199395-65bd-4bd4-99ec-f7cf2aa44ba7`
+>    - `Graph:ClientSecret` — **no se documenta aquí** (secreto real), expira
+>      **26/9/2027**. Vive únicamente en `appsettings.Production.json` y en
+>      `Backend/.env` (ambos gitignored). Si se pierde/rota, generar uno nuevo
+>      en Entra ID → este registro → Certificados y secretos.
+> 3. **Permisos de aplicación concedidos con consentimiento de admin**:
+>    `Calendars.ReadWrite` y `Mail.Send` — verificado pidiendo un token
+>    client-credentials real contra `login.microsoftonline.com`, los `roles`
+>    del token confirman ambos permisos activos.
+> 4. **Buzón organizador** (`Graph:MailboxVisitas`): se usó
+>    `asesoriainmobiliaria@urbanosrurales.com` (única cuenta de negocio
+>    disponible con licencia **Microsoft 365 Empresa Estándar**, que incluye
+>    Exchange Online). No existe todavía un buzón separado para RR.HH. o para
+>    el equipo comercial — `Notificaciones:CorreoVisitas` y
+>    `Notificaciones:CorreoPostulaciones` quedaron apuntando también a este
+>    mismo correo como placeholder. **Pendiente**: si se crean buzones
+>    dedicados (p. ej. `comercial@` / `rrhh@`), actualizar esas dos claves.
+> 5. **SMTP AUTH habilitado** para ese buzón (Centro de administración M365 →
+>    Usuarios activos → Asesoria Inmobiliaria → Correo → Administrar
+>    aplicaciones de correo → SMTP autenticado ✅) y **probado con éxito**: el
+>    servidor respondió `235 2.7.0 Authentication successful` y
+>    `250 2.1.5 Recipient OK` contra `smtp.office365.com:587`.
+> 6. **`appsettings.Production.json`** creado en
+>    `Backend/src/Portal.Api/` (gitignored) con las secciones `Graph`,
+>    `Correo` y `Notificaciones` completas (valores reales, no `CHANGE_ME`).
+> 7. **`docker-compose.yml`** actualizado: se agregaron las variables
+>    `Correo__*` al servicio `api` (antes solo estaban las `Graph__*`), leídas
+>    desde `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM`.
+> 8. **`Backend/.env`** creado (gitignored) con `GRAPH_*`, `RRHH_EMAIL`,
+>    `VISITAS_EMAIL` y `SMTP_*` para que `docker compose up` levante la API ya
+>    apuntando a Graph/SMTP reales.
+>
+> ### Pendiente (no ejecutado en esta sesión)
+>
+> - **Sección 2.6 — Application Access Policy**: requiere Exchange Online
+>   PowerShell con `Connect-ExchangeOnline` interactivo (MFA), no se pudo
+>   automatizar por navegador. Hoy el registro de app puede escribir en el
+>   calendario de **cualquier** buzón del tenant con `Calendars.ReadWrite`, no
+>   solo en el de visitas — recomendable acotarlo cuando alguien con acceso a
+>   PowerShell + MFA lo pueda ejecutar.
+> - **Prueba end-to-end real** (sección 5, `POST /api/visitas` contra la API
+>   corriendo): no se ejecutó porque Docker Desktop no estaba corriendo en esta
+>   máquina en el momento de la configuración. Las credenciales de Graph y SMTP
+>   sí se probaron directamente contra Microsoft (token real obtenido, correo
+>   SMTP aceptado), así que solo falta levantar `docker compose up -d` (o
+>   `dotnet run`) y correr el `curl` de la sección 5.
+> - **Definir correos reales de `Notificaciones`** (ver punto 4 arriba) en
+>   lugar del placeholder compartido.
+> - **appsettings.Staging.json**: no se tocó; si el entorno de staging necesita
+>   correo/agenda reales (y no el stub), replicar la sección `Correo`/`Graph`
+>   ahí también.
+
 Runbook paso a paso para dejar operativa la feature **agendamiento de visitas**
 (`feature/agendamiento-visitas`, commit `923b31d`):
 
@@ -307,14 +369,22 @@ curl -v --url 'smtp://smtp.office365.com:587' --ssl-reqd \
 
 ## 7. Estado / pendientes
 
-- [ ] Confirmar que el dominio está en Microsoft 365 (sección 1).
-- [ ] Crear el registro de app en Entra ID y llenar `Graph:*` en el entorno.
-- [ ] Conceder consentimiento de admin a `Calendars.ReadWrite`.
-- [ ] Definir el buzón `MailboxVisitas` (con licencia de Exchange).
-- [ ] (Recomendado) Application Access Policy para acotar el acceso al buzón.
-- [ ] Decidir SMTP vs Graph para el correo:
-  - [ ] SMTP: habilitar SMTP AUTH + agregar variables `Correo__*` al compose.
-  - [ ] Graph: agregar permiso `Mail.Send` + implementar `ICorreoService` sobre
-        Graph `sendMail`.
-- [ ] Llenar `Notificaciones:CorreoVisitas` y `Notificaciones:CorreoPostulaciones`.
-- [ ] Prueba end-to-end (sección 5) en staging.
+- [x] Confirmar que el dominio está en Microsoft 365 (sección 1).
+- [x] Crear el registro de app en Entra ID y llenar `Graph:*` en el entorno.
+- [x] Conceder consentimiento de admin a `Calendars.ReadWrite`.
+- [x] Definir el buzón `MailboxVisitas` (con licencia de Exchange) —
+      `asesoriainmobiliaria@urbanosrurales.com`.
+- [ ] (Recomendado) Application Access Policy para acotar el acceso al buzón —
+      pendiente, requiere Exchange Online PowerShell con MFA interactivo.
+- [x] Decidir SMTP vs Graph para el correo:
+  - [x] SMTP: habilitar SMTP AUTH + agregar variables `Correo__*` al compose.
+  - [x] Graph: agregar permiso `Mail.Send` concedido (implementar
+        `ICorreoService` sobre Graph `sendMail` sigue pendiente si se quiere
+        migrar de SMTP a Graph más adelante — no bloquea, SMTP ya funciona).
+- [x] Llenar `Notificaciones:CorreoVisitas` y `Notificaciones:CorreoPostulaciones`
+      — con un placeholder compartido (mismo buzón); reemplazar cuando existan
+      buzones dedicados.
+- [ ] Prueba end-to-end (sección 5) contra la API corriendo — credenciales ya
+      validadas directamente contra Microsoft (token Graph + SMTP AUTH), falta
+      solo levantar la API (`docker compose up -d` o `dotnet run`) y ejecutar
+      el `curl` de `POST /api/visitas`.
