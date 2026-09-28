@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react'
 import { isAxiosError } from 'axios'
 import { useAgendarVisita } from '@/features/public/visitas/hooks/useAgendarVisita'
+import { useDisponibilidadVisitas } from '@/features/public/visitas/hooks/useDisponibilidadVisitas'
 import { franjasDisponibles } from '@/features/public/visitas/api/visitasApi'
 
 /**
@@ -86,7 +87,12 @@ export function AgendarVisitaModal({ inmuebleId, codigoReferencia, titulo, onClo
     return { minFecha: aISO(min), maxFecha: aISO(max) }
   }, [])
 
-  const franjas = useMemo(() => (fecha ? franjasDisponibles(fecha) : []), [fecha])
+  const disponibilidad = useDisponibilidadVisitas(fecha)
+  const franjasDelDia = useMemo(() => (fecha ? franjasDisponibles(fecha) : []), [fecha])
+  const franjas = useMemo(() => {
+    const ocupadas = disponibilidad.data?.ocupadas ?? []
+    return franjasDelDia.filter((f) => !ocupadas.includes(f))
+  }, [franjasDelDia, disponibilidad.data])
 
   useEffect(() => {
     function alTeclear(e: KeyboardEvent) {
@@ -135,8 +141,10 @@ export function AgendarVisitaModal({ inmuebleId, codigoReferencia, titulo, onClo
         aceptoTratamientoDatos: aceptaTratamiento,
         sitio: sitio || undefined,
       })
-    } catch {
-      // el estado de error ya lo expone agendar.isError
+    } catch (error) {
+      // el estado de error ya lo expone agendar.isError; si la franja se la ganó
+      // otra persona, se descarta la elección para que elija entre las que quedan.
+      if (isAxiosError(error) && error.response?.status === 409) setFranja('')
     }
   }
 
@@ -240,16 +248,20 @@ export function AgendarVisitaModal({ inmuebleId, codigoReferencia, titulo, onClo
                 id="av-franja"
                 className={claseCampo}
                 required
-                disabled={!fecha || franjas.length === 0}
+                disabled={!fecha || disponibilidad.isLoading || franjas.length === 0}
                 value={franja}
                 onChange={(e) => setFranja(e.target.value)}
               >
                 <option value="">
                   {!fecha
                     ? 'Elige primero una fecha'
-                    : franjas.length === 0
+                    : franjasDelDia.length === 0
                       ? 'Ese día no hay atención'
-                      : 'Selecciona una franja'}
+                      : disponibilidad.isLoading
+                        ? 'Consultando disponibilidad…'
+                        : franjas.length === 0
+                          ? 'No quedan franjas ese día'
+                          : 'Selecciona una franja'}
                 </option>
                 {franjas.map((f) => (
                   <option key={f} value={f}>

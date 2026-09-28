@@ -8,3 +8,8 @@ namespace Portal.Application.Features.Visitas.DTOs;
 /// </param>
 /// <param name="InicioLocal">Fecha y hora local (America/Bogota) confirmada del slot.</param>
 public sealed record AgendarVisitaResponse(bool Agendada, DateTime InicioLocal);
+
+/// <summary>Franjas ya tomadas de un día, para ocultarlas del selector público.</summary>
+/// <param name="Fecha">Día consultado, "yyyy-MM-dd".</param>
+/// <param name="Ocupadas">Inicios de slot "HH:mm" sin cupo.</param>
+public sealed record DisponibilidadVisitasResponse(string Fecha, IReadOnlyList<string> Ocupadas);

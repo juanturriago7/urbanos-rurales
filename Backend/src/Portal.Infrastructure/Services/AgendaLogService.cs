@@ -32,4 +32,7 @@ internal sealed class AgendaLogService : IAgendaVisitasService
 
         return Task.FromResult<string?>(null);
     }
+
+    public Task<IReadOnlyList<string>> ObtenerFranjasOcupadasAsync(DateOnly fecha, CancellationToken ct = default)
+        => Task.FromResult<IReadOnlyList<string>>([]);
 }

@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Portal.Application.Features.Visitas.Commands.AgendarVisita;
+using Portal.Application.Features.Visitas.DTOs;
+using Portal.Application.Features.Visitas.Queries.GetDisponibilidadVisitas;
 
 namespace Portal.Api.Controllers;
 
@@ -30,6 +32,7 @@ public sealed class VisitasController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> Agendar(
         [FromBody] AgendarVisitaCommand command, CancellationToken ct)
@@ -37,13 +40,28 @@ public sealed class VisitasController : ControllerBase
         var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
         var result = await _mediator.Send(command with { IpOrigen = ip }, ct);
 
-        return result.IsSuccess
-            ? Ok(result.Value)
-            : BadRequest(new ProblemDetails
-            {
-                Title = "Solicitud inválida",
-                Detail = result.Error,
-                Status = StatusCodes.Status400BadRequest,
-            });
+        if (result.IsSuccess)
+        {
+            return Ok(result.Value);
+        }
+
+        var ocupada = result.Error == ReglasAgenda.MensajeFranjaOcupada;
+        var estado = ocupada ? StatusCodes.Status409Conflict : StatusCodes.Status400BadRequest;
+
+        return StatusCode(estado, new ProblemDetails
+        {
+            Title = ocupada ? "Franja no disponible" : "Solicitud inválida",
+            Detail = result.Error,
+            Status = estado,
+        });
     }
+
+    /// <summary>Franjas ya ocupadas de un día ("yyyy-MM-dd"), para ocultarlas del selector.</summary>
+    [HttpGet("disponibilidad")]
+    [EnableRateLimiting("visitas-disponibilidad")]
+    [ProducesResponseType(typeof(DisponibilidadVisitasResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
+    public async Task<IActionResult> Disponibilidad([FromQuery] string fecha, CancellationToken ct)
+        => Ok(await _mediator.Send(new GetDisponibilidadVisitasQuery(fecha), ct));
 }

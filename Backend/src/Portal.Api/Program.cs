@@ -121,6 +121,18 @@ try
                     Window = TimeSpan.FromMinutes(1),
                     QueueLimit = 0
                 }));
+
+        // Consulta de franjas ocupadas: cada llamada va a Graph, pero el usuario
+        // cambia de fecha varias veces antes de enviar, así que el tope es mayor.
+        options.AddPolicy("visitas-disponibilidad", httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "desconocida",
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 30,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueLimit = 0
+                }));
     });
 
     // ─── Health Checks ────────────────────────────────────────────────────────

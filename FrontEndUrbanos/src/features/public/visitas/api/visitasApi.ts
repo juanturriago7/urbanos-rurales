@@ -33,6 +33,20 @@ export const agendarVisita = async (
   return data
 }
 
+export interface DisponibilidadVisitas {
+  fecha: string
+  /** Inicios de slot "HH:mm" que ya tienen una visita agendada. */
+  ocupadas: string[]
+}
+
+/** Franjas ya tomadas de un día (GET /api/visitas/disponibilidad). Sin autenticación. */
+export const getDisponibilidadVisitas = async (fecha: string): Promise<DisponibilidadVisitas> => {
+  const { data } = await apiClient.get<DisponibilidadVisitas>('/api/visitas/disponibilidad', {
+    params: { fecha },
+  })
+  return data
+}
+
 /** Horario de atención de visitas — reflejo de ReglasAgenda en el backend. */
 const JORNADA: Record<number, [number, number]> = {
   1: [8, 18], // lunes

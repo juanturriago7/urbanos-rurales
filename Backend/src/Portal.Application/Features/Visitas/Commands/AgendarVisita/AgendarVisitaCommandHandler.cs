@@ -20,6 +20,9 @@ namespace Portal.Application.Features.Visitas.Commands.AgendarVisita;
 public sealed class AgendarVisitaCommandHandler
     : IRequestHandler<AgendarVisitaCommand, Result<AgendarVisitaResponse>>
 {
+    // Un solo calendario para todos los inmuebles: la reserva se serializa por proceso.
+    private static readonly SemaphoreSlim _reserva = new(1, 1);
+
     private readonly IInmueblePublicoRepository _inmueblesPublico;
     private readonly IInmuebleRepository _inmuebles;
     private readonly IAgendaVisitasService _agenda;
@@ -72,8 +75,26 @@ public sealed class AgendarVisitaCommandHandler
         var telefono = string.IsNullOrWhiteSpace(request.Telefono) ? null : request.Telefono.Trim();
         var mensaje = string.IsNullOrWhiteSpace(request.Mensaje) ? null : request.Mensaje.Trim();
 
-        var eventoId = await CrearEventoAsync(
-            request.InmuebleId, detalle, direccion, nombre, correo, telefono, inicioLocal, mensaje, ct);
+        // El calendario no rechaza eventos traslapados, así que la disponibilidad se
+        // revalida aquí (no basta con que el frontend oculte las franjas tomadas) y
+        // "chequear + crear" va serializado para que dos solicitudes simultáneas por
+        // la misma franja no pasen ambas el chequeo.
+        string? eventoId;
+        await _reserva.WaitAsync(ct);
+        try
+        {
+            if (await FranjaOcupadaAsync(inicioLocal, ct))
+            {
+                return Result<AgendarVisitaResponse>.Failure(ReglasAgenda.MensajeFranjaOcupada);
+            }
+
+            eventoId = await CrearEventoAsync(
+                request.InmuebleId, detalle, direccion, nombre, correo, telefono, inicioLocal, mensaje, ct);
+        }
+        finally
+        {
+            _reserva.Release();
+        }
 
         await NotificarAsync(detalle, direccion, nombre, correo, telefono, inicioLocal, mensaje,
             eventoCreado: eventoId is not null, ct);
@@ -81,6 +102,23 @@ public sealed class AgendarVisitaCommandHandler
         await RegistrarLeadAsync(request, nombre, correo, telefono, inicioLocal, mensaje, ct);
 
         return Result.Success(new AgendarVisitaResponse(true, inicioLocal));
+    }
+
+    private async Task<bool> FranjaOcupadaAsync(DateTime inicioLocal, CancellationToken ct)
+    {
+        try
+        {
+            var ocupadas = await _agenda.ObtenerFranjasOcupadasAsync(DateOnly.FromDateTime(inicioLocal), ct);
+            return ocupadas.Contains($"{inicioLocal:HH:mm}");
+        }
+        catch (Exception ex)
+        {
+            // Sin poder consultar la agenda no se bloquea al cliente: la solicitud
+            // se atiende igual por el correo interno (mismo criterio best-effort).
+            _logger.LogWarning(ex,
+                "No se pudo verificar la disponibilidad de {Inicio:yyyy-MM-dd HH:mm}; se agenda sin verificar", inicioLocal);
+            return false;
+        }
     }
 
     private async Task<string?> CrearEventoAsync(

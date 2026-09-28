@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Portal.Application.Features.Visitas.Commands.AgendarVisita;
 using Portal.Application.Interfaces;
 
 namespace Portal.Infrastructure.Services;
@@ -111,6 +112,75 @@ internal sealed class GraphAgendaService : IAgendaVisitasService
 
         return id;
     }
+
+    public async Task<IReadOnlyList<string>> ObtenerFranjasOcupadasAsync(DateOnly fecha, CancellationToken ct = default)
+    {
+        var franjas = ReglasAgenda.SlotsDe(fecha.DayOfWeek);
+        if (franjas.Count == 0)
+        {
+            return [];
+        }
+
+        var token = await ObtenerTokenAsync(ct);
+
+        // Colombia es UTC-5 fijo: la ventana del día se expresa con offset explícito
+        // porque calendarView interpreta como UTC los instantes sin zona.
+        var offset = "-05:00";
+        var desde = $"{fecha:yyyy-MM-dd}T00:00:00{offset}";
+        var hasta = $"{fecha.AddDays(1):yyyy-MM-dd}T00:00:00{offset}";
+
+        var url = $"{_opciones.GraphBaseUrl.TrimEnd('/')}/users/{Uri.EscapeDataString(_opciones.MailboxVisitas!)}/calendarView"
+            + $"?startDateTime={Uri.EscapeDataString(desde)}&endDateTime={Uri.EscapeDataString(hasta)}"
+            + "&$select=start,end,showAs,isCancelled&$top=100";
+
+        using var peticion = new HttpRequestMessage(HttpMethod.Get, url);
+        peticion.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        peticion.Headers.TryAddWithoutValidation("Prefer", $"outlook.timezone=\"{_opciones.ZonaHoraria}\"");
+
+        using var respuesta = await _http.SendAsync(peticion, ct);
+        var contenido = await respuesta.Content.ReadAsStringAsync(ct);
+
+        if (!respuesta.IsSuccessStatusCode)
+        {
+            throw new InvalidOperationException(
+                $"Graph respondió {(int)respuesta.StatusCode} al consultar la agenda: {Recortar(contenido)}");
+        }
+
+        using var doc = JsonDocument.Parse(contenido);
+        var eventos = new List<(DateTime Inicio, DateTime Fin)>();
+
+        foreach (var ev in doc.RootElement.GetProperty("value").EnumerateArray())
+        {
+            if (ev.TryGetProperty("isCancelled", out var cancelado) && cancelado.ValueKind == JsonValueKind.True)
+            {
+                continue;
+            }
+
+            // Un evento marcado "libre" no bloquea al asesor (p. ej. festivos).
+            if (ev.TryGetProperty("showAs", out var mostrarComo) && mostrarComo.GetString() == "free")
+            {
+                continue;
+            }
+
+            eventos.Add((LeerFechaLocal(ev.GetProperty("start")), LeerFechaLocal(ev.GetProperty("end"))));
+        }
+
+        // Una franja está ocupada si algún evento se traslapa con su hora.
+        return franjas
+            .Where(franja =>
+            {
+                var inicio = fecha.ToDateTime(TimeOnly.ParseExact(franja, "HH:mm"));
+                var fin = inicio.Add(ReglasAgenda.DuracionVisita);
+                return eventos.Any(e => e.Inicio < fin && e.Fin > inicio);
+            })
+            .ToList();
+    }
+
+    private static DateTime LeerFechaLocal(JsonElement instante)
+        => DateTime.Parse(
+            instante.GetProperty("dateTime").GetString()!,
+            System.Globalization.CultureInfo.InvariantCulture,
+            System.Globalization.DateTimeStyles.None);
 
     private async Task<string> ObtenerTokenAsync(CancellationToken ct)
     {

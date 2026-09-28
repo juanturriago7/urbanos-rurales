@@ -13,7 +13,8 @@
 | `/api/leads` | POST | Captura de lead (general o por inmueble) |
 | `/api/postulaciones/presign` | POST | URL prefirmada para subir la hoja de vida (PDF) — body `{ nombreArchivo, contentType }` |
 | `/api/postulaciones` | POST | Crea la postulación con el `cvStorageKey` confirmado; notifica a RR. HH. con el CV adjunto |
-| `/api/visitas` | POST | Solicita una visita a un inmueble — body `{ inmuebleId, nombre, correo, telefono?, fecha (yyyy-MM-dd), franja (HH:mm), mensaje?, aceptoTratamientoDatos, sitio? }`. Crea el evento en la agenda M365 y notifica por correo; responde `{ agendada, inicioLocal }`. Franjas: L–V 08–18, Sáb 09–13, slots de 1 h, ≥3 h de antelación |
+| `/api/visitas` | POST | Solicita una visita a un inmueble — body `{ inmuebleId, nombre, correo, telefono?, fecha (yyyy-MM-dd), franja (HH:mm), mensaje?, aceptoTratamientoDatos, sitio? }`. Crea el evento en la agenda M365 y notifica por correo; responde `{ agendada, inicioLocal }`. Franjas: L–V 08–18, Sáb 09–13, slots de 1 h, ≥3 h de antelación. Si la franja ya tiene un evento en la agenda responde **409** `{ title: "Franja no disponible", detail }` |
+| `/api/visitas/disponibilidad?fecha=yyyy-MM-dd` | GET | Franjas ya ocupadas del día (el calendario es único para todos los inmuebles) — responde `{ fecha, ocupadas: ["HH:mm", ...] }`. El frontend las oculta del selector. Sin agenda configurada responde `ocupadas: []`. Rate limit 30/min por IP |
 | `/api/auth/login` | POST | Login admin — responde `{ user, tokens: { accessToken, refreshToken, expiresIn } }` |
 | `/api/auth/refresh` | POST | Rotación de tokens — body `{ refreshToken }`, responde `{ accessToken, refreshToken, expiresIn }` |
 | `/api/auth/logout` | POST | Logout (revoca el refresh token; requiere sesión) |

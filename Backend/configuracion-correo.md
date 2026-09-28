@@ -322,6 +322,13 @@ curl -v --url 'smtp://smtp.office365.com:587' --ssl-reqd \
    - Antelación mínima **3 horas**; máximo **60 días** adelante.
    - `aceptoTratamientoDatos` debe ser `true` (RNF-061).
    - `sitio` es honeypot: si viene lleno, se descarta como spam.
+   - **Una franja ocupada no se puede reservar**: el calendario de
+     `MailboxVisitas` es único para todos los inmuebles, así que cualquier
+     evento (no "libre" ni cancelado) que se traslape con la hora la bloquea.
+     `GET /api/visitas/disponibilidad?fecha=yyyy-MM-dd` devuelve las franjas
+     ocupadas (el frontend las oculta del selector) y `POST /api/visitas`
+     revalida y responde **409** si la franja ya está tomada. Con la agenda en
+     modo stub (sin Graph) no hay con qué verificar y no se bloquea nada.
 3. **Petición de prueba** (elegir fecha/hora válidas):
    ```bash
    curl -i -X POST http://localhost:8080/api/visitas \
@@ -339,6 +346,7 @@ curl -v --url 'smtp://smtp.office365.com:587' --ssl-reqd \
      }'
    ```
    Espera `200 OK`. `400` → el body dice el motivo (slot inválido, etc.).
+   `409` → esa franja ya tiene una visita; repetir el mismo `curl` debe dar 409.
 4. **Comprobaciones:**
    - El evento aparece en el calendario de `MailboxVisitas` (Outlook web) con el
      cliente como asistente y la dirección exacta en la ubicación.

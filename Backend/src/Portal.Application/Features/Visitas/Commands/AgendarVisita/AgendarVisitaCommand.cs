@@ -43,6 +43,9 @@ public static class ReglasAgenda
     /// <summary>Ventana máxima hacia adelante para agendar.</summary>
     public static readonly int DiasMaximosAdelante = 60;
 
+    /// <summary>Error cuando la franja ya tiene una visita agendada (el controller lo responde 409).</summary>
+    public const string MensajeFranjaOcupada = "Esa franja ya fue reservada. Elige otra hora.";
+
     public static DateTime AhoraEnColombia => DateTime.UtcNow + DesfaseColombia;
 
     /// <summary>

@@ -36,4 +36,12 @@ public interface IAgendaVisitasService
     /// no debe abortar por un <c>null</c>.
     /// </summary>
     Task<string?> CrearEventoVisitaAsync(DatosEventoVisita datos, CancellationToken ct = default);
+
+    /// <summary>
+    /// Franjas "HH:mm" (inicio de slot de 1 hora) de <paramref name="fecha"/> que ya
+    /// tienen algún evento ocupado en el calendario de visitas. El calendario es
+    /// único para todos los inmuebles, así que una franja tomada lo está para todos.
+    /// Vacío si la agenda no está configurada (stub).
+    /// </summary>
+    Task<IReadOnlyList<string>> ObtenerFranjasOcupadasAsync(DateOnly fecha, CancellationToken ct = default);
 }
