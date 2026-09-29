@@ -24,11 +24,7 @@ const DESCRIPCION_UBICACION_FUERA_DE_CATALOGO =
 
 /** Minúsculas, sin tildes ni diéresis y sin espacios en los extremos: "Usaquén " → "usaquen". */
 export function normalizarTexto(texto: string): string {
-  return texto
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .trim()
+  return texto.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().trim()
 }
 
 /**

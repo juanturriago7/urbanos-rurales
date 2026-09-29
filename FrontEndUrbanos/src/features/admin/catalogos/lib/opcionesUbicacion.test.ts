@@ -58,9 +58,9 @@ describe('construirOpcionesUbicacion', () => {
 
   it('tolera nodos sin la propiedad hijos', () => {
     const sinHijos = [{ ...nodo(5, 'zona', 'Occidente', null), hijos: undefined }]
-    expect(
-      construirOpcionesUbicacion(sinHijos as unknown as UbicacionDto[]),
-    ).toEqual([{ id: 5, etiqueta: 'Occidente', descripcion: 'Zona' }])
+    expect(construirOpcionesUbicacion(sinHijos as unknown as UbicacionDto[])).toEqual([
+      { id: 5, etiqueta: 'Occidente', descripcion: 'Zona' },
+    ])
   })
 })
 
@@ -116,7 +116,8 @@ describe('resolverSeleccionUbicacion', () => {
     expect(seleccion).toEqual({
       id: 999,
       etiqueta: ETIQUETA_UBICACION_FUERA_DE_CATALOGO,
-      descripcion: 'Está desactivada o no se ofrece en este selector. Se conserva si no la cambias.',
+      descripcion:
+        'Está desactivada o no se ofrece en este selector. Se conserva si no la cambias.',
     })
     expect(seleccion?.etiqueta).not.toContain('999')
   })
