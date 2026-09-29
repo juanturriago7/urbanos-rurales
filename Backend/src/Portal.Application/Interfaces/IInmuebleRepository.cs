@@ -40,6 +40,19 @@ public interface IInmuebleRepository
     Task<int> ContarImagenesAsync(long inmuebleId, CancellationToken ct = default);
     Task<bool> TieneOperacionActivaAsync(long inmuebleId, CancellationToken ct = default);
 
+    // ── Destacados (RF-078) ─────────────────────────────────────────────────
+    /// <summary>
+    /// Marca como destacado solo si hay cupo (menos de <paramref name="maximo"/>
+    /// destacados publicados sin contar este) y el inmueble sigue publicado.
+    /// Conteo y escritura van en una transacción serializada con un advisory lock,
+    /// así dos peticiones simultáneas no pueden superar el máximo.
+    /// </summary>
+    Task<ResultadoDestacar> DestacarConCupoAsync(
+        long id, int maximo, CancellationToken ct = default);
+
+    /// <summary>Destacados publicados y no eliminados (los que ocupan cupo).</summary>
+    Task<int> ContarDestacadosAsync(CancellationToken ct = default);
+
     // ── Lecturas del panel admin ────────────────────────────────────────────
     Task<PagedResult<InmuebleAdminListItemDto>> GetPagedAdminAsync(
         string? estado, string? q, PaginationParams pagination, CancellationToken ct = default);

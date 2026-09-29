@@ -100,9 +100,14 @@ public sealed class AdminInmueblesController : ControllerBase
         return result.IsSuccess ? NoContent() : BadRequest(Problema(result.Error));
     }
 
-    /// <summary>Marca o desmarca como destacado (RF-078).</summary>
+    /// <summary>
+    /// Marca o desmarca como destacado (RF-078). 400 si ya hay
+    /// <c>Inmueble.MaximoDestacados</c> destacados o si el inmueble no está publicado.
+    /// </summary>
     [HttpPut("{id:long}/destacado")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> MarcarDestacado(
         long id, [FromBody] MarcarDestacadoRequest body, CancellationToken ct)
     {

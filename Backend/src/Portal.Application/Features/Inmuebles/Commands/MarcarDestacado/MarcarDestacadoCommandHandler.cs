@@ -1,12 +1,24 @@
 using MediatR;
 using Portal.Application.Common;
+using Portal.Application.Features.Inmuebles.DTOs;
 using Portal.Application.Interfaces;
+using Portal.Domain.Entities;
 
 namespace Portal.Application.Features.Inmuebles.Commands.MarcarDestacado;
 
+/// <summary>
+/// RF-078: marca o desmarca un destacado. Como máximo hay
+/// <see cref="Inmueble.MaximoDestacados"/> a la vez, y solo pueden destacarse
+/// inmuebles publicados.
+/// </summary>
 public sealed class MarcarDestacadoCommandHandler
     : IRequestHandler<MarcarDestacadoCommand, Result>
 {
+    public static readonly string MensajeSinCupo =
+        $"Máximo {Inmueble.MaximoDestacados} inmuebles destacados. Quita uno para destacar otro.";
+
+    public const string MensajeNoPublicado = "Solo los inmuebles publicados pueden destacarse.";
+
     private readonly IInmuebleRepository _inmuebles;
 
     public MarcarDestacadoCommandHandler(IInmuebleRepository inmuebles)
@@ -23,9 +35,36 @@ public sealed class MarcarDestacadoCommandHandler
             throw new KeyNotFoundException($"Inmueble {request.Id} no encontrado.");
         }
 
-        inmueble.MarcarDestacado(request.Destacado);
-        await _inmuebles.UpdateAsync(inmueble, ct: ct);
+        // Quitar el destacado siempre se permite: es la forma de liberar cupo.
+        if (!request.Destacado)
+        {
+            if (inmueble.Destacado)
+            {
+                inmueble.MarcarDestacado(false);
+                await _inmuebles.UpdateAsync(inmueble, ct: ct);
+            }
 
-        return Result.Success();
+            return Result.Success();
+        }
+
+        if (inmueble.Destacado)
+        {
+            return Result.Success(); // Idempotente: ya ocupa su cupo
+        }
+
+        if (!inmueble.PuedeDestacarse)
+        {
+            return Result.Failure(MensajeNoPublicado);
+        }
+
+        var resultado = await _inmuebles.DestacarConCupoAsync(
+            request.Id, Inmueble.MaximoDestacados, ct);
+
+        return resultado switch
+        {
+            ResultadoDestacar.Destacado => Result.Success(),
+            ResultadoDestacar.SinCupo => Result.Failure(MensajeSinCupo),
+            _ => Result.Failure(MensajeNoPublicado),
+        };
     }
 }

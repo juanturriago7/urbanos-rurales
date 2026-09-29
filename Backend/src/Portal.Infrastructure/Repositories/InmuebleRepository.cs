@@ -311,6 +311,67 @@ internal sealed class InmuebleRepository : IInmuebleRepository
         return await conn.ExecuteScalarAsync<bool>(sql, new { InmuebleId = inmuebleId });
     }
 
+    public async Task<ResultadoDestacar> DestacarConCupoAsync(
+        long id, int maximo, CancellationToken ct = default)
+    {
+        // Un UPDATE condicional con COUNT en subconsulta NO basta en READ COMMITTED:
+        // dos peticiones simultáneas ven cada una el mismo conteo, actualizan filas
+        // distintas (no se bloquean entre sí) y superan el máximo. El advisory lock
+        // de transacción serializa solo esta operación y se libera con el
+        // COMMIT/ROLLBACK.
+        const string bloquear = "SELECT pg_advisory_xact_lock(hashtext('inmuebles_destacados'))";
+
+        const string contarOtros = """
+            SELECT COUNT(*) FROM inmuebles
+            WHERE destacado = TRUE
+              AND estado = 'publicado'
+              AND eliminado_en IS NULL
+              AND id <> @Id
+            """;
+
+        const string destacar = """
+            UPDATE inmuebles SET
+                destacado      = TRUE,
+                actualizado_en = @Ahora
+            WHERE id = @Id
+              AND estado = 'publicado'
+              AND eliminado_en IS NULL
+            """;
+
+        using var conn = await _connectionFactory.OpenAsync(ct);
+        using var tx = conn.BeginTransaction();
+
+        await conn.ExecuteAsync(bloquear, transaction: tx);
+
+        var ocupados = await conn.ExecuteScalarAsync<int>(contarOtros, new { Id = id }, tx);
+        if (ocupados >= maximo)
+        {
+            return ResultadoDestacar.SinCupo; // el Dispose de tx hace rollback y suelta el lock
+        }
+
+        var filas = await conn.ExecuteAsync(destacar, new { Id = id, Ahora = DateTime.UtcNow }, tx);
+        if (filas == 0)
+        {
+            return ResultadoDestacar.NoDisponible;
+        }
+
+        tx.Commit();
+        return ResultadoDestacar.Destacado;
+    }
+
+    public async Task<int> ContarDestacadosAsync(CancellationToken ct = default)
+    {
+        const string sql = """
+            SELECT COUNT(*) FROM inmuebles
+            WHERE destacado = TRUE
+              AND estado = 'publicado'
+              AND eliminado_en IS NULL
+            """;
+
+        using var conn = await _connectionFactory.OpenAsync(ct);
+        return await conn.ExecuteScalarAsync<int>(sql);
+    }
+
     public async Task<PagedResult<InmuebleAdminListItemDto>> GetPagedAdminAsync(
         string? estado, string? q, PaginationParams pagination, CancellationToken ct = default)
     {
