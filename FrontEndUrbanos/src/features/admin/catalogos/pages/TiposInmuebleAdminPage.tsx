@@ -159,7 +159,6 @@ export function TiposInmuebleAdminPage() {
                     <span className="rounded bg-surface-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-text-secondary">
                       {t.esPropiedadHorizontal ? 'PH' : 'no PH'}
                     </span>
-                    <span className="text-xs text-text-secondary">/{t.slug}</span>
                     <Button
                       size="sm"
                       variant="ghost"

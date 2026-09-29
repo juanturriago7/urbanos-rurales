@@ -68,7 +68,6 @@ export function ProyectosAdminListPage() {
                 <tr key={a.id} className="hover:bg-surface-muted transition-colors">
                   <td className="px-6 py-4">
                     <p className="font-medium text-text-primary">{a.titulo}</p>
-                    <p className="text-xs text-text-secondary">/{a.slug}</p>
                   </td>
                   <td className="px-6 py-4">
                     <span className={badgeClasses(a.estado)}>{a.estado}</span>
