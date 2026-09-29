@@ -1,14 +1,19 @@
-import { useEffect } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
+import { useEffect, useState } from 'react'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   useCaracteristicas,
   useTiposInmueble,
   useUbicaciones,
 } from '@/features/admin/catalogos/hooks/useCatalogos'
-import { aplanarUbicaciones } from '@/features/admin/catalogos/api/catalogosApi'
+import {
+  construirOpcionesUbicacion,
+  filtrarOpcionesUbicacion,
+  resolverSeleccionUbicacion,
+} from '@/features/admin/catalogos/lib/opcionesUbicacion'
 import { mensajeDeError } from '@/features/admin/auth/hooks/useLogin'
 import { Button } from '@/shared/components/ui/Button'
+import { Combobox } from '@/shared/components/ui/Combobox'
 import { Spinner } from '@/shared/components/ui/Spinner'
 import { Input, Select, Textarea } from '@/shared/components/ui/Field'
 import {
@@ -73,6 +78,10 @@ export function InmuebleForm({
   const ubicaciones = useUbicaciones()
   const caracteristicas = useCaracteristicas()
 
+  // Texto que el admin teclea en el combobox de ubicación. Es estado de UI, no
+  // del formulario: el valor que se guarda es ubicacionId (vía Controller).
+  const [queryUbicacion, setQueryUbicacion] = useState('')
+
   // Tipo inicial resuelto ANTES de montar useForm: tipos.data ya está cargado
   // en este punto (el early return de más abajo bloquea el render mientras
   // tipos.isLoading), así que esPropiedadHorizontal arranca correcto incluso
@@ -112,7 +121,7 @@ export function InmuebleForm({
     setValue('esPropiedadHorizontal', esPH)
   }, [esPH, setValue])
 
-  const opcionesUbicacion = ubicaciones.data ? aplanarUbicaciones(ubicaciones.data) : []
+  const opcionesUbicacion = ubicaciones.data ? construirOpcionesUbicacion(ubicaciones.data) : []
 
   /**
    * Red de seguridad: si la validación rechaza un campo que no está en pantalla
@@ -186,20 +195,29 @@ export function InmuebleForm({
             ))}
           </Select>
 
-          <Select
-            label="Ubicación"
-            required
-            hint="Zona, localidad o UPZ — elige el nivel más específico que conozcas."
-            error={errors.ubicacionId?.message}
-            {...register('ubicacionId')}
-          >
-            <option value="">Selecciona…</option>
-            {opcionesUbicacion.map((u) => (
-              <option key={u.id} value={u.id}>
-                {u.etiqueta}
-              </option>
-            ))}
-          </Select>
+          {/* Combobox y no <select>: con decenas de zonas, localidades y UPZ el
+              scroll era tedioso. Filtra en cliente el árbol ya cargado (sin
+              barrios) y no expone ref, por eso va con Controller y no con
+              register(). Vaciar el texto con una selección hecha la borra y deja
+              ubicacionId en '', que el schema rechaza con su propio mensaje. */}
+          <Controller
+            control={control}
+            name="ubicacionId"
+            render={({ field, fieldState }) => (
+              <Combobox
+                label="Ubicación"
+                required
+                hint="Zona, localidad o UPZ — escribe para filtrar y elige el nivel más específico que conozcas."
+                placeholder="Escribe para buscar: Chapinero, Usaquén, Suba…"
+                error={fieldState.error?.message}
+                seleccion={resolverSeleccionUbicacion(opcionesUbicacion, field.value)}
+                opciones={filtrarOpcionesUbicacion(opcionesUbicacion, queryUbicacion)}
+                query={queryUbicacion}
+                onQueryChange={setQueryUbicacion}
+                onSeleccionar={(opcion) => field.onChange(opcion ? opcion.id : '')}
+              />
+            )}
+          />
 
           <Textarea
             label="Descripción"

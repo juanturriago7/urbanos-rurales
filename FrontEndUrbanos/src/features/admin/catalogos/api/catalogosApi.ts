@@ -82,21 +82,3 @@ export const getCaracteristicas = async (): Promise<CategoriaCaracteristicaDto[]
   const { data } = await apiClient.get<CategoriaCaracteristicaDto[]>('/api/catalogos/caracteristicas')
   return data
 }
-
-/**
- * Aplana el árbol de ubicaciones para un `<select>`, indentando por nivel.
- * El inmueble se asocia a la ubicación más específica, así que todos los niveles
- * son seleccionables.
- */
-export interface OpcionUbicacion {
-  id: number
-  etiqueta: string
-  nivel: number
-}
-
-export function aplanarUbicaciones(nodos: UbicacionDto[], nivel = 0): OpcionUbicacion[] {
-  return nodos.flatMap((nodo) => [
-    { id: nodo.id, etiqueta: `${'  '.repeat(nivel)}${nodo.nombre}`, nivel },
-    ...aplanarUbicaciones(nodo.hijos ?? [], nivel + 1),
-  ])
-}
