@@ -1,3 +1,4 @@
+import { Container } from '@/shared/components/ui/Container'
 import { BedDouble, House, MapPin, Ruler } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { usePublicaciones } from '@/features/public/properties/hooks/usePublicaciones'
@@ -40,20 +41,20 @@ export function PublicacionesDestacadas() {
   if (!isLoading && (!data || data.items.length === 0)) return null
 
   return (
-    <section className="bg-[#eff4f8] py-24 px-12">
-      <div className="max-w-[1200px] mx-auto">
+    <section className="bg-[#eff4f8] py-16 sm:py-24">
+      <Container>
         {/* Header de sección — más prominente que el resto */}
-        <div className="reveal mb-12 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div className="reveal mb-10 flex flex-col gap-3 sm:mb-12 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex flex-col gap-3">
             <span className="self-start bg-[rgba(0,75,152,0.08)] px-[14px] py-[5px] rounded-full">
               <span className="text-[#004b98] text-[11px] font-semibold tracking-[1.32px] uppercase">
                 Publicaciones
               </span>
             </span>
-            <h2 className="font-extrabold text-[#001124] text-[42px] leading-[1.1] tracking-[-0.8px]">
+            <h2 className="titulo-seccion text-[#001124]">
               Inmuebles disponibles
             </h2>
-            <p className="text-[#7a8187] text-[16px] max-w-[560px]">
+            <p className="texto-lead max-w-[560px] text-[#7a8187]">
               Una selección de las propiedades más recientes de nuestro portafolio.
             </p>
           </div>
@@ -185,7 +186,7 @@ export function PublicacionesDestacadas() {
             })}
           </div>
         )}
-      </div>
+      </Container>
     </section>
   )
 }

@@ -1,3 +1,4 @@
+import { Container } from '@/shared/components/ui/Container'
 const CERTIFICACIONES = [
   {
     norma: 'ISO 9001',
@@ -21,19 +22,19 @@ const CERTIFICACIONES = [
 
 export function CertificacionesISO() {
   return (
-    <section className="bg-[#001124] px-12 py-20">
-      <div className="mx-auto max-w-[1100px]">
+    <section className="bg-[#001124] py-16 sm:py-24">
+      <Container>
         {/* Encabezado */}
-        <div className="mb-12 text-center">
+        <div className="mb-10 text-center sm:mb-12">
           <span className="inline-block rounded-full bg-[rgba(0,181,197,0.08)] px-3 py-1">
             <span className="text-[11px] font-semibold uppercase tracking-[1.32px] text-[#00b5c5]">
               Certificaciones
             </span>
           </span>
-          <h2 className="mt-4 text-[36px] font-extrabold tracking-[-0.5px] text-white">
+          <h2 className="titulo-seccion mt-4 text-white">
             Avalados por estándares internacionales
           </h2>
-          <p className="mx-auto mt-3 max-w-[600px] text-[16px] leading-[1.65] text-[#8bb6c4]">
+          <p className="texto-lead mx-auto mt-3 max-w-[600px] text-[#8bb6c4]">
             Estamos certificados en las normas ISO 9001 e ISO 14001, certificaciones que nos
             consolidan como una empresa comprometida con la calidad y el medio ambiente en cada uno
             de nuestros procesos de consultoría y gestión predial integral.
@@ -41,7 +42,7 @@ export function CertificacionesISO() {
         </div>
 
         {/* Cards */}
-        <div className="grid gap-8 sm:grid-cols-2">
+        <div className="grid gap-6 sm:grid-cols-2 sm:gap-8">
           {CERTIFICACIONES.map((cert) => (
             <div
               key={cert.norma}
@@ -52,11 +53,11 @@ export function CertificacionesISO() {
                 className="flex items-center justify-center py-10"
                 style={{ background: cert.colorBg }}
               >
-                <span className="text-[48px] font-black tracking-tight text-white">{cert.norma}</span>
+                <span className="text-[36px] font-black tracking-tight text-white sm:text-[48px]">{cert.norma}</span>
               </div>
 
               {/* Contenido */}
-              <div className="p-8 text-center">
+              <div className="p-6 text-center sm:p-8">
                 <div
                   className="mb-3 inline-block rounded-full px-3 py-1 text-[12px] font-bold"
                   style={{ background: cert.colorTagBg, color: cert.colorTag === '#004b98' ? '#7ab3ff' : '#4cd9a0' }}
@@ -64,7 +65,7 @@ export function CertificacionesISO() {
                   {cert.norma}
                 </div>
                 <h3 className="text-[20px] font-bold text-white">{cert.titulo}</h3>
-                <p className="mt-3 text-[14px] leading-[1.65] text-[#8bb6c4]">{cert.descripcion}</p>
+                <p className="mt-3 text-[14px] leading-[1.65] text-pretty text-[#8bb6c4]">{cert.descripcion}</p>
 
                 {/* Verificado */}
                 <div className="mt-6 flex items-center justify-center gap-2">
@@ -86,7 +87,7 @@ export function CertificacionesISO() {
             </div>
           ))}
         </div>
-      </div>
+      </Container>
     </section>
   )
 }

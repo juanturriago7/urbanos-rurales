@@ -1,3 +1,4 @@
+import { Container } from '@/shared/components/ui/Container'
 const PILARES = [
   {
     titulo: 'Seguridad y Salud en el Trabajo',
@@ -33,23 +34,23 @@ const PILARES = [
 
 export function PoliticaIntegral() {
   return (
-    <section className="px-12 py-20">
-      <div className="mx-auto max-w-[1100px]">
+    <section className="py-16 sm:py-24">
+      <Container>
         {/* Encabezado */}
-        <div className="mb-12 text-center">
+        <div className="mb-10 text-center sm:mb-12">
           <span className="inline-block rounded-full bg-[rgba(0,75,152,0.08)] px-3 py-1">
             <span className="text-[11px] font-semibold uppercase tracking-[1.32px] text-[#004b98]">
               Política Integral
             </span>
           </span>
-          <h2 className="mt-4 text-[36px] font-extrabold tracking-[-0.5px] text-[#001124]">
+          <h2 className="titulo-seccion mt-4 text-[#001124]">
             Nuestro compromiso con la calidad y el bienestar
           </h2>
         </div>
 
         {/* Bloque de texto */}
-        <div className="mx-auto mb-14 max-w-[900px] rounded-[16px] border-l-4 border-[#004b98] bg-[#f0f5fb] p-8">
-          <p className="text-[16px] leading-[1.75] text-[#44403c]">
+        <div className="mx-auto mb-12 max-w-[900px] rounded-[16px] border-l-4 border-[#004b98] bg-[#f0f5fb] p-6 sm:mb-14 sm:p-8">
+          <p className="text-[15px] leading-[1.75] text-pretty text-[#44403c] sm:text-[16px]">
             <strong>URBANOS &amp; RURALES S.A.S.</strong> es una empresa dedicada a los servicios de
             consultoría y asesoría en las áreas de ingeniería y derecho a nivel nacional, comprometida
             con el desarrollo del país y la satisfacción de todos sus clientes, responsable de promover
@@ -60,7 +61,7 @@ export function PoliticaIntegral() {
             y preparación necesaria para identificar los impactos de pérdidas potenciales y mantener
             estrategias de recuperación necesarias ante la materialización de un incidente.
           </p>
-          <p className="mt-4 text-[16px] leading-[1.75] text-[#44403c]">
+          <p className="mt-4 text-[15px] leading-[1.75] text-pretty text-[#44403c] sm:text-[16px]">
             <strong>URBANOS &amp; RURALES S.A.S.</strong> garantiza el cumplimiento de los requisitos
             legales aplicables, al igual que las normas requeridas por los clientes, fomentando la
             participación de todos los niveles de la organización, generando un compromiso individual
@@ -91,7 +92,7 @@ export function PoliticaIntegral() {
             </div>
           ))}
         </div>
-      </div>
+      </Container>
     </section>
   )
 }

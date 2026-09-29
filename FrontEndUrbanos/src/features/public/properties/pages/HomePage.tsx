@@ -18,24 +18,14 @@ import {
   ShieldCheck,
   Users,
 } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { PublicacionesDestacadas } from '@/features/public/properties/components/PublicacionesDestacadas'
+import { ClientesCarrusel } from '@/features/public/institucional/components/ClientesCarrusel'
 import { useCrearLead } from '@/features/public/contacto/hooks/useCrearLead'
 import { useScrollReveal } from '@/shared/hooks/useScrollReveal'
+import { Container } from '@/shared/components/ui/Container'
 import { site } from '@/shared/config/site'
-
-/* ── Marquee clientes ─────────────────────────────────────────── */
-const CLIENTES = [
-  'Compensar',
-  'Ministerio de Salud y Protección Social',
-  'Agencia Nacional de Infraestructura · ANI',
-  'Gobernación de Cundinamarca',
-  'Ministerio de Vivienda',
-  'INVÍAS',
-  'Fondo Nacional del Ahorro',
-  'Secretaría de Educación Distrital',
-]
 
 /* ── Servicios ─────────────────────────────────────────────────── */
 const SERVICIOS = [
@@ -61,7 +51,6 @@ const CERTIFICACIONES_PLANTILLA = [
    ══════════════════════════════════════════════════════════════ */
 export function HomePage() {
   useScrollReveal()
-  const marqueeRef = useRef<HTMLDivElement>(null)
   const location = useLocation()
 
   /**
@@ -142,23 +131,6 @@ export function HomePage() {
     }
   }
 
-  /* Auto-scroll marquee */
-  useEffect(() => {
-    const el = marqueeRef.current
-    if (!el) return
-    let frame: number
-    let pos = 0
-    const speed = 0.5
-    const step = () => {
-      pos += speed
-      if (pos >= el.scrollWidth / 2) pos = 0
-      el.style.transform = `translateX(-${pos}px)`
-      frame = requestAnimationFrame(step)
-    }
-    frame = requestAnimationFrame(step)
-    return () => cancelAnimationFrame(frame)
-  }, [])
-
   return (
     <div className="bg-white font-['Outfit',sans-serif]">
 
@@ -166,7 +138,7 @@ export function HomePage() {
           HERO — fondo azul marino oscuro con gradiente cian
           ═══════════════════════════════════════════════════════ */}
       <section
-        className="relative min-h-screen overflow-hidden flex items-center justify-center pt-[110px] pb-[100px] px-12"
+        className="relative flex items-center justify-center overflow-hidden pt-28 pb-16 sm:pt-32 sm:pb-24 lg:min-h-screen lg:pt-[110px] lg:pb-[100px]"
         style={{ backgroundColor: '#001124' }}
       >
         {/* Gradiente cian diagonal */}
@@ -183,27 +155,24 @@ export function HomePage() {
           aria-hidden="true"
         />
 
-        <div className="relative z-10 flex gap-20 items-center justify-center w-full max-w-[1200px] mx-auto">
+        <Container className="relative z-10 flex flex-col items-center justify-center gap-12 lg:flex-row lg:gap-20">
           {/* Columna texto */}
-          <div className="flex-1 flex flex-col gap-6 min-w-0">
+          <div className="flex w-full min-w-0 flex-1 flex-col gap-6">
             {/* Badge */}
-            <div className="reveal flex items-center gap-2 self-start px-[15px] py-[7px] rounded-full border border-[rgba(0,181,197,0.35)] bg-[rgba(0,181,197,0.18)]">
-              <div className="w-[6px] h-[6px] rounded-[3px] bg-[#00b5c5]" />
-              <span className="text-[#6bd8de] text-[12px] font-medium tracking-[1.2px] uppercase whitespace-nowrap">
+            <div className="reveal flex max-w-full items-center gap-2 self-start rounded-full border border-[rgba(0,181,197,0.35)] bg-[rgba(0,181,197,0.18)] px-[15px] py-[7px]">
+              <div className="h-[6px] w-[6px] shrink-0 rounded-[3px] bg-[#00b5c5]" />
+              <span className="text-[11px] font-medium tracking-[0.8px] text-[#6bd8de] uppercase sm:text-[12px] sm:tracking-[1.2px]">
                 18 años de experiencia territorial
               </span>
             </div>
 
             {/* H1 */}
-            <h1 className="reveal font-extrabold text-white leading-[1.08] tracking-[-1.5px]"
-              style={{ fontSize: 'clamp(42px, 5vw, 64px)' }}>
-              Conocemos el<br />
-              <span className="text-[#00b5c5]">Territorio</span>{' '}para<br />
-              Viabilizar sus<br />
-              Proyectos
+            <h1 className="reveal max-w-[15ch] font-extrabold text-balance text-white"
+              style={{ fontSize: 'clamp(34px, 5vw, 64px)', lineHeight: 1.08, letterSpacing: '-0.03em' }}>
+              Conocemos el <span className="text-[#00b5c5]">Territorio</span> para Viabilizar sus Proyectos
             </h1>
 
-            <p className="reveal text-[#9cbec9] text-[17px] font-normal leading-[1.65] max-w-[480px]">
+            <p className="reveal texto-lead max-w-[480px] text-[#9cbec9]">
               Empresa especializada en consultoría, gestión predial, avalúos y
               comercialización de inmuebles a nivel nacional. Confianza y
               profesionalismo desde 2006.
@@ -224,7 +193,7 @@ export function HomePage() {
           </div>
 
           {/* Columna stats cards */}
-          <div className="flex-1 min-w-0 flex-col gap-4 hidden lg:flex">
+          <div className="hidden min-w-0 flex-1 flex-col gap-4 lg:flex">
             {/* 2x2 grid de stats */}
             <div className="grid grid-cols-2 gap-[14px]">
               {[
@@ -256,7 +225,7 @@ export function HomePage() {
               </div>
             </div>
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* ═══════════════════════════════════════════════════════
@@ -267,8 +236,8 @@ export function HomePage() {
       {/* ═══════════════════════════════════════════════════════
           QUIÉNES SOMOS — fondo blanco roto #f8fafd
           ═══════════════════════════════════════════════════════ */}
-      <section id="quienes-somos" className="bg-[#f8fafd] py-[100px] px-12">
-        <div className="max-w-[1200px] mx-auto flex gap-20 items-center">
+      <section id="quienes-somos" className="bg-[#f8fafd] py-16 sm:py-24">
+        <Container className="flex flex-col items-center gap-12 lg:flex-row lg:gap-20">
           {/* Imagen placeholder */}
           <div className="hidden lg:block shrink-0 rounded-[20px] overflow-hidden"
             style={{ width: '560px', aspectRatio: '560/420', background: 'linear-gradient(135deg, #004b98 0%, #0071b2 60%, #00b5c5 100%)' }}>
@@ -287,15 +256,15 @@ export function HomePage() {
             <div className="reveal self-start bg-[rgba(0,75,152,0.08)] px-[14px] py-[5px] rounded-full">
               <span className="text-[#004b98] text-[11px] font-semibold tracking-[1.32px] uppercase">Quiénes somos</span>
             </div>
-            <h2 className="reveal font-extrabold text-[#001124] text-[42px] leading-[1.1] tracking-[-0.8px]">
-              Expertos en gestión<br />predial e inmobiliaria
+            <h2 className="reveal titulo-seccion text-[#001124]">
+              Expertos en gestión predial e inmobiliaria
             </h2>
-            <p className="reveal text-[#7a8187] text-[15px] leading-[1.75]">
+            <p className="reveal text-[15px] leading-[1.75] text-pretty text-[#7a8187]">
               Desde 2006, <strong className="text-[#001124] font-bold">Urbanos &amp; Rurales S.A.S</strong> ha desarrollado múltiples proyectos en el
               campo de la ingeniería y el Derecho, contando con un equipo interdisciplinario de
               ingenieros, arquitectos, abogados, trabajadores sociales y economistas.
             </p>
-            <p className="reveal text-[#7a8187] text-[15px] leading-[1.75]">
+            <p className="reveal text-[15px] leading-[1.75] text-pretty text-[#7a8187]">
               Nos hemos comprometido con el desarrollo del país y la satisfacción de nuestros
               clientes, brindando asesoría integral en consultoría, gestión predial, avalúos y
               comercialización de inmuebles.
@@ -316,44 +285,44 @@ export function HomePage() {
               ))}
             </div>
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* ═══════════════════════════════════════════════════════
           VALORES — banda oscura, 4 columnas con separadores
           ═══════════════════════════════════════════════════════ */}
       <section className="bg-[#001124]">
-        <div className="max-w-[1200px] mx-auto border-l border-[rgba(255,255,255,0.08)] border-r grid grid-cols-2 sm:grid-cols-4">
+        <Container className="grid grid-cols-2 border-r border-l border-[rgba(255,255,255,0.08)] sm:grid-cols-4">
           {[
             { Icon: Scale,   title: 'Ética',            desc: 'Actuamos con transparencia e integridad en cada proceso' },
             { Icon: Users,   title: 'Atención al Cliente', desc: 'Servicio personalizado y dedicado para cada cliente' },
             { Icon: Calendar,   title: 'Experiencia',      desc: 'Más de 18 años ejecutando proyectos a nivel nacional' },
             { Icon: ShieldCheck, title: 'Profesionalismo',  desc: 'Equipo interdisciplinario con certificación de calidad ISO' },
-          ].map(({ Icon, title, desc }, i) => (
+          ].map(({ Icon, title, desc }) => (
             <div key={title}
-              className={`flex flex-col items-center gap-[6px] py-12 px-8 text-center${i < 3 ? ' border-r border-[rgba(255,255,255,0.08)]' : ''}`}>
+              className="flex flex-col items-center gap-[6px] border-[rgba(255,255,255,0.08)] border-r px-6 py-10 text-center [&:nth-child(-n+2)]:border-b [&:nth-child(2n)]:border-r-0 sm:border-b-0 sm:px-8 sm:py-12 sm:[&:nth-child(2n)]:border-r sm:[&:nth-child(4n)]:border-r-0">
               <div className="bg-[rgba(0,181,197,0.18)] rounded-[14px] w-14 h-14 flex items-center justify-center mb-2 text-white">
                 <Icon className="w-5 h-5" aria-hidden="true" />
               </div>
               <p className="font-bold text-[15px] text-white">{title}</p>
-              <p className="text-[#6d97a4] text-[12px] leading-[1.5]">{desc}</p>
+              <p className="text-[#6d97a4] text-[12px] leading-[1.5] text-pretty">{desc}</p>
             </div>
           ))}
-        </div>
+        </Container>
       </section>
 
       {/* ═══════════════════════════════════════════════════════
           SERVICIOS — grid 3 cols + tarjeta destacada azul
           ═══════════════════════════════════════════════════════ */}
-      <section id="servicios" className="bg-[#eff4f8] py-[100px] px-12">
-        <div className="max-w-[1200px] mx-auto flex flex-col gap-14">
+      <section id="servicios" className="bg-[#eff4f8] py-16 sm:py-24">
+        <Container className="flex flex-col gap-10 sm:gap-14">
           {/* Header sección */}
           <div className="reveal flex flex-col gap-3">
             <div className="self-start bg-[rgba(0,75,152,0.08)] px-[14px] py-[5px] rounded-full">
               <span className="text-[#004b98] text-[11px] font-semibold tracking-[1.32px] uppercase">Líneas de Servicio</span>
             </div>
-            <h2 className="font-extrabold text-[#001124] text-[42px] leading-[1.1] tracking-[-0.8px]">
-              Lo que hacemos<br/>por su proyecto
+            <h2 className="titulo-seccion text-[#001124]">
+              Lo que hacemos por su proyecto
             </h2>
           </div>
 
@@ -361,13 +330,13 @@ export function HomePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {SERVICIOS.map(({ num, Icon, titulo, desc }) => (
               <div key={titulo}
-                className="reveal bg-white border border-[#d8dfe4] rounded-[20px] p-[37px] flex flex-col gap-[11px] hover:shadow-[0_8px_32px_rgba(0,17,36,0.08)] hover:-translate-y-1 transition-all duration-300">
+                className="reveal flex flex-col gap-[11px] rounded-[20px] border border-[#d8dfe4] bg-white p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(0,17,36,0.08)] sm:p-9">
                 <span className="text-[#7a8187] text-[11px] font-semibold tracking-[1.1px]">{num}</span>
                 <div className="bg-[rgba(0,75,152,0.08)] rounded-[14px] w-[52px] h-[52px] flex items-center justify-center text-[#004b98]">
                   <Icon className="w-5 h-5" aria-hidden="true" />
                 </div>
                 <p className="font-bold text-[#001124] text-[17px] mt-2">{titulo}</p>
-                <p className="text-[#7a8187] text-[14px] leading-[1.65]">{desc}</p>
+                <p className="text-[14px] leading-[1.65] text-pretty text-[#7a8187]">{desc}</p>
                 <a href="#contacto"
                   onClick={(e) => { e.preventDefault(); seleccionarServicio(titulo) }}
                   className="flex items-center gap-[6px] text-[#004b98] text-[13px] font-semibold mt-1 hover:text-[#00b5c5] transition-colors">
@@ -381,13 +350,13 @@ export function HomePage() {
             <div
               className="reveal col-span-1 sm:col-span-2 border border-[#d8dfe4] rounded-[20px] overflow-hidden flex"
               style={{ background: 'linear-gradient(135deg, #004b98 0%, #0071b2 60%, #008ec9 100%)' }}>
-              <div className="flex-1 p-10 flex flex-col gap-[11px]">
+              <div className="flex flex-1 flex-col gap-[11px] p-7 sm:p-10">
                 <span className="text-[rgba(255,255,255,0.5)] text-[11px] font-semibold tracking-[1.1px]">05</span>
                 <div className="bg-[rgba(255,255,255,0.15)] rounded-[14px] w-[52px] h-[52px] flex items-center justify-center text-white">
                   <Building2 className="w-5 h-5" aria-hidden="true" />
                 </div>
-                <p className="font-bold text-white text-[22px] mt-2">Comercialización de Inmuebles</p>
-                <p className="text-[rgba(255,255,255,0.7)] text-[14px] leading-[1.65] max-w-[420px]">
+                <p className="titulo-sub mt-2 text-white">Comercialización de Inmuebles</p>
+                <p className="max-w-[420px] text-[14px] leading-[1.65] text-pretty text-[rgba(255,255,255,0.7)]">
                   Soluciones integrales para la venta y compra de inmuebles, ofreciendo análisis
                   de rentabilidad, estrategias de marketing, escrituración y compra eficaz del predio.
                 </p>
@@ -401,29 +370,29 @@ export function HomePage() {
               </div>
             </div>
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* ═══════════════════════════════════════════════════════
           TRAYECTORIA — número grande + stats secundarios
           ═══════════════════════════════════════════════════════ */}
-      <section className="bg-white py-[100px] px-12">
-        <div className="max-w-[1200px] mx-auto flex flex-col gap-16 items-center">
+      <section className="bg-white py-16 sm:py-24">
+        <Container className="flex flex-col items-center gap-12 sm:gap-16">
           {/* Header */}
           <div className="reveal flex flex-col items-center gap-3 text-center">
             <div className="bg-[rgba(0,75,152,0.08)] px-[14px] py-[5px] rounded-full">
               <span className="text-[#004b98] text-[11px] font-semibold tracking-[1.32px] uppercase">Trayectoria</span>
             </div>
-            <h2 className="font-extrabold text-[#001124] text-[42px] leading-[1.1] tracking-[-0.8px]">
-              Resultados que hablan<br/>por sí solos
+            <h2 className="titulo-seccion text-[#001124]">
+              Resultados que hablan por sí solos
             </h2>
           </div>
 
           {/* Número grande */}
           <div className="reveal flex flex-col items-center gap-3 text-center">
-            <p className="font-extrabold text-[#004b98] leading-none tracking-[-4px]"
-              style={{ fontSize: 'clamp(80px, 12vw, 120px)' }}>1.610</p>
-            <p className="text-[#7a8187] text-[18px] tracking-[0.36px]">Operaciones inmobiliarias en 18 años</p>
+            <p className="font-extrabold text-[#004b98] leading-none"
+              style={{ fontSize: 'clamp(56px, 12vw, 120px)', letterSpacing: '-0.035em' }}>1.610</p>
+            <p className="texto-lead text-[#7a8187]">Operaciones inmobiliarias en 18 años</p>
           </div>
 
           {/* Stats secundarios */}
@@ -435,59 +404,32 @@ export function HomePage() {
               { num: '15+', label: ['Años de', 'experiencia', 'nacional'] },
             ].map(({ num, label }, i) => (
               <div key={num} className="flex items-center">
-                <div className="flex flex-col items-center gap-2 px-5 text-center">
-                  <p className="font-extrabold text-[#001124] text-[48px] leading-none tracking-[-2px]">{num}</p>
+                <div className="flex flex-col items-center gap-2 px-3 text-center sm:px-5">
+                  <p className="text-[34px] leading-none font-extrabold tracking-[-0.04em] text-[#001124] sm:text-[48px]">{num}</p>
                   <p className="text-[#7a8187] text-[13px] leading-[1.5]">{label.map((l, j) => <span key={j}>{l}{j < label.length - 1 ? <br/> : null}</span>)}</p>
                 </div>
                 {i < 3 && <div className="w-px h-14 bg-[#e0e5e9] shrink-0 mx-2 hidden sm:block" />}
               </div>
             ))}
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* ═══════════════════════════════════════════════════════
-          CLIENTES — marquee infinito
+          CLIENTES — carrusel compartido con Quiénes Somos (logo + nombre)
           ═══════════════════════════════════════════════════════ */}
-      <section className="bg-[#eff4f8] py-[100px] px-12">
-        <div className="max-w-[1200px] mx-auto flex flex-col gap-14">
-          {/* Header */}
-          <div className="reveal flex flex-col items-center gap-3 text-center">
-            <div className="bg-[rgba(0,75,152,0.08)] px-[14px] py-[5px] rounded-full">
-              <span className="text-[#004b98] text-[11px] font-semibold tracking-[1.32px] uppercase">Nuestros Clientes</span>
-            </div>
-            <h2 className="font-extrabold text-[#001124] text-[42px] leading-[1.1] tracking-[-0.8px]">
-              Algunos de nuestros clientes
-            </h2>
-            <p className="text-[#7a8187] text-[16px] leading-[1.7] max-w-[540px]">
-              Instituciones y entidades de alto nivel que confían en nuestra experiencia y calidad de servicio.
-            </p>
-          </div>
-
-          {/* Marquee */}
-          <div className="relative overflow-hidden h-[87px]">
-            <div ref={marqueeRef} className="flex gap-5 items-stretch absolute left-0 top-0">
-              {[...CLIENTES, ...CLIENTES].map((cliente, i) => (
-                <div key={i}
-                  className="bg-white border border-[#d8dfe4] rounded-[14px] flex items-center justify-center px-9 py-6 min-w-[180px] shrink-0">
-                  <p className="font-bold text-[#004b98] text-[14px] text-center tracking-[0.28px] leading-[1.3]">{cliente}</p>
-                </div>
-              ))}
-            </div>
-            {/* Fade edges */}
-            <div className="absolute inset-y-0 left-0 w-[120px] bg-gradient-to-r from-[#eff4f8] to-transparent pointer-events-none z-10" />
-            <div className="absolute inset-y-0 right-0 w-[120px] bg-gradient-to-l from-[#eff4f8] to-transparent pointer-events-none z-10" />
-          </div>
-        </div>
-      </section>
+      <ClientesCarrusel
+        titulo="Algunos de nuestros clientes"
+        subtitulo="Instituciones y entidades de alto nivel que confían en nuestra experiencia y calidad de servicio."
+      />
 
       {/* ═══════════════════════════════════════════════════════
           CERTIFICACIONES — banda oscura (spec 08: plantilla lista para
           completar con las certificaciones reales del cliente; nombres y
           párrafos de abajo son contenido de referencia a editar).
           ═══════════════════════════════════════════════════════ */}
-      <section className="bg-[#001124] py-16 px-6 sm:py-20 sm:px-12">
-        <div className="max-w-[1200px] mx-auto flex flex-col items-center gap-10 text-center md:flex-row md:items-center md:gap-16 md:text-left">
+      <section className="bg-[#001124] py-16 sm:py-24">
+        <Container className="flex flex-col items-center gap-10 text-center md:flex-row md:gap-16 md:text-left">
           {/* Ícono cert */}
           <div className="shrink-0 flex flex-col items-center gap-3">
             <div className="bg-white rounded-[20px] w-[96px] h-[96px] sm:w-[120px] sm:h-[120px] flex items-center justify-center text-[#004b98] shadow-[0px_12px_20px_rgba(0,0,0,0.3)]">
@@ -497,10 +439,10 @@ export function HomePage() {
           </div>
           {/* Texto */}
           <div className="flex-1 flex flex-col items-center gap-4 min-w-0 md:items-start">
-            <h3 className="reveal font-bold text-white text-[22px] sm:text-[26px] leading-tight">
+            <h3 className="reveal titulo-sub text-white">
               Certificaciones y respaldos
             </h3>
-            <p className="reveal text-[#7ca6b4] text-[14px] sm:text-[15px] leading-[1.7] max-w-[580px]">
+            <p className="reveal max-w-[580px] text-[14px] leading-[1.7] text-pretty text-[#7ca6b4] sm:text-[15px]">
               Contamos con certificaciones que respaldan nuestros procesos de consultoría
               y gestión predial. Esta sección es una plantilla: reemplaza el texto y
               los sellos de abajo con las certificaciones reales de la empresa cuando
@@ -515,21 +457,21 @@ export function HomePage() {
               ))}
             </div>
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* ═══════════════════════════════════════════════════════
           CONTACTO — form + datos + mapa placeholder
           ═══════════════════════════════════════════════════════ */}
-      <section id="contacto" className="bg-white py-16 px-6 sm:py-[100px] sm:px-12">
-        <div className="max-w-[1200px] mx-auto flex flex-col gap-10 sm:gap-14">
+      <section id="contacto" className="bg-white py-16 sm:py-24">
+        <Container className="flex flex-col gap-10 sm:gap-14">
           {/* Header */}
           <div className="reveal flex flex-col gap-3">
             <div className="self-start bg-[rgba(0,75,152,0.08)] px-[14px] py-[5px] rounded-full">
               <span className="text-[#004b98] text-[11px] font-semibold tracking-[1.32px] uppercase">Contacto</span>
             </div>
-            <h2 className="font-extrabold text-[#001124] text-[32px] sm:text-[42px] leading-[1.1] tracking-[-0.8px]">
-              Hablemos de<br/>su proyecto
+            <h2 className="titulo-seccion text-[#001124]">
+              Hablemos de su proyecto
             </h2>
           </div>
 
@@ -562,7 +504,7 @@ export function HomePage() {
 
             {/* Formulario */}
             <div className="flex-1 flex flex-col gap-6 min-w-0">
-              <p className="font-bold text-[#001124] text-[22px]">Envíenos un mensaje</p>
+              <p className="titulo-sub text-[#001124]">Envíenos un mensaje</p>
               <form className="flex flex-col gap-[14px]" onSubmit={handleEnviarContacto}>
                 {/* Honeypot anti-spam: oculto para humanos, los bots sí lo llenan */}
                 <input
@@ -656,7 +598,7 @@ export function HomePage() {
               </form>
             </div>
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* El FAB de redes lo pinta PublicLayout para todas las rutas. */}

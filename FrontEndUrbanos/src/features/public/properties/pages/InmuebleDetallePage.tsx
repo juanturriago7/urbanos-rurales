@@ -9,6 +9,9 @@ import type {
 } from '@/features/public/properties/api/inmueblesPublicApi'
 import { WhatsAppIcon } from '@/shared/components/icons/WhatsAppIcon'
 import { AgendarVisitaModal } from '@/features/public/visitas/components/AgendarVisitaModal'
+import { normalizarDescripcion } from '@/features/public/properties/lib/descripcion'
+import { Container } from '@/shared/components/ui/Container'
+import { TextoColapsable } from '@/shared/components/ui/TextoColapsable'
 import { site } from '@/shared/config/site'
 
 /* ── Helpers ─────────────────────────────────────────────────── */
@@ -135,13 +138,13 @@ function Galeria({ imagenes, titulo }: { imagenes: ImagenDto[]; titulo: string }
 /* ── Skeleton de carga ───────────────────────────────────────── */
 function Skeleton() {
   return (
-    <div className="mx-auto max-w-[1200px] animate-pulse px-12 py-10">
+    <Container className="animate-pulse py-8 sm:py-10">
       <div className="aspect-[16/9] w-full rounded-[18px] bg-[#e0e5e9]" />
       <div className="mt-6 h-8 w-1/3 rounded bg-[#e0e5e9]" />
       <div className="mt-3 h-5 w-2/3 rounded bg-[#e0e5e9]" />
       <div className="mt-8 h-4 w-full rounded bg-[#e0e5e9]" />
       <div className="mt-2 h-4 w-5/6 rounded bg-[#e0e5e9]" />
-    </div>
+    </Container>
   )
 }
 
@@ -160,6 +163,10 @@ export function InmuebleDetallePage() {
   const caracteristicasAgrupadas = useMemo(
     () => (inmueble ? agruparCaracteristicas(inmueble.caracteristicas) : []),
     [inmueble],
+  )
+  const bloquesDescripcion = useMemo(
+    () => normalizarDescripcion(inmueble?.descripcion ?? ''),
+    [inmueble?.descripcion],
   )
 
   if (isLoading) {
@@ -188,14 +195,14 @@ export function InmuebleDetallePage() {
 
   return (
     <div className="min-h-screen bg-[#eff4f8] font-['Outfit',sans-serif]">
-      <div className="mx-auto max-w-[1200px] px-12 py-10">
+      <Container className="py-8 sm:py-10">
         {/* Volver */}
         <Link to="/inmuebles"
           className="mb-6 inline-flex items-center gap-2 text-[13px] font-semibold text-[#7a8187] transition-colors hover:text-[#004b98]">
           ← Volver a inmuebles
         </Link>
 
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_360px]">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-10">
           {/* ── Columna principal ── */}
           <div>
             <Galeria imagenes={imagenesOrdenadas} titulo={inmueble.titulo} />
@@ -203,7 +210,7 @@ export function InmuebleDetallePage() {
             <div className="mt-8">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <h1 className="text-[28px] leading-tight font-extrabold tracking-[-0.5px] text-[#001124]">
+                  <h1 className="text-[24px] leading-tight font-extrabold tracking-[-0.5px] text-balance text-[#001124] sm:text-[28px]">
                     {inmueble.titulo}
                   </h1>
                   <div className="mt-2 flex items-center gap-[6px] text-[#7a8187]">
@@ -255,13 +262,26 @@ export function InmuebleDetallePage() {
                 )}
               </div>
 
-              {/* Descripción */}
-              {inmueble.descripcion && (
+              {/* Descripción — los saltos de línea del admin se normalizan para
+                  que el texto fluya con el ancho, y se contrae si es largo. */}
+              {bloquesDescripcion.length > 0 && (
                 <div className="mt-8">
                   <h2 className="text-[17px] font-bold text-[#001124]">Descripción</h2>
-                  <p className="mt-3 text-[14px] leading-[1.75] whitespace-pre-line text-[#44403c]">
-                    {inmueble.descripcion}
-                  </p>
+                  <TextoColapsable className="mt-3" colorFondo="#eff4f8">
+                    <div className="space-y-3 text-[14px] leading-[1.75] text-pretty text-[#44403c]">
+                      {bloquesDescripcion.map((bloque, i) =>
+                        bloque.tipo === 'lista' ? (
+                          <ul key={i} className="list-disc space-y-1 pl-5">
+                            {bloque.items.map((item, j) => (
+                              <li key={j}>{item}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p key={i}>{bloque.texto}</p>
+                        ),
+                      )}
+                    </div>
+                  </TextoColapsable>
                 </div>
               )}
 
@@ -437,7 +457,7 @@ export function InmuebleDetallePage() {
             </p>
           </aside>
         </div>
-      </div>
+      </Container>
 
       {visitaOpen && (
         <AgendarVisitaModal

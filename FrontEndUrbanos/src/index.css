@@ -70,6 +70,52 @@
   --animate-scale-in:   scale-in  0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* ─── Escala tipográfica ────────────────────────────────────────────────────
+   El sitio público se maquetó desde Figma a 1440px y cada encabezado copió su
+   tamaño en píxeles fijos (text-[42px], text-[36px], text-[48px]…), así que
+   ninguno encogía en móvil. Estas clases centralizan la escala: `clamp()` la
+   hace fluida entre 360px y 1440px, y `text-wrap` evita los renglones
+   descuadrados — lo que antes se forzaba a mano con <br /> dentro del título.
+
+   Van en `@utility` y no en `@layer components` porque en Tailwind v4 solo las
+   primeras se ordenan por número de propiedades, de modo que una utilidad
+   suelta del marcado (text-white, sm:text-left…) todavía puede sobrescribirlas.
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* h1 de portada — 32px → 48px */
+@utility titulo-display {
+  font-size: clamp(2rem, 6vw, 3rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+/* h2 de sección — 28px → 40px */
+@utility titulo-seccion {
+  font-size: clamp(1.75rem, 4.5vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+/* h3 y encabezados de tarjeta — 20px → 24px */
+@utility titulo-sub {
+  font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+/* Párrafo de entrada bajo un título — 15px → 17px */
+@utility texto-lead {
+  font-size: clamp(0.9375rem, 1.6vw, 1.0625rem);
+  line-height: 1.7;
+  text-wrap: pretty;
+}
+
 @keyframes drawer-in {
   from { transform: translateX(100%); }
   to   { transform: translateX(0); }
