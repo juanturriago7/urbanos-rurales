@@ -195,7 +195,12 @@ internal sealed class InmuebleRepository : IInmuebleRepository
                 amoblado               = @Amoblado,
                 matricula_inmobiliaria = @MatriculaInmobiliaria,
                 estado                 = CAST(@Estado AS estado_inmueble),
-                destacado              = @Destacado,
+                -- Este UPDATE general viaja con la entidad leída al inicio del request,
+                -- que puede quedar desactualizada frente a un DestacarConCupoAsync
+                -- concurrente. Por eso solo puede APAGAR destacado (AND), nunca
+                -- encenderlo: el único que puede poner destacado = TRUE es
+                -- DestacarConCupoAsync, bajo el advisory lock (RF-078).
+                destacado              = destacado AND @Destacado,
                 meta_titulo            = @MetaTitulo,
                 meta_descripcion       = @MetaDescripcion,
                 asesor_id              = @AsesorId,
