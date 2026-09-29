@@ -61,6 +61,16 @@ public sealed class Inmueble
 
     public bool EstaEliminado => EliminadoEn is not null;
 
+    /// <summary>
+    /// RF-078: cuántos inmuebles pueden estar destacados a la vez. Son los que el
+    /// visitante ve primero (home y /inmuebles), así que más de 3 no aportan.
+    /// Único lugar donde vive el número: el frontend lo lee del resumen.
+    /// </summary>
+    public const int MaximoDestacados = 3;
+
+    /// <summary>Solo un inmueble publicado y no eliminado puede ser destacado.</summary>
+    public bool PuedeDestacarse => Estado == EstadoInmueble.Publicado && !EstaEliminado;
+
     // Constructor privado para hidratación desde repositorio (Dapper)
     private Inmueble() { }
 
@@ -188,6 +198,16 @@ public sealed class Inmueble
             throw new InvalidOperationException("No se puede cambiar el estado de un inmueble eliminado.");
         }
 
+        if (nuevoEstado != Estado)
+        {
+            // Un destacado ocupa uno de los MaximoDestacados cupos. Si deja de estar
+            // publicado desaparece del sitio pero seguiría ocupando el cupo. Por eso
+            // cualquier cambio real de estado lo desmarca. Así también se limpian las
+            // marcas heredadas de antes de esta regla cuando un borrador o un pausado
+            // vuelve a publicarse.
+            Destacado = false;
+        }
+
         Estado = nuevoEstado;
         MarcarActualizado();
     }
@@ -205,9 +225,18 @@ public sealed class Inmueble
            && UbicacionId > 0
            && !string.IsNullOrWhiteSpace(DireccionExacta);
 
-    /// <summary>Marca o desmarca como destacado (RF-078).</summary>
+    /// <summary>
+    /// Marca o desmarca como destacado (RF-078). El límite de
+    /// <see cref="MaximoDestacados"/> no se valida aquí: necesita contar en BD bajo
+    /// bloqueo y lo resuelve el repositorio (DestacarConCupoAsync).
+    /// </summary>
     public void MarcarDestacado(bool destacado)
     {
+        if (destacado && !PuedeDestacarse)
+        {
+            throw new InvalidOperationException("Solo un inmueble publicado puede destacarse.");
+        }
+
         Destacado = destacado;
         MarcarActualizado();
     }
@@ -217,6 +246,7 @@ public sealed class Inmueble
     {
         EliminadoEn = DateTime.UtcNow;
         Estado = EstadoInmueble.Archivado;
+        Destacado = false;
         MarcarActualizado();
     }
 
