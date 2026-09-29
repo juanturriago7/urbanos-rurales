@@ -62,6 +62,13 @@ public abstract class InmuebleDatosValidatorBase<T> : AbstractValidator<T>
         RuleFor(x => x.TipoInmuebleId).GreaterThan(0);
         RuleFor(x => x.UbicacionId).GreaterThan(0);
         RuleFor(x => x.DireccionExacta).NotEmpty().MaximumLength(200);
+        // Mismos máximos que las columnas varchar (InmuebleConfiguration): sin
+        // estas reglas un texto más largo llega a Postgres (22001) y sale como 500.
+        RuleFor(x => x.YoutubeUrl).MaximumLength(300);
+        RuleFor(x => x.MapaEmbedUrl).MaximumLength(500);
+        RuleFor(x => x.Antiguedad).MaximumLength(30);
+        RuleFor(x => x.Orientacion).MaximumLength(20);
+        RuleFor(x => x.MatriculaInmobiliaria).MaximumLength(60);
         RuleFor(x => x.AreaTerrenoM2).GreaterThan(0).When(x => x.AreaTerrenoM2 is not null);
         RuleFor(x => x.AreaConstruidaM2).GreaterThan(0).When(x => x.AreaConstruidaM2 is not null);
         RuleFor(x => x.AreaPrivadaM2).GreaterThan(0).When(x => x.AreaPrivadaM2 is not null);
