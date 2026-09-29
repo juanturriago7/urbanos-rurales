@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { UbicacionDto } from '@/features/admin/catalogos/api/catalogosApi'
 import {
   construirOpcionesUbicacion,
+  esUbicacionFueraDeCatalogo,
   ETIQUETA_UBICACION_FUERA_DE_CATALOGO,
   filtrarOpcionesUbicacion,
   normalizarTexto,
@@ -120,5 +121,21 @@ describe('resolverSeleccionUbicacion', () => {
         'Está desactivada o no se ofrece en este selector. Se conserva si no la cambias.',
     })
     expect(seleccion?.etiqueta).not.toContain('999')
+  })
+})
+
+describe('esUbicacionFueraDeCatalogo', () => {
+  it('devuelve false si no hay selección', () => {
+    expect(esUbicacionFueraDeCatalogo(opciones, null)).toBe(false)
+  })
+
+  it('devuelve false si la selección está en el árbol de opciones', () => {
+    const seleccion = resolverSeleccionUbicacion(opciones, 110)
+    expect(esUbicacionFueraDeCatalogo(opciones, seleccion)).toBe(false)
+  })
+
+  it('devuelve true si la selección es la opción sintética fuera de catálogo', () => {
+    const seleccion = resolverSeleccionUbicacion(opciones, 999)
+    expect(esUbicacionFueraDeCatalogo(opciones, seleccion)).toBe(true)
   })
 })

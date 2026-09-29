@@ -97,3 +97,17 @@ export function resolverSeleccionUbicacion(
     }
   )
 }
+
+/**
+ * True cuando `seleccion` es la opción sintética que arma resolverSeleccionUbicacion
+ * para un id que no está en el árbol de opciones vigente (ubicación desactivada o
+ * fuera de catálogo). Combobox solo pinta `seleccion.etiqueta`, así que el llamador
+ * usa esto para decidir si además debe mostrar `seleccion.descripcion` como hint.
+ */
+export function esUbicacionFueraDeCatalogo(
+  opciones: ComboboxOpcion[],
+  seleccion: ComboboxOpcion | null,
+): boolean {
+  if (seleccion === null) return false
+  return !opciones.some((o) => o.id === seleccion.id)
+}

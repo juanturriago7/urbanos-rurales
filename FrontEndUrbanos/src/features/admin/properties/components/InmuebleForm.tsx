@@ -8,6 +8,7 @@ import {
 } from '@/features/admin/catalogos/hooks/useCatalogos'
 import {
   construirOpcionesUbicacion,
+  esUbicacionFueraDeCatalogo,
   filtrarOpcionesUbicacion,
   resolverSeleccionUbicacion,
 } from '@/features/admin/catalogos/lib/opcionesUbicacion'
@@ -22,6 +23,9 @@ import {
   type InmuebleFormInput,
   type InmuebleFormParsed,
 } from '@/features/admin/properties/schemas/inmuebleSchema'
+
+const HINT_UBICACION_POR_DEFECTO =
+  'Zona, localidad o UPZ — escribe para filtrar y elige el nivel más específico que conozcas.'
 
 interface InmuebleFormProps {
   /**
@@ -203,20 +207,31 @@ export function InmuebleForm({
           <Controller
             control={control}
             name="ubicacionId"
-            render={({ field, fieldState }) => (
-              <Combobox
-                label="Ubicación"
-                required
-                hint="Zona, localidad o UPZ — escribe para filtrar y elige el nivel más específico que conozcas."
-                placeholder="Escribe para buscar: Chapinero, Usaquén, Suba…"
-                error={fieldState.error?.message}
-                seleccion={resolverSeleccionUbicacion(opcionesUbicacion, field.value)}
-                opciones={filtrarOpcionesUbicacion(opcionesUbicacion, queryUbicacion)}
-                query={queryUbicacion}
-                onQueryChange={setQueryUbicacion}
-                onSeleccionar={(opcion) => field.onChange(opcion ? opcion.id : '')}
-              />
-            )}
+            render={({ field, fieldState }) => {
+              const seleccion = resolverSeleccionUbicacion(opcionesUbicacion, field.value)
+              // resolverSeleccionUbicacion fabrica una opción sintética cuando el id
+              // guardado ya no está en el catálogo activo; su descripción explica por
+              // qué (ver opcionesUbicacion.ts), pero Combobox solo pinta
+              // seleccion.etiqueta, así que sin esto la explicación nunca llega a pantalla.
+              const hintUbicacion =
+                esUbicacionFueraDeCatalogo(opcionesUbicacion, seleccion) && seleccion
+                  ? seleccion.descripcion
+                  : HINT_UBICACION_POR_DEFECTO
+              return (
+                <Combobox
+                  label="Ubicación"
+                  required
+                  hint={hintUbicacion}
+                  placeholder="Escribe para buscar: Chapinero, Usaquén, Suba…"
+                  error={fieldState.error?.message}
+                  seleccion={seleccion}
+                  opciones={filtrarOpcionesUbicacion(opcionesUbicacion, queryUbicacion)}
+                  query={queryUbicacion}
+                  onQueryChange={setQueryUbicacion}
+                  onSeleccionar={(opcion) => field.onChange(opcion ? opcion.id : '')}
+                />
+              )
+            }}
           />
 
           <Textarea
