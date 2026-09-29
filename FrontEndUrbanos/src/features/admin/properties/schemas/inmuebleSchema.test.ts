@@ -178,3 +178,35 @@ describe('inmuebleSchema — área según tipo de inmueble (PH vs. terreno)', ()
     }
   })
 })
+
+describe('inmuebleSchema — longitud máxima de textos (columnas varchar)', () => {
+  const casos = [
+    ['matriculaInmobiliaria', 60, 'x'],
+    ['antiguedad', 30, 'x'],
+    ['orientacion', 20, 'x'],
+    ['youtubeUrl', 300, 'https://www.youtube.com/watch?v='],
+    ['mapaEmbedUrl', 500, 'https://www.google.com/maps/embed?pb='],
+  ] as const
+
+  it.each(casos)('%s acepta exactamente %i caracteres', (campo, max, prefijo) => {
+    const valor = prefijo + 'a'.repeat(max - prefijo.length)
+    const r = inmuebleSchema.safeParse({ ...base, [campo]: valor })
+    expect(r.success).toBe(true)
+  })
+
+  it.each(casos)('%s rechaza %i + 1 caracteres con mensaje claro', (campo, max, prefijo) => {
+    const valor = prefijo + 'a'.repeat(max + 1 - prefijo.length)
+    const r = inmuebleSchema.safeParse({ ...base, [campo]: valor })
+    expect(r.success).toBe(false)
+    if (!r.success) {
+      const issue = r.error.issues.find((i) => i.path.includes(campo))
+      expect(issue?.message).toBe(`Máximo ${max} caracteres`)
+    }
+  })
+
+  it('la matrícula vacía sigue normalizándose a null', () => {
+    const r = inmuebleSchema.safeParse({ ...base, matriculaInmobiliaria: '   ' })
+    expect(r.success).toBe(true)
+    if (r.success) expect(r.data.matriculaInmobiliaria).toBeNull()
+  })
+})

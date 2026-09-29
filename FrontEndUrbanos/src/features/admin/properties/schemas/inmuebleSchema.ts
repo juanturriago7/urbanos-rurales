@@ -31,6 +31,12 @@ const textoOpcional = z
   .optional()
   .transform((v) => (v == null || v.trim() === '' ? null : v.trim()))
 
+// Texto opcional con tope de longitud: el mismo máximo que la columna varchar
+// (InmuebleConfiguration). Sin esto, un texto más largo llega a Postgres y
+// termina en un 500 genérico. Se mide DESPUÉS del trim del transform.
+const textoOpcionalMax = (max: number) =>
+  textoOpcional.refine((v) => v === null || v.length <= max, `Máximo ${max} caracteres`)
+
 export const inmuebleSchema = z
   .object({
     titulo: z.string().trim().min(1, 'El título es obligatorio').max(160, 'Máximo 160 caracteres'),
@@ -56,6 +62,7 @@ export const inmuebleSchema = z
     youtubeUrl: z
       .string()
       .trim()
+      .max(300, 'Máximo 300 caracteres')
       .optional()
       .refine(
         (v) => !v || v.includes('youtube.com') || v.includes('youtu.be'),
@@ -64,6 +71,7 @@ export const inmuebleSchema = z
     mapaEmbedUrl: z
       .string()
       .trim()
+      .max(500, 'Máximo 500 caracteres')
       .optional()
       .refine(
         (v) => !v || v.startsWith('https://www.google.com/maps/embed'),
@@ -80,12 +88,12 @@ export const inmuebleSchema = z
       (v) => v === null || (v >= 1 && v <= 6),
       'El estrato debe estar entre 1 y 6',
     ),
-    antiguedad: textoOpcional,
-    orientacion: textoOpcional,
+    antiguedad: textoOpcionalMax(30),
+    orientacion: textoOpcionalMax(20),
 
     politicaMascotas: z.enum(['permitidas', 'no_permitidas', 'con_restricciones']),
     amoblado: z.enum(['si', 'no', 'semi']),
-    matriculaInmobiliaria: textoOpcional,
+    matriculaInmobiliaria: textoOpcionalMax(60),
 
     // ── Operaciones (RF-076): venta y/o arriendo, al menos una ────────────────
     tieneVenta: z.boolean(),
