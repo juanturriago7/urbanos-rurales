@@ -11,8 +11,13 @@ COPY . .
 
 ARG VITE_API_BASE_URL=""
 ARG VITE_APP_NAME="Portal Inmobiliario"
+# Provisional: aun no hay dominio de produccion confirmado. El default NO
+# puede quedar vacio: vite.config.ts solo aplica su propio fallback cuando la
+# variable es nullish, y un ARG vacio ya cuenta como definida.
+ARG VITE_SITE_URL="https://urbanosrurales.com"
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ENV VITE_APP_NAME=$VITE_APP_NAME
+ENV VITE_SITE_URL=$VITE_SITE_URL
 
 RUN pnpm build
 
