@@ -1,6 +1,7 @@
 using FluentValidation;
 using Portal.Application.Features.Inmuebles.DTOs;
 using Portal.Application.Interfaces;
+using Portal.Domain.Entities;
 
 namespace Portal.Application.Features.Inmuebles.Commands;
 
@@ -26,6 +27,13 @@ public abstract record InmuebleDatosCommandBase
     public short Habitaciones { get; init; }
     public short Banos { get; init; }
     public short Parqueaderos { get; init; }
+
+    /// <summary>
+    /// 'privado' | 'privado_uso_exclusivo' | 'doble', selección múltiple y opcional.
+    /// Si se omite (null) se guarda vacío, porque el PUT es un reemplazo completo.
+    /// Con Parqueaderos = 0 la entidad lo vacía.
+    /// </summary>
+    public List<string>? TiposParqueadero { get; init; }
     public short? Piso { get; init; }
     public short? PisosEdificio { get; init; }
     public short? Estrato { get; init; }
@@ -83,6 +91,14 @@ public abstract class InmuebleDatosValidatorBase<T> : AbstractValidator<T>
         RuleFor(x => x.Habitaciones).GreaterThanOrEqualTo((short)0);
         RuleFor(x => x.Banos).GreaterThanOrEqualTo((short)0);
         RuleFor(x => x.Parqueaderos).GreaterThanOrEqualTo((short)0);
+        RuleForEach(x => x.TiposParqueadero)
+            .Must(t => t is not null && Inmueble.TiposParqueaderoValidos.Contains(t))
+            .WithMessage("Tipo de parqueadero inválido (privado | privado_uso_exclusivo | doble).")
+            .When(x => x.TiposParqueadero is not null);
+        RuleFor(x => x.TiposParqueadero)
+            .Must(ts => ts!.Distinct().Count() == ts!.Count)
+            .When(x => x.TiposParqueadero is not null)
+            .WithMessage("No se puede repetir un tipo de parqueadero.");
         RuleFor(x => x.Estrato)
             .InclusiveBetween((short)1, (short)6)
             .When(x => x.Estrato is not null)

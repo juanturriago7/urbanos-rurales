@@ -155,6 +155,7 @@ public sealed class Inmueble
         short habitaciones,
         short banos,
         short parqueaderos,
+        IReadOnlyCollection<string>? tiposParqueadero,
         short? piso,
         short? pisosEdificio,
         short? estrato,
@@ -175,6 +176,9 @@ public sealed class Inmueble
             throw new ArgumentOutOfRangeException(nameof(estrato), "El estrato debe estar entre 1 y 6.");
         }
 
+        // Se calcula antes de asignar nada: si lanza, la entidad queda intacta.
+        var tipos = NormalizarTiposParqueadero(parqueaderos, tiposParqueadero);
+
         Titulo = titulo.Trim();
         Descripcion = descripcion?.Trim();
         TipoInmuebleId = tipoInmuebleId;
@@ -188,6 +192,7 @@ public sealed class Inmueble
         Habitaciones = habitaciones;
         Banos = banos;
         Parqueaderos = parqueaderos;
+        TiposParqueadero = tipos;
         Piso = piso;
         PisosEdificio = pisosEdificio;
         Estrato = estrato;
@@ -264,6 +269,35 @@ public sealed class Inmueble
         Estado = EstadoInmueble.Archivado;
         Destacado = false;
         MarcarActualizado();
+    }
+
+    /// <summary>
+    /// Deja los tipos de parqueadero como se guardan. Sin parqueaderos no hay tipo.
+    /// Si los hay, van sin repetidos y en el orden de <see cref="TiposParqueaderoValidos"/>.
+    /// Un valor desconocido o repetido es un error de programación: el validador del
+    /// comando ya lo rechaza con 400 antes de llegar aquí.
+    /// </summary>
+    private static string[] NormalizarTiposParqueadero(
+        short parqueaderos, IReadOnlyCollection<string>? tipos)
+    {
+        if (tipos is null || tipos.Count == 0)
+        {
+            return [];
+        }
+
+        if (tipos.Any(t => t is null || !TiposParqueaderoValidos.Contains(t)))
+        {
+            throw new ArgumentException("Tipo de parqueadero inválido.", nameof(tipos));
+        }
+
+        if (tipos.Distinct().Count() != tipos.Count)
+        {
+            throw new ArgumentException("Tipo de parqueadero repetido.", nameof(tipos));
+        }
+
+        return parqueaderos > 0
+            ? TiposParqueaderoValidos.Where(t => tipos.Contains(t)).ToArray()
+            : [];
     }
 
     private void MarcarActualizado() => ActualizadoEn = DateTime.UtcNow;

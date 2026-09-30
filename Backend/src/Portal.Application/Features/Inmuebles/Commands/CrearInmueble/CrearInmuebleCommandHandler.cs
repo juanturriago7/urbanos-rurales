@@ -58,6 +58,7 @@ public sealed class CrearInmuebleCommandHandler
             request.Habitaciones,
             request.Banos,
             request.Parqueaderos,
+            request.TiposParqueadero,
             request.Piso,
             request.PisosEdificio,
             request.Estrato,

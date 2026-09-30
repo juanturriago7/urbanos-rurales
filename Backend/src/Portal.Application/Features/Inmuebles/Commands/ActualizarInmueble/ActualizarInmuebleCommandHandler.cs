@@ -37,6 +37,7 @@ public sealed class ActualizarInmuebleCommandHandler
             request.Habitaciones,
             request.Banos,
             request.Parqueaderos,
+            request.TiposParqueadero,
             request.Piso,
             request.PisosEdificio,
             request.Estrato,
