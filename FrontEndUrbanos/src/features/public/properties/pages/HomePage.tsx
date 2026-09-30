@@ -5,6 +5,7 @@ import {
   Building2,
   Calculator,
   Calendar,
+  ChevronDown,
   ClipboardList,
   Clock,
   Compass,
@@ -179,9 +180,9 @@ export function HomePage() {
             </p>
 
             {/* CTAs */}
-            <div className="reveal flex flex-wrap gap-3 pt-4">
+            <div className="reveal flex flex-col gap-3 pt-4 min-[400px]:flex-row min-[400px]:flex-wrap">
               <Link to="/inmuebles"
-                className="inline-flex items-center gap-2 bg-[#00b5c5] text-[#001124] font-bold text-[14px] px-7 py-[15px] rounded-[10px] hover:bg-[#00a0b0] transition-colors duration-200">
+                className="inline-flex items-center justify-center gap-2 bg-[#00b5c5] text-[#001124] font-bold text-[14px] px-7 py-[15px] rounded-[10px] hover:bg-[#00a0b0] transition-colors duration-200">
                 <Search className="w-4 h-4" aria-hidden="true" />
                 Buscar Inmueble
               </Link>
@@ -193,9 +194,9 @@ export function HomePage() {
           </div>
 
           {/* Columna stats cards */}
-          <div className="hidden min-w-0 flex-1 flex-col gap-4 lg:flex">
-            {/* 2x2 grid de stats */}
-            <div className="grid grid-cols-2 gap-[14px]">
+          <div className="hidden w-full min-w-0 flex-col gap-4 md:flex lg:w-auto lg:flex-1">
+            {/* 4 en fila en tablet (bajo el texto), 2x2 en escritorio (al lado) */}
+            <div className="grid grid-cols-2 gap-[14px] md:grid-cols-4 lg:grid-cols-2">
               {[
                 { Icon: Handshake, num: '2.717', label: 'Operaciones inmobiliarias' },
                 { Icon: Calendar,  num: '18+',   label: 'Años de trayectoria' },
@@ -214,7 +215,7 @@ export function HomePage() {
             </div>
             {/* Banner cobertura nacional */}
             <div
-              className="border border-[rgba(0,181,197,0.3)] rounded-[16px] flex gap-5 items-center px-[29px] py-[25px]"
+              className="border border-[rgba(0,181,197,0.3)] rounded-[16px] hidden gap-5 items-center px-[29px] py-[25px] lg:flex"
               style={{ background: 'linear-gradient(135deg, rgba(0,181,197,0.2) 0%, rgba(0,181,197,0.08) 100%)' }}>
               <div className="bg-[#00b5c5] rounded-[12px] w-[52px] h-[52px] flex items-center justify-center shrink-0 text-white">
                 <Map className="w-5 h-5" aria-hidden="true" />
@@ -236,11 +237,11 @@ export function HomePage() {
       {/* ═══════════════════════════════════════════════════════
           QUIÉNES SOMOS — fondo blanco roto #f8fafd
           ═══════════════════════════════════════════════════════ */}
-      <section id="quienes-somos" className="bg-[#f8fafd] py-16 sm:py-24">
+      <section id="quienes-somos" className="scroll-mt-16 bg-[#f8fafd] py-16 sm:py-24 md:scroll-mt-[102px]">
         <Container className="flex flex-col items-center gap-12 lg:flex-row lg:gap-20">
           {/* Imagen placeholder */}
-          <div className="hidden lg:block shrink-0 rounded-[20px] overflow-hidden"
-            style={{ width: '560px', aspectRatio: '560/420', background: 'linear-gradient(135deg, #004b98 0%, #0071b2 60%, #00b5c5 100%)' }}>
+          <div className="hidden aspect-[4/3] w-[45%] max-w-[560px] shrink-0 overflow-hidden rounded-[20px] lg:block"
+            style={{ background: 'linear-gradient(135deg, #004b98 0%, #0071b2 60%, #00b5c5 100%)' }}>
             <div className="w-full h-full flex items-end p-6">
               <div className="ml-auto bg-white rounded-[14px] shadow-[0px_8px_16px_rgba(0,17,36,0.2)] flex gap-3 items-center px-5 py-4">
                 <p className="font-extrabold text-[#004b98] text-[28px] leading-none">2006</p>
@@ -292,7 +293,8 @@ export function HomePage() {
           VALORES — banda oscura, 4 columnas con separadores
           ═══════════════════════════════════════════════════════ */}
       <section className="bg-[#001124]">
-        <Container className="grid grid-cols-2 border-r border-l border-[rgba(255,255,255,0.08)] sm:grid-cols-4">
+        <Container>
+          <div className="grid grid-cols-2 border-r border-l border-[rgba(255,255,255,0.08)] sm:grid-cols-4">
           {[
             { Icon: Scale,   title: 'Ética',            desc: 'Actuamos con transparencia e integridad en cada proceso' },
             { Icon: Users,   title: 'Atención al Cliente', desc: 'Servicio personalizado y dedicado para cada cliente' },
@@ -308,13 +310,14 @@ export function HomePage() {
               <p className="text-[#6d97a4] text-[12px] leading-[1.5] text-pretty">{desc}</p>
             </div>
           ))}
+          </div>
         </Container>
       </section>
 
       {/* ═══════════════════════════════════════════════════════
           SERVICIOS — grid 3 cols + tarjeta destacada azul
           ═══════════════════════════════════════════════════════ */}
-      <section id="servicios" className="bg-[#eff4f8] py-16 sm:py-24">
+      <section id="servicios" className="scroll-mt-16 bg-[#eff4f8] py-16 sm:py-24 md:scroll-mt-[102px]">
         <Container className="flex flex-col gap-10 sm:gap-14">
           {/* Header sección */}
           <div className="reveal flex flex-col gap-3">
@@ -396,19 +399,16 @@ export function HomePage() {
           </div>
 
           {/* Stats secundarios */}
-          <div className="reveal flex flex-wrap items-center justify-center gap-0 w-full max-w-[800px]">
+          <div className="reveal grid w-full max-w-[800px] grid-cols-2 gap-y-8 sm:grid-cols-4 sm:gap-y-0 sm:divide-x sm:divide-[#e0e5e9]">
             {[
               { num: '19+', label: ['Departamentos', 'con proyectos', 'activos'] },
               { num: '10+', label: ['Entidades', 'públicas', 'atendidas'] },
               { num: '31+', label: ['Especialistas en', 'el equipo'] },
               { num: '15+', label: ['Años de', 'experiencia', 'nacional'] },
-            ].map(({ num, label }, i) => (
-              <div key={num} className="flex items-center">
-                <div className="flex flex-col items-center gap-2 px-3 text-center sm:px-5">
-                  <p className="text-[34px] leading-none font-extrabold tracking-[-0.04em] text-[#001124] sm:text-[48px]">{num}</p>
-                  <p className="text-[#7a8187] text-[13px] leading-[1.5]">{label.map((l, j) => <span key={j}>{l}{j < label.length - 1 ? <br/> : null}</span>)}</p>
-                </div>
-                {i < 3 && <div className="w-px h-14 bg-[#e0e5e9] shrink-0 mx-2 hidden sm:block" />}
+            ].map(({ num, label }) => (
+              <div key={num} className="flex flex-col items-center gap-2 px-3 text-center sm:px-5">
+                <p className="text-[34px] leading-none font-extrabold tracking-[-0.04em] text-[#001124] sm:text-[48px]">{num}</p>
+                <p className="text-[#7a8187] text-[13px] leading-[1.5]">{label.map((l, j) => <span key={j}>{l}{j < label.length - 1 ? <br/> : null}</span>)}</p>
               </div>
             ))}
           </div>
@@ -463,7 +463,7 @@ export function HomePage() {
       {/* ═══════════════════════════════════════════════════════
           CONTACTO — form + datos + mapa placeholder
           ═══════════════════════════════════════════════════════ */}
-      <section id="contacto" className="bg-white py-16 sm:py-24">
+      <section id="contacto" className="scroll-mt-16 bg-white py-16 sm:py-24 md:scroll-mt-[102px]">
         <Container className="flex flex-col gap-10 sm:gap-14">
           {/* Header */}
           <div className="reveal flex flex-col gap-3">
@@ -542,10 +542,11 @@ export function HomePage() {
                 </div>
                 <div className="flex flex-col gap-[6px]">
                   <label htmlFor="servicio" className="text-[#41596a] text-[12px] font-semibold tracking-[0.6px] uppercase">Servicio de interés</label>
+                  <div className="relative">
                   <select id="servicio"
                     value={contacto.servicio}
                     onChange={(e) => actualizarContacto('servicio', e.target.value)}
-                    className="bg-[#eff4f8] border border-[#d2d8dd] rounded-[10px] px-[17px] py-[14px] text-[14px] text-[#0d1c27] outline-none focus:border-[#004b98] focus:bg-white transition-colors appearance-none cursor-pointer">
+                    className="w-full bg-[#eff4f8] border border-[#d2d8dd] rounded-[10px] pl-[17px] pr-10 py-[14px] text-[14px] text-[#0d1c27] outline-none focus:border-[#004b98] focus:bg-white transition-colors appearance-none cursor-pointer">
                     <option value="">Seleccione un servicio...</option>
                     <option>Consultoría y Asesoría Predial</option>
                     <option>Gestión Predial Integral</option>
@@ -553,6 +554,11 @@ export function HomePage() {
                     <option>Topografía</option>
                     <option>Comercialización de Inmuebles</option>
                   </select>
+                  <ChevronDown
+                    className="pointer-events-none absolute top-1/2 right-4 h-4 w-4 -translate-y-1/2 text-[#7a8187]"
+                    aria-hidden="true"
+                  />
+                  </div>
                 </div>
                 <div className="flex flex-col gap-[6px]">
                   <label htmlFor="mensaje" className="text-[#41596a] text-[12px] font-semibold tracking-[0.6px] uppercase">Mensaje</label>
