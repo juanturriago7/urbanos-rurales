@@ -3,6 +3,12 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 
+// URL pública del sitio para las etiquetas Open Graph de index.html
+// (%VITE_SITE_URL%). Las redes sociales solo aceptan URLs absolutas en
+// og:image. Se puede sobrescribir por entorno (.env o build arg).
+// Provisional: aun no hay dominio de produccion confirmado.
+process.env.VITE_SITE_URL ??= 'https://urbanosrurales.com'
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
