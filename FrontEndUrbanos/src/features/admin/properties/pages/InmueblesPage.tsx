@@ -5,12 +5,18 @@ import {
   useEliminarInmueble,
   useInmuebles,
   useMarcarDestacado,
+  useResumenDestacados,
 } from '@/features/admin/properties/hooks/useInmuebles'
 import { mensajeDeError } from '@/features/admin/auth/hooks/useLogin'
 import { useDebounce } from '@/shared/hooks/useDebounce'
 import { Button } from '@/shared/components/ui/Button'
 import { Spinner } from '@/shared/components/ui/Spinner'
+import {
+  estadoBotonDestacar,
+  type EstadoBotonDestacar,
+} from '@/features/admin/properties/lib/destacados'
 import type {
+  DestacadosResumenDto,
   EstadoInmueble,
   InmuebleAdminListItemDto,
 } from '@/features/admin/properties/api/inmueblesApi'
@@ -61,6 +67,7 @@ export function InmueblesPage() {
   const cambiarEstado = useCambiarEstado()
   const destacar = useMarcarDestacado()
   const eliminar = useEliminarInmueble()
+  const { data: resumenDestacados } = useResumenDestacados()
 
   const enAccion = cambiarEstado.isPending || destacar.isPending || eliminar.isPending
 
@@ -80,7 +87,10 @@ export function InmueblesPage() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-text-primary">Inmuebles</h2>
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 className="text-xl font-semibold text-text-primary">Inmuebles</h2>
+          {resumenDestacados && <ContadorDestacados resumen={resumenDestacados} />}
+        </div>
         <Link to="/admin/properties/nuevo">
           <Button>Nuevo inmueble</Button>
         </Link>
@@ -132,7 +142,10 @@ export function InmueblesPage() {
       )}
 
       {errorAccion && (
-        <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-error">
+        <div
+          role="alert"
+          className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-error"
+        >
           {errorAccion}
         </div>
       )}
@@ -174,6 +187,7 @@ export function InmueblesPage() {
                     key={inmueble.id}
                     inmueble={inmueble}
                     deshabilitado={enAccion}
+                    estadoDestacar={estadoBotonDestacar(inmueble, resumenDestacados)}
                     onCambiarEstado={(nuevoEstado) =>
                       ejecutar(
                         () =>
@@ -235,12 +249,20 @@ export function InmueblesPage() {
 interface FilaProps {
   inmueble: InmuebleAdminListItemDto
   deshabilitado: boolean
+  estadoDestacar: EstadoBotonDestacar
   onCambiarEstado: (estado: EstadoInmueble) => void
   onDestacar: () => void
   onEliminar: () => void
 }
 
-function Fila({ inmueble, deshabilitado, onCambiarEstado, onDestacar, onEliminar }: FilaProps) {
+function Fila({
+  inmueble,
+  deshabilitado,
+  estadoDestacar,
+  onCambiarEstado,
+  onDestacar,
+  onEliminar,
+}: FilaProps) {
   const precio =
     inmueble.precioVenta ?? inmueble.precioArriendo ?? null
   const etiquetaPrecio = inmueble.precioVenta ? 'Venta' : inmueble.precioArriendo ? 'Arriendo' : ''
@@ -322,14 +344,38 @@ function Fila({ inmueble, deshabilitado, onCambiarEstado, onDestacar, onEliminar
               Pausar
             </Button>
           )}
-          <Button size="sm" variant="ghost" disabled={deshabilitado} onClick={onDestacar}>
-            {inmueble.destacado ? 'Quitar destacado' : 'Destacar'}
-          </Button>
+          {/* El title va en un span: algunos navegadores no muestran el tooltip
+              de un <button disabled> porque no recibe eventos de puntero. */}
+          <span title={estadoDestacar.motivo ?? undefined}>
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={deshabilitado || estadoDestacar.deshabilitado}
+              onClick={onDestacar}
+            >
+              {inmueble.destacado ? 'Quitar destacado' : 'Destacar'}
+            </Button>
+          </span>
           <Button size="sm" variant="ghost" disabled={deshabilitado} onClick={onEliminar}>
             Eliminar
           </Button>
         </div>
       </td>
     </tr>
+  )
+}
+
+function ContadorDestacados({ resumen }: { resumen: DestacadosResumenDto }) {
+  const lleno = resumen.total >= resumen.maximo
+
+  return (
+    <span
+      title="Los destacados aparecen primero en el sitio público"
+      className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+        lleno ? 'bg-amber-100 text-amber-800' : 'bg-surface-muted text-text-secondary'
+      }`}
+    >
+      Destacados: {resumen.total}/{resumen.maximo}
+    </span>
   )
 }
