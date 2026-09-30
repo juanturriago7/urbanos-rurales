@@ -154,7 +154,7 @@ export function HomePage() {
         {/* Overlay navy: uniforme en móvil (el texto ocupa todo el ancho) y más
             denso a la izquierda en escritorio, donde va el texto */}
         <div
-          className="pointer-events-none absolute inset-0 bg-[rgba(0,17,36,0.8)] lg:bg-[linear-gradient(90deg,rgba(0,17,36,0.92)_0%,rgba(0,17,36,0.78)_50%,rgba(0,17,36,0.55)_100%)]"
+          className="pointer-events-none absolute inset-0 bg-[rgba(0,17,36,0.74)] lg:bg-[linear-gradient(90deg,rgba(0,17,36,0.74)_0%,rgba(0,17,36,0.62)_50%,rgba(0,17,36,0.58)_92%,rgba(0,17,36,0.35)_100%)]"
           aria-hidden="true"
         />
         {/* Grid overlay sutil */}
