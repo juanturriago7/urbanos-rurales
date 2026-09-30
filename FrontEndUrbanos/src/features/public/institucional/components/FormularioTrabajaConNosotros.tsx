@@ -48,7 +48,7 @@ function Campo({
         {required && <span className="ml-1 text-[#00b5c5]">*</span>}
       </label>
       {children}
-      {hint && <p className="text-[12px] leading-[1.5] text-[#7a8187]">{hint}</p>}
+      {hint && <p className="text-[12px] leading-[1.5] wrap-anywhere text-[#7a8187]">{hint}</p>}
     </div>
   )
 }
@@ -202,7 +202,7 @@ export function FormularioTrabajaConNosotros() {
           ¡Recibimos tu postulación! Te contactaremos al correo registrado.
         </p>
       )}
-      {estado === 'error' && mensajeError && (
+      {mensajeError && (
         <p className="rounded-[10px] border border-[#f0c2c2] bg-[#fdf2f2] px-4 py-3 text-[13px] leading-[1.5] text-[#b42318]">
           {mensajeError}
         </p>
