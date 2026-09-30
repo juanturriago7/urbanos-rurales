@@ -33,7 +33,7 @@ export function Foto({ foto, sizes, prioridad = false, className = '', alt }: Fo
       height={foto.alto}
       alt={alt ?? foto.alt}
       loading={prioridad ? 'eager' : 'lazy'}
-      decoding={prioridad ? 'sync' : 'async'}
+      decoding="async"
       fetchPriority={prioridad ? 'high' : 'auto'}
       className={className}
     />
