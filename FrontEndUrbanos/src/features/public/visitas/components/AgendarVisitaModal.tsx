@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react'
 import { isAxiosError } from 'axios'
+import { useBloquearScroll } from '@/shared/hooks/useBloquearScroll'
 import { useAgendarVisita } from '@/features/public/visitas/hooks/useAgendarVisita'
 import { useDisponibilidadVisitas } from '@/features/public/visitas/hooks/useDisponibilidadVisitas'
 import { franjasDisponibles } from '@/features/public/visitas/api/visitasApi'
@@ -66,6 +67,9 @@ const formateaConfirmacion = (iso: string) => {
 }
 
 export function AgendarVisitaModal({ inmuebleId, codigoReferencia, titulo, onClose }: Props) {
+  // El padre monta el modal solo cuando está abierto (`{open && <Modal/>}`).
+  useBloquearScroll(true)
+
   const agendar = useAgendarVisita()
 
   const [nombre, setNombre] = useState('')
@@ -157,7 +161,7 @@ export function AgendarVisitaModal({ inmuebleId, codigoReferencia, titulo, onClo
       onClick={onClose}
     >
       <div
-        className="max-h-[92vh] w-full overflow-y-auto rounded-t-[20px] bg-white p-6 sm:max-w-[520px] sm:rounded-[20px] sm:p-8"
+        className="max-h-[92dvh] w-full overflow-y-auto overscroll-contain rounded-t-[20px] bg-white px-6 pt-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:max-w-[520px] sm:rounded-[20px] sm:p-8"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-5 flex items-start justify-between gap-4">
@@ -173,7 +177,7 @@ export function AgendarVisitaModal({ inmuebleId, codigoReferencia, titulo, onClo
             type="button"
             onClick={onClose}
             aria-label="Cerrar"
-            className="-mr-1 -mt-1 rounded-[8px] p-1 text-[#7a8187] transition-colors hover:bg-[#eff4f8] hover:text-[#001124]"
+            className="-mt-2 -mr-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-[8px] text-[#7a8187] transition-colors hover:bg-[#eff4f8] hover:text-[#001124]"
           >
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
@@ -315,7 +319,7 @@ export function AgendarVisitaModal({ inmuebleId, codigoReferencia, titulo, onClo
               <button
                 type="submit"
                 disabled={agendar.isPending}
-                className="inline-flex items-center gap-2 rounded-[10px] bg-[#004b98] px-[28px] py-[13px] text-[14px] font-bold text-white transition-colors duration-200 hover:bg-[#003b7a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004b98] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-[10px] bg-[#004b98] px-[28px] py-[13px] text-[14px] font-bold text-white transition-colors duration-200 hover:bg-[#003b7a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004b98] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
               >
                 {agendar.isPending && (
                   <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
