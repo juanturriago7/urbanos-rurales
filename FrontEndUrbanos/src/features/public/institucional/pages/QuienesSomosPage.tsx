@@ -4,6 +4,8 @@ import { PoliticaIntegral } from '@/features/public/institucional/components/Pol
 import { CertificacionesISO } from '@/features/public/institucional/components/CertificacionesISO'
 import { useScrollReveal } from '@/shared/hooks/useScrollReveal'
 import { Container } from '@/shared/components/ui/Container'
+import { Foto } from '@/shared/components/ui/Foto'
+import { FOTOS } from '@/assets/fotos'
 
 /**
  * Página Quiénes somos — spec 07.
@@ -29,9 +31,19 @@ export function QuienesSomosPage() {
 
   return (
     <div className="bg-white">
-      {/* Hero */}
-      <section className="bg-[#001124] py-16 sm:py-24">
-        <Container>
+      {/* Hero: paisaje rural distinto al de la Home, para no repetir */}
+      <section className="relative overflow-hidden bg-[#001124] py-16 sm:py-24">
+        <Foto
+          foto={FOTOS.ruralPalmaRio}
+          sizes="100vw"
+          prioridad
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div
+          className="pointer-events-none absolute inset-0 bg-[rgba(0,17,36,0.76)] lg:bg-[linear-gradient(90deg,rgba(0,17,36,0.8)_0%,rgba(0,17,36,0.8)_62%,rgba(0,17,36,0.4)_85%,rgba(0,17,36,0.32)_100%)]"
+          aria-hidden="true"
+        />
+        <Container className="relative">
           <span className="reveal inline-block rounded-full bg-[rgba(0,181,197,0.08)] px-3 py-1">
             <span className="text-[11px] font-semibold uppercase tracking-[1.32px] text-[#00b5c5]">
               Quiénes somos
@@ -64,16 +76,12 @@ export function QuienesSomosPage() {
             </p>
           </div>
           <div className="reveal-scale flex items-center justify-center">
-            <div
-              className="aspect-[4/3] w-full rounded-[20px]"
-              style={{
-                background: 'linear-gradient(135deg, #004b98 0%, #0071b2 60%, #00b5c5 100%)',
-              }}
-            >
-              <div className="flex h-full items-center justify-center text-[rgba(255,255,255,0.5)] text-[12px]">
-                [Imagen institucional]
-              </div>
-            </div>
+            {/* 16:9 nativo: la foto es gran angular y recortarla a 4:3 cortaba personas */}
+            <Foto
+              foto={FOTOS.reunionEquipo}
+              sizes="(min-width: 1024px) 576px, 100vw"
+              className="aspect-video h-auto w-full rounded-[20px] object-cover"
+            />
           </div>
         </Container>
       </section>
@@ -225,6 +233,11 @@ export function QuienesSomosPage() {
               si hay un match con alguna de nuestras vacantes.
             </p>
           </div>
+          <Foto
+            foto={FOTOS.capacitacion}
+            sizes="(min-width: 768px) 672px, 100vw"
+            className="reveal-scale mt-8 aspect-video h-auto w-full rounded-[20px] object-cover"
+          />
           <div className="reveal-scale mt-8 rounded-[20px] border border-[#d8dfe4] bg-white p-6 sm:p-8">
             <FormularioTrabajaConNosotros />
           </div>
