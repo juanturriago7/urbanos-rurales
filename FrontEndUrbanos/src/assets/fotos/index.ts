@@ -42,7 +42,7 @@ function srcSet(variantes: Record<number, string>) {
 const ALT_TERRITORIO =
   'Vista aérea de campos con lagunas y una vía recta que lleva hacia la ciudad'
 
-export const FOTOS: Record<string, FotoCatalogo> = {
+export const FOTOS = {
   heroTerritorio: {
     src: heroTerritorio1280,
     srcSet: srcSet({ 1280: heroTerritorio1280, 1920: heroTerritorio1920 }),
@@ -54,6 +54,7 @@ export const FOTOS: Record<string, FotoCatalogo> = {
   portadaArticulo: {
     src: heroTerritorio1280,
     srcSet: srcSet({ 1280: heroTerritorio1280 }),
+    srcSetMovil: undefined,
     ancho: 1280,
     alto: 720,
     alt: ALT_TERRITORIO,
@@ -61,6 +62,7 @@ export const FOTOS: Record<string, FotoCatalogo> = {
   ruralPalmaRio: {
     src: ruralPalmaRio1280,
     srcSet: srcSet({ 1280: ruralPalmaRio1280, 1920: ruralPalmaRio1920 }),
+    srcSetMovil: undefined,
     ancho: 1920,
     alto: 1080,
     alt: 'Vista aérea de una plantación de palma junto a un río',
@@ -68,6 +70,7 @@ export const FOTOS: Record<string, FotoCatalogo> = {
   cabeceraInmuebles: {
     src: camino960,
     srcSet: srcSet({ 960: camino960, 1600: camino1600 }),
+    srcSetMovil: undefined,
     ancho: 1600,
     alto: 900,
     alt: 'Vista aérea de un camino rural entre cultivos de palma con una camioneta',
@@ -75,6 +78,7 @@ export const FOTOS: Record<string, FotoCatalogo> = {
   comercializacion: {
     src: comercializacion800,
     srcSet: srcSet({ 800: comercializacion800 }),
+    srcSetMovil: undefined,
     ancho: 800,
     alto: 600,
     alt: 'Vista cenital de un camino entre cultivos de palma',
@@ -82,6 +86,7 @@ export const FOTOS: Record<string, FotoCatalogo> = {
   equipo: {
     src: equipo800,
     srcSet: srcSet({ 800: equipo800, 1200: equipo1200 }),
+    srcSetMovil: undefined,
     ancho: 1200,
     alto: 800,
     alt: 'Equipo de Urbanos & Rurales reunido frente a un edificio de fachada de vidrio',
@@ -89,6 +94,7 @@ export const FOTOS: Record<string, FotoCatalogo> = {
   reunionEquipo: {
     src: reunion800,
     srcSet: srcSet({ 800: reunion800, 1280: reunion1280 }),
+    srcSetMovil: undefined,
     ancho: 1280,
     alto: 720,
     alt: 'Reunión de trabajo del equipo interdisciplinario en la oficina',
@@ -96,8 +102,9 @@ export const FOTOS: Record<string, FotoCatalogo> = {
   capacitacion: {
     src: capacitacion800,
     srcSet: srcSet({ 800: capacitacion800, 1280: capacitacion1280 }),
+    srcSetMovil: undefined,
     ancho: 1280,
     alto: 720,
     alt: 'Capacitación interna del equipo sobre calidad en el servicio',
   },
-}
+} satisfies Record<string, FotoCatalogo>
