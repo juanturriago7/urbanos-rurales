@@ -151,6 +151,7 @@ services:
         # Vacio = el frontend pega a /api del mismo origen, que nginx enruta al backend.
         VITE_API_BASE_URL: ""
         VITE_APP_NAME: "Portal Inmobiliario (Staging)"
+        VITE_SITE_URL: "https://${STAGING_DOMAIN:?falta STAGING_DOMAIN en .env}"
     container_name: urbanos-frontend-staging
     restart: unless-stopped
     mem_limit: 64m
