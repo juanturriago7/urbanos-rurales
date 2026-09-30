@@ -189,7 +189,10 @@ export function FormularioTrabajaConNosotros() {
         <input
           type="checkbox"
           checked={aceptaTratamiento}
-          onChange={(e) => setAceptaTratamiento(e.target.checked)}
+          onChange={(e) => {
+            setAceptaTratamiento(e.target.checked)
+            setMensajeError('')
+          }}
           className="mt-[3px] h-4 w-4 shrink-0 accent-[#004b98]"
         />
         <span>
@@ -198,12 +201,18 @@ export function FormularioTrabajaConNosotros() {
       </label>
 
       {estado === 'ok' && (
-        <p className="rounded-[10px] border border-[#a9dde3] bg-[#e8f7f9] px-4 py-3 text-[13px] leading-[1.5] text-[#0a5b66]">
+        <p
+          role="status"
+          className="rounded-[10px] border border-[#a9dde3] bg-[#e8f7f9] px-4 py-3 text-[13px] leading-[1.5] text-[#0a5b66]"
+        >
           ¡Recibimos tu postulación! Te contactaremos al correo registrado.
         </p>
       )}
       {mensajeError && (
-        <p className="rounded-[10px] border border-[#f0c2c2] bg-[#fdf2f2] px-4 py-3 text-[13px] leading-[1.5] text-[#b42318]">
+        <p
+          role="alert"
+          className="rounded-[10px] border border-[#f0c2c2] bg-[#fdf2f2] px-4 py-3 text-[13px] leading-[1.5] text-[#b42318]"
+        >
           {mensajeError}
         </p>
       )}

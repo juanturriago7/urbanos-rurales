@@ -129,8 +129,11 @@ export function ClientesCarrusel({
         {/* Carrusel */}
         <div
           className={sinMovimiento ? 'overflow-x-auto' : 'overflow-hidden'}
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
+          // Solo ratón: en táctil, tras un toque el navegador emite un
+          // pointerenter/mouseenter de compatibilidad que dejaría el
+          // carrusel pausado hasta tocar fuera.
+          onPointerEnter={(e) => e.pointerType === 'mouse' && setIsPaused(true)}
+          onPointerLeave={(e) => e.pointerType === 'mouse' && setIsPaused(false)}
           // En táctil no hay hover: se pausa mientras el dedo está encima.
           onTouchStart={() => setIsPaused(true)}
           onTouchEnd={() => setIsPaused(false)}

@@ -173,7 +173,7 @@ export function MobileDrawer({ abierto, onCerrar }: MobileDrawerProps) {
           <button
             type="button"
             onClick={() => handleAnchor('contacto')}
-            className="flex items-center justify-center w-full bg-[#004b98] text-white font-semibold text-[13px] py-3 rounded-[10px] hover:bg-[#003b7a] transition-colors duration-200 shadow-[0_4px_12px_rgba(0,75,152,0.25)]"
+            className="cursor-pointer flex items-center justify-center w-full bg-[#004b98] text-white font-semibold text-[13px] py-3 rounded-[10px] hover:bg-[#003b7a] transition-colors duration-200 shadow-[0_4px_12px_rgba(0,75,152,0.25)]"
           >
             Contáctanos
           </button>
