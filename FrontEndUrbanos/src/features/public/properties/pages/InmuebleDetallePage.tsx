@@ -14,6 +14,7 @@ import { normalizarDescripcion } from '@/features/public/properties/lib/descripc
 import { Container } from '@/shared/components/ui/Container'
 import { TextoColapsable } from '@/shared/components/ui/TextoColapsable'
 import { site } from '@/shared/config/site'
+import { textoParqueaderos } from '@/shared/lib/tiposParqueadero'
 
 /* ── Helpers ─────────────────────────────────────────────────── */
 const formatoPesos = new Intl.NumberFormat('es-CO', {
@@ -276,8 +277,12 @@ export function InmuebleDetallePage() {
                     <span className="text-[13px] font-medium">{inmueble.banos} baños</span>
                   </span>
                 )}
+                {/* "2 parqueaderos · Privado, Doble (2 en línea)". textoParqueaderos
+                    tolera que tiposParqueadero falte (API anterior a la columna). */}
                 {inmueble.parqueaderos > 0 && (
-                  <span className="text-[13px] font-medium text-[#001124]">{inmueble.parqueaderos} parqueaderos</span>
+                  <span className="text-[13px] font-medium text-pretty text-[#001124]">
+                    {textoParqueaderos(inmueble.parqueaderos, inmueble.tiposParqueadero)}
+                  </span>
                 )}
                 <span className="flex items-center gap-[7px] text-[#001124]">
                   <House className="h-4 w-4" aria-hidden="true" />

@@ -1,5 +1,6 @@
 import { apiClient } from '@/shared/lib/axios'
 import type { PagedResult } from '@/shared/types/api'
+import type { TipoParqueadero } from '@/shared/lib/tiposParqueadero'
 
 /**
  * Búsqueda pública de inmuebles (GET /api/inmuebles). Sin autenticación.
@@ -174,6 +175,8 @@ export interface InmueblePublicoDetalleDto {
   habitaciones: number
   banos: number
   parqueaderos: number
+  /** Orden canónico (ver TIPOS_PARQUEADERO). Vacío si no se indicó. */
+  tiposParqueadero: TipoParqueadero[]
   piso: number | null
   pisosEdificio: number | null
   estrato: number | null
