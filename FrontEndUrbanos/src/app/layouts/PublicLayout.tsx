@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom'
 import { Footer } from '@/app/layouts/public/Footer'
 import { Header } from '@/app/layouts/public/Header'
 import { RedesFab } from '@/shared/components/RedesFab'
+import { esRutaFichaInmueble } from '@/shared/lib/rutas'
 
 /**
  * Shell del sitio público: ensambla las piezas y es dueño del estado del drawer.
@@ -21,6 +22,10 @@ import { RedesFab } from '@/shared/components/RedesFab'
 export function PublicLayout() {
   const location = useLocation()
   const esLanding = location.pathname === '/'
+  // La ficha lleva una barra de contacto fija abajo por debajo de `lg`
+  // (pt-3 + botón de 44px + pb-3 + borde ≈ 69px): sin este hueco taparía el
+  // final del pie de página.
+  const esFicha = esRutaFichaInmueble(location.pathname)
 
   const [drawerAbierto, setDrawerAbierto] = useState(false)
 
@@ -34,7 +39,12 @@ export function PublicLayout() {
   const cerrarDrawer = useCallback(() => setDrawerAbierto(false), [])
 
   return (
-    <div className="bg-surface text-text-primary flex min-h-screen flex-col font-sans">
+    <div
+      className={[
+        'bg-surface text-text-primary flex min-h-screen flex-col font-sans',
+        esFicha ? 'pb-[72px] lg:pb-0' : '',
+      ].join(' ')}
+    >
       <a
         href="#contenido"
         className="focus:rounded-control focus:bg-surface focus:text-brand-700 focus:shadow-dropdown sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold"

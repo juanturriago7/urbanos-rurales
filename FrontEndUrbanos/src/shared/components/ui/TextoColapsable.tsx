@@ -71,7 +71,7 @@ export function TextoColapsable({
           onClick={() => setAbierto((v) => !v)}
           aria-expanded={abierto}
           aria-controls={id}
-          className="mt-3 rounded-[8px] text-[13px] font-semibold text-[#004b98] transition-colors hover:text-[#00b5c5]"
+          className="mt-1 rounded-[8px] py-2 text-[13px] font-semibold text-[#004b98] transition-colors hover:text-[#00b5c5]"
         >
           {abierto ? 'Ver menos' : 'Ver más'}
         </button>

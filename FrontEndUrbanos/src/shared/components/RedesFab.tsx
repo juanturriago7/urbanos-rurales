@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { InstagramIcon, TikTokIcon } from '@/shared/components/icons/SocialIcons'
 import { WhatsAppIcon } from '@/shared/components/icons/WhatsAppIcon'
 import { site } from '@/shared/config/site'
+import { esRutaFichaInmueble } from '@/shared/lib/rutas'
 
 /**
  * Pila flotante de contacto y redes: Instagram, TikTok y WhatsApp.
@@ -53,6 +55,9 @@ const BOTONES = [
 
 export function RedesFab() {
   const [visible, setVisible] = useState(false)
+  // En la ficha, por debajo de `lg`, la barra fija ya lleva WhatsApp y el FAB
+  // se montaría encima de ella.
+  const enFicha = esRutaFichaInmueble(useLocation().pathname)
 
   useEffect(() => {
     const temporizador = window.setTimeout(() => setVisible(true), RETARDO_MS)
@@ -84,7 +89,8 @@ export function RedesFab() {
         // z-30 y no z-50: el drawer movil es z-50 y va antes en el DOM, asi que
         // con ambos al mismo nivel el FAB se pintaba encima del panel modal.
         // La jerarquia queda contenido < FAB < header (z-40) < modal (z-50).
-        'fixed right-6 bottom-6 z-30 flex flex-col items-end gap-3',
+        'fixed right-6 bottom-6 z-30 flex-col items-end gap-3',
+        enFicha ? 'hidden lg:flex' : 'flex',
         'transition-opacity duration-300',
         visible ? 'opacity-100' : 'pointer-events-none opacity-0',
       ].join(' ')}

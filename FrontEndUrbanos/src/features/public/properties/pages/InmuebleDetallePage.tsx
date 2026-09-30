@@ -1,5 +1,5 @@
 import { BedDouble, House, MapPin, Ruler } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useInmuebleDetalle } from '@/features/public/properties/hooks/usePublicaciones'
 import type {
@@ -8,6 +8,7 @@ import type {
   OperacionDto,
 } from '@/features/public/properties/api/inmueblesPublicApi'
 import { WhatsAppIcon } from '@/shared/components/icons/WhatsAppIcon'
+import { useBloquearScroll } from '@/shared/hooks/useBloquearScroll'
 import { AgendarVisitaModal } from '@/features/public/visitas/components/AgendarVisitaModal'
 import { normalizarDescripcion } from '@/features/public/properties/lib/descripcion'
 import { Container } from '@/shared/components/ui/Container'
@@ -66,6 +67,9 @@ function Galeria({ imagenes, titulo }: { imagenes: ImagenDto[]; titulo: string }
     return () => window.removeEventListener('keydown', alTeclear)
   }, [lightbox, imagenes.length])
 
+  useBloquearScroll(lightbox)
+  const inicioToque = useRef<number | null>(null)
+
   if (imagenes.length === 0) {
     return (
       <div className="flex aspect-[16/9] w-full items-center justify-center rounded-[18px]"
@@ -110,9 +114,25 @@ function Galeria({ imagenes, titulo }: { imagenes: ImagenDto[]; titulo: string }
             ✕
           </button>
 
+          {/* 11rem = p-4 del contenedor + mt-4 + controles de 40px + el hueco
+              de la ✕: con 85vh, en un móvil apaisado las flechas quedaban
+              fuera de la pantalla y la ✕ encima de la foto. `dvh` descuenta
+              la barra de URL del navegador móvil; `vh` no. */}
           <img src={actual.urlCdn} alt={actual.textoAlt ?? titulo}
             onClick={(e) => e.stopPropagation()}
-            className="max-h-[85vh] max-w-[90vw] rounded-[10px] object-contain" />
+            onTouchStart={(e) => {
+              inicioToque.current = e.touches[0].clientX
+            }}
+            onTouchEnd={(e) => {
+              if (inicioToque.current === null) return
+              const dx = e.changedTouches[0].clientX - inicioToque.current
+              inicioToque.current = null
+              if (Math.abs(dx) < 50 || imagenes.length < 2) return
+              setIndice((i) =>
+                dx < 0 ? (i + 1) % imagenes.length : (i - 1 + imagenes.length) % imagenes.length,
+              )
+            }}
+            className="max-h-[calc(100dvh-11rem)] max-w-[90vw] rounded-[10px] object-contain" />
 
           {imagenes.length > 1 && (
             <div className="mt-4 flex items-center gap-6" onClick={(e) => e.stopPropagation()}>
@@ -192,6 +212,12 @@ export function InmuebleDetallePage() {
 
   const mensajeWA = `Hola, estoy interesado en el inmueble ${inmueble.codigoReferencia} - ${inmueble.titulo}. ¿Podrían darme más información?`
   const urlWA = `https://wa.me/${site.contacto.whatsapp}?text=${encodeURIComponent(mensajeWA)}`
+
+  const precioPrincipal = ventaOp
+    ? formatOperacion(ventaOp)
+    : arriendoOp
+      ? formatOperacion(arriendoOp)
+      : null
 
   return (
     <div className="min-h-screen bg-[#eff4f8] font-['Outfit',sans-serif]">
@@ -333,8 +359,7 @@ export function InmuebleDetallePage() {
               {inmueble.mapaEmbedUrl && (
                 <div className="mt-8">
                   <h2 className="text-[17px] font-bold text-[#001124]">Ubicación</h2>
-                  <div className="relative mt-3 overflow-hidden rounded-[16px] border border-[#d8dfe4] bg-white"
-                    style={{ aspectRatio: '16/9' }}>
+                  <div className="relative mt-3 aspect-[4/3] overflow-hidden rounded-[16px] border border-[#d8dfe4] bg-white sm:aspect-video">
                     <iframe
                       src={inmueble.mapaEmbedUrl}
                       title="Ubicación del inmueble"
@@ -350,44 +375,44 @@ export function InmuebleDetallePage() {
                 <h2 className="text-[17px] font-bold text-[#001124]">Detalles del inmueble</h2>
                 <dl className="mt-3 grid grid-cols-1 gap-x-8 gap-y-3 rounded-[16px] border border-[#d8dfe4] bg-white p-6 sm:grid-cols-2">
                   {inmueble.areaPrivadaM2 && (
-                    <div className="flex justify-between border-b border-[#eff4f8] pb-2 text-[13px]">
+                    <div className="flex justify-between gap-4 border-b border-[#eff4f8] pb-2 text-[13px]">
                       <dt className="text-[#7a8187]">Área privada</dt>
-                      <dd className="font-semibold text-[#001124]">{inmueble.areaPrivadaM2} m²</dd>
+                      <dd className="text-right font-semibold text-[#001124]">{inmueble.areaPrivadaM2} m²</dd>
                     </div>
                   )}
                   {inmueble.piso && (
-                    <div className="flex justify-between border-b border-[#eff4f8] pb-2 text-[13px]">
+                    <div className="flex justify-between gap-4 border-b border-[#eff4f8] pb-2 text-[13px]">
                       <dt className="text-[#7a8187]">Piso</dt>
-                      <dd className="font-semibold text-[#001124]">{inmueble.piso}</dd>
+                      <dd className="text-right font-semibold text-[#001124]">{inmueble.piso}</dd>
                     </div>
                   )}
                   {inmueble.pisosEdificio && (
-                    <div className="flex justify-between border-b border-[#eff4f8] pb-2 text-[13px]">
+                    <div className="flex justify-between gap-4 border-b border-[#eff4f8] pb-2 text-[13px]">
                       <dt className="text-[#7a8187]">Pisos del edificio</dt>
-                      <dd className="font-semibold text-[#001124]">{inmueble.pisosEdificio}</dd>
+                      <dd className="text-right font-semibold text-[#001124]">{inmueble.pisosEdificio}</dd>
                     </div>
                   )}
                   {inmueble.antiguedad && (
-                    <div className="flex justify-between border-b border-[#eff4f8] pb-2 text-[13px]">
+                    <div className="flex justify-between gap-4 border-b border-[#eff4f8] pb-2 text-[13px]">
                       <dt className="text-[#7a8187]">Antigüedad</dt>
-                      <dd className="font-semibold text-[#001124] capitalize">{inmueble.antiguedad}</dd>
+                      <dd className="text-right font-semibold text-[#001124] capitalize">{inmueble.antiguedad}</dd>
                     </div>
                   )}
                   {inmueble.orientacion && (
-                    <div className="flex justify-between border-b border-[#eff4f8] pb-2 text-[13px]">
+                    <div className="flex justify-between gap-4 border-b border-[#eff4f8] pb-2 text-[13px]">
                       <dt className="text-[#7a8187]">Orientación</dt>
-                      <dd className="font-semibold text-[#001124] capitalize">{inmueble.orientacion}</dd>
+                      <dd className="text-right font-semibold text-[#001124] capitalize">{inmueble.orientacion}</dd>
                     </div>
                   )}
                   {inmueble.amoblado && (
-                    <div className="flex justify-between border-b border-[#eff4f8] pb-2 text-[13px]">
+                    <div className="flex justify-between gap-4 border-b border-[#eff4f8] pb-2 text-[13px]">
                       <dt className="text-[#7a8187]">Amoblado</dt>
-                      <dd className="font-semibold text-[#001124] capitalize">{inmueble.amoblado}</dd>
+                      <dd className="text-right font-semibold text-[#001124] capitalize">{inmueble.amoblado}</dd>
                     </div>
                   )}
-                  <div className="flex justify-between border-b border-[#eff4f8] pb-2 text-[13px]">
+                  <div className="flex justify-between gap-4 border-b border-[#eff4f8] pb-2 text-[13px]">
                     <dt className="text-[#7a8187]">Mascotas</dt>
-                    <dd className="font-semibold text-[#001124] capitalize">{inmueble.politicaMascotas}</dd>
+                    <dd className="text-right font-semibold text-[#001124] capitalize">{inmueble.politicaMascotas}</dd>
                   </div>
                 </dl>
               </div>
@@ -419,7 +444,7 @@ export function InmuebleDetallePage() {
           </div>
 
           {/* ── Sidebar de contacto ── */}
-          <aside className="h-fit rounded-[18px] border border-[#d8dfe4] bg-white p-6 lg:sticky lg:top-[110px]">
+          <aside className="hidden h-fit rounded-[18px] border border-[#d8dfe4] bg-white p-6 lg:sticky lg:top-[110px] lg:block">
             {(ventaOp || arriendoOp) && (
               <div className="mb-5 space-y-1">
                 {ventaOp && (
@@ -458,6 +483,32 @@ export function InmuebleDetallePage() {
           </aside>
         </div>
       </Container>
+
+      {/* Barra de contacto fija (móvil y tablet). Sin ella, precio, WhatsApp y
+          "Agendar visita" quedaban al final de toda la ficha, después de la
+          descripción y las características. PublicLayout reserva su alto con
+          padding y el FAB se oculta en esta ruta: los dos se tapaban. */}
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-[#d8dfe4] bg-white/95 backdrop-blur-[6px] lg:hidden">
+        <Container className="flex items-center gap-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+          {precioPrincipal && (
+            <p className="min-w-0 flex-1 truncate text-[16px] leading-none font-extrabold tracking-[-0.3px] text-[#004b98]">
+              {precioPrincipal}
+            </p>
+          )}
+          <div className="ml-auto flex shrink-0 gap-2">
+            <a href={urlWA} target="_blank" rel="noopener noreferrer"
+              aria-label="Contactar por WhatsApp"
+              className="flex h-11 items-center justify-center gap-2 rounded-[10px] bg-[#25d366] px-4 text-[14px] font-bold text-white transition-colors hover:bg-[#1ebc59]">
+              <WhatsAppIcon className="h-5 w-5" />
+              <span className="hidden min-[400px]:inline">WhatsApp</span>
+            </a>
+            <button type="button" onClick={() => setVisitaOpen(true)}
+              className="flex h-11 items-center justify-center rounded-[10px] border border-[#004b98] px-4 text-[14px] font-bold text-[#004b98] transition-colors hover:bg-[#004b98] hover:text-white">
+              Agendar
+            </button>
+          </div>
+        </Container>
+      </div>
 
       {visitaOpen && (
         <AgendarVisitaModal
