@@ -54,7 +54,9 @@ export function Header({ drawerAbierto, onAbrirDrawer, onCerrarDrawer }: HeaderP
         {/* ── Top bar información de contacto ── */}
         <div className="bg-[#001124] hidden md:flex">
           <Container width="wide">
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-1 py-[10px]">
+            {/* leading fijo: 10 + 17 + 10 = 37px, + 64 de la barra + 1 de borde
+                = los 102px que reserva PublicLayout (md:pt-[102px]). */}
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-1 py-[10px] leading-[17px]">
               {/* La dirección completa no cabe junto al teléfono y el correo
                   hasta que hay ~1024px; por debajo la cubre el pie de página. */}
               <div className="hidden items-center gap-[6px] text-[#a1c5cc] lg:flex">
@@ -125,16 +127,16 @@ export function Header({ drawerAbierto, onAbrirDrawer, onCerrarDrawer }: HeaderP
                   className="text-[13px] font-semibold text-[#0d1c27] hover:text-[#004b98] transition-colors duration-200">
                   Buscar inmueble
                 </Link>
-                <Link to="/inmuebles"
-                  className="bg-[#004b98] text-white text-[13px] font-semibold tracking-[0.13px] px-[22px] py-[10px] rounded-[8px] hover:bg-[#003b7a] transition-colors duration-200">
+                <button type="button" onClick={() => handleAnchorClick('contacto')}
+                  className="cursor-pointer bg-[#004b98] text-white text-[13px] font-semibold tracking-[0.13px] px-[22px] py-[10px] rounded-[8px] hover:bg-[#003b7a] transition-colors duration-200">
                   Contáctanos
-                </Link>
+                </button>
               </div>
 
               {/* Hamburger mobile */}
               <button type="button" onClick={onAbrirDrawer} aria-label="Abrir menú"
                 aria-expanded={drawerAbierto}
-                className="p-2 text-[#001124]/50 hover:text-[#001124] transition-colors duration-200 xl:hidden">
+                className="-mr-2 p-3 text-[#001124]/70 hover:text-[#001124] transition-colors duration-200 xl:hidden">
                 <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
                   <path d="M4 6h16M4 12h10M4 18h16" strokeLinecap="round" />
                 </svg>

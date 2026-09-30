@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Logo } from '@/shared/components/ui/Logo'
 import { site } from '@/shared/config/site'
+import { useBloquearScroll } from '@/shared/hooks/useBloquearScroll'
 
 /**
  * Panel de navegación móvil.
@@ -29,13 +30,7 @@ export function MobileDrawer({ abierto, onCerrar }: MobileDrawerProps) {
   const location = useLocation()
   const navigate = useNavigate()
 
-  /* Bloquea scroll del body */
-  useEffect(() => {
-    if (!abierto) return
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = prev }
-  }, [abierto])
+  useBloquearScroll(abierto)
 
   /* Escape + trampa de foco */
   useEffect(() => {
@@ -97,7 +92,7 @@ export function MobileDrawer({ abierto, onCerrar }: MobileDrawerProps) {
         role="dialog"
         aria-modal="true"
         aria-label="Menú de navegación"
-        className="animate-drawer-in absolute top-0 right-0 h-full w-[82%] max-w-sm flex flex-col bg-white shadow-[-8px_0_32px_rgba(0,17,36,0.18)]"
+        className="animate-drawer-in absolute top-0 right-0 h-full w-[82%] max-w-sm flex flex-col overflow-y-auto overscroll-contain bg-white shadow-[-8px_0_32px_rgba(0,17,36,0.18)]"
       >
         {/* Franja cian superior */}
         <div className="h-1 w-full bg-[#00b5c5] shrink-0" />
@@ -112,7 +107,7 @@ export function MobileDrawer({ abierto, onCerrar }: MobileDrawerProps) {
             type="button"
             onClick={onCerrar}
             aria-label="Cerrar menú"
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-[#7a8187] hover:text-[#001124] hover:bg-[#eff4f8] transition-colors duration-200"
+            className="-mr-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[#7a8187] hover:text-[#001124] hover:bg-[#eff4f8] transition-colors duration-200"
           >
             <svg className="w-4.5 h-4.5" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
               <path d="M3 3l12 12M15 3L3 15" strokeLinecap="round" />
@@ -121,7 +116,7 @@ export function MobileDrawer({ abierto, onCerrar }: MobileDrawerProps) {
         </div>
 
         {/* Navegación */}
-        <nav className="flex flex-col px-3 py-4 flex-1 overflow-y-auto">
+        <nav className="flex flex-1 flex-col px-3 py-4">
           {NAV_ITEMS.map((item) => {
             const isActive = 'to' in item && location.pathname === item.to
 
@@ -175,13 +170,13 @@ export function MobileDrawer({ abierto, onCerrar }: MobileDrawerProps) {
             Buscar inmueble
           </Link>
 
-          <Link
-            to="/#contacto"
-            onClick={onCerrar}
+          <button
+            type="button"
+            onClick={() => handleAnchor('contacto')}
             className="flex items-center justify-center w-full bg-[#004b98] text-white font-semibold text-[13px] py-3 rounded-[10px] hover:bg-[#003b7a] transition-colors duration-200 shadow-[0_4px_12px_rgba(0,75,152,0.25)]"
           >
             Contáctanos
-          </Link>
+          </button>
         </div>
 
         {/* Datos de contacto rápido */}
