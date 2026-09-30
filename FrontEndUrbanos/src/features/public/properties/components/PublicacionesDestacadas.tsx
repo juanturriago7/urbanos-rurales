@@ -2,6 +2,7 @@ import { Container } from '@/shared/components/ui/Container'
 import { BedDouble, House, MapPin, Ruler } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { usePublicaciones } from '@/features/public/properties/hooks/usePublicaciones'
+import { BadgeDestacado } from '@/features/public/properties/components/BadgeDestacado'
 
 const formatoPesos = new Intl.NumberFormat('es-CO', {
   style: 'currency',
@@ -55,7 +56,7 @@ export function PublicacionesDestacadas() {
               Inmuebles disponibles
             </h2>
             <p className="texto-lead max-w-[560px] text-[#7a8187]">
-              Una selección de las propiedades más recientes de nuestro portafolio.
+              Nuestras propiedades destacadas y las más recientes del portafolio.
             </p>
           </div>
           <Link
@@ -134,6 +135,7 @@ export function PublicacionesDestacadas() {
                           {operacion}
                         </span>
                       )}
+                      {inmueble.destacado && <BadgeDestacado />}
                     </div>
 
                     {/* Info */}

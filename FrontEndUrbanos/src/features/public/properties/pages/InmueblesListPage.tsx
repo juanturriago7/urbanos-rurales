@@ -3,6 +3,7 @@ import { BedDouble, ChevronDown, House, MapPin, Ruler, Search, SlidersHorizontal
 import { useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { usePublicaciones } from '@/features/public/properties/hooks/usePublicaciones'
+import { BadgeDestacado } from '@/features/public/properties/components/BadgeDestacado'
 import { useBuscarUbicaciones, useCaracteristicas } from '@/features/admin/catalogos/hooks/useCatalogos'
 import type { UbicacionBusquedaDto } from '@/features/admin/catalogos/api/catalogosApi'
 import type {
@@ -72,6 +73,7 @@ function TarjetaInmueble({ inmueble }: { inmueble: InmueblePublicoListItemDto })
           <span className={`absolute top-3.5 left-3.5 ${badgeBg} ${badgeTxt} text-[11px] font-bold tracking-[0.33px] px-3 py-1.5 rounded-full`}>
             {operacion}
           </span>
+          {inmueble.destacado && <BadgeDestacado />}
         </div>
 
         {/* Info */}
