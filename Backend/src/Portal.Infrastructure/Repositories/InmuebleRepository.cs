@@ -377,6 +377,19 @@ internal sealed class InmuebleRepository : IInmuebleRepository
         return await conn.ExecuteScalarAsync<int>(sql);
     }
 
+    public async Task QuitarDestacadoAsync(long id, CancellationToken ct = default)
+    {
+        const string sql = """
+            UPDATE inmuebles SET
+                destacado      = FALSE,
+                actualizado_en = @Ahora
+            WHERE id = @Id AND destacado = TRUE
+            """;
+
+        using var conn = await _connectionFactory.OpenAsync(ct);
+        await conn.ExecuteAsync(sql, new { Id = id, Ahora = DateTime.UtcNow });
+    }
+
     public async Task<PagedResult<InmuebleAdminListItemDto>> GetPagedAdminAsync(
         string? estado, string? q, PaginationParams pagination, CancellationToken ct = default)
     {

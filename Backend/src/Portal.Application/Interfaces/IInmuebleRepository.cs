@@ -53,6 +53,14 @@ public interface IInmuebleRepository
     /// <summary>Destacados publicados y no eliminados (los que ocupan cupo).</summary>
     Task<int> ContarDestacadosAsync(CancellationToken ct = default);
 
+    /// <summary>
+    /// Quita el destacado con un UPDATE dirigido (no reescribe la fila completa),
+    /// así no puede resucitar un <c>eliminado_en</c>/<c>estado</c> escritos por un
+    /// <c>EliminarInmueble</c>/<c>CambiarEstado</c> concurrente sobre la entidad
+    /// leída al inicio del request.
+    /// </summary>
+    Task QuitarDestacadoAsync(long id, CancellationToken ct = default);
+
     // ── Lecturas del panel admin ────────────────────────────────────────────
     Task<PagedResult<InmuebleAdminListItemDto>> GetPagedAdminAsync(
         string? estado, string? q, PaginationParams pagination, CancellationToken ct = default);

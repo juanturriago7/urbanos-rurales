@@ -36,25 +36,28 @@ public sealed class MarcarDestacadoCommandHandler
         }
 
         // Quitar el destacado siempre se permite: es la forma de liberar cupo.
+        // Se usa un UPDATE dirigido (QuitarDestacadoAsync), no el UpdateAsync de
+        // fila completa con la entidad leída al inicio del request: ese UPDATE
+        // general podría resucitar un eliminado_en/estado que un
+        // EliminarInmueble/CambiarEstado concurrente ya haya escrito.
         if (!request.Destacado)
         {
             if (inmueble.Destacado)
             {
-                inmueble.MarcarDestacado(false);
-                await _inmuebles.UpdateAsync(inmueble, ct: ct);
+                await _inmuebles.QuitarDestacadoAsync(request.Id, ct);
             }
 
             return Result.Success();
         }
 
-        if (inmueble.Destacado)
-        {
-            return Result.Success(); // Idempotente: ya ocupa su cupo
-        }
-
         if (!inmueble.PuedeDestacarse)
         {
             return Result.Failure(MensajeNoPublicado);
+        }
+
+        if (inmueble.Destacado)
+        {
+            return Result.Success(); // Idempotente: ya ocupa su cupo
         }
 
         var resultado = await _inmuebles.DestacarConCupoAsync(
