@@ -131,6 +131,7 @@ CREATE TABLE inmuebles (
     habitaciones            SMALLINT NOT NULL DEFAULT 0,
     banos                   SMALLINT NOT NULL DEFAULT 0,
     parqueaderos             SMALLINT NOT NULL DEFAULT 0,
+    tipos_parqueadero       TEXT[] NOT NULL DEFAULT '{}',  -- selección múltiple: 'privado' | 'privado_uso_exclusivo' | 'doble'
     piso                    SMALLINT,
     pisos_edificio          SMALLINT,
     estrato                 SMALLINT CHECK (estrato BETWEEN 1 AND 6),
@@ -155,7 +156,13 @@ CREATE TABLE inmuebles (
     actualizado_en          TIMESTAMPTZ NOT NULL DEFAULT now(),
     eliminado_en            TIMESTAMPTZ,   -- borrado lógico (RF-073)
 
-    busqueda_tsv            TSVECTOR       -- soporte de texto libre (RF-025)
+    busqueda_tsv            TSVECTOR,      -- soporte de texto libre (RF-025)
+
+    -- Tipos de parqueadero: solo valores conocidos, y vacío si no hay parqueaderos.
+    -- Los repetidos los rechaza la API (un CHECK no admite subconsultas).
+    CONSTRAINT ck_inmuebles_tipos_parqueadero CHECK (
+        tipos_parqueadero <@ ARRAY['privado', 'privado_uso_exclusivo', 'doble']::text[]
+        AND (parqueaderos > 0 OR cardinality(tipos_parqueadero) = 0))
 );
 
 CREATE INDEX idx_inmuebles_filtros

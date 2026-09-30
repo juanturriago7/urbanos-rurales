@@ -5,7 +5,7 @@
 | Endpoint | Método | Propósito |
 | --- | --- | --- |
 | `/api/inmuebles` | GET | Listado con filtros (query params: `operacion`, `tipo`, `ubicacion_id`, `precio_min`, `precio_max`, `area_min`, `area_max`, `habitaciones`, `banos`, `parqueaderos`, `mascotas`, `estrato`, `admin_incluida`, `q`, `orden`, `page`) |
-| `/api/inmuebles/{slug}` | GET | Detalle completo del inmueble |
+| `/api/inmuebles/{slug}` | GET | Detalle completo del inmueble. Incluye `tiposParqueadero`: arreglo con cero o más de `privado`, `privado_uso_exclusivo`, `doble`, siempre en ese orden; vacío si no se indicó o si `parqueaderos` es 0 |
 | `/api/inmuebles/{id}/similares` | GET | Inmuebles similares |
 | `/api/catalogos/ubicaciones` | GET | Árbol zona → localidad → upz → barrio |
 | `/api/catalogos/tipos-inmueble` | GET | Lista de tipos |
@@ -20,8 +20,8 @@
 | `/api/auth/logout` | POST | Logout (revoca el refresh token; requiere sesión) |
 | `/api/auth/recuperar-password` | POST | Solicitar token de recuperación (siempre 202) |
 | `/api/auth/restablecer-password` | POST | Consumir token y fijar nueva contraseña — body `{ token, nuevaPassword }` |
-| `/api/admin/inmuebles` | GET/POST | CRUD listar/crear (requiere sesión) |
-| `/api/admin/inmuebles/{id}` | GET/PUT/DELETE | CRUD ver/editar/borrado lógico |
+| `/api/admin/inmuebles` | GET/POST | CRUD listar/crear (requiere sesión). El body de POST acepta `tiposParqueadero` (opcional, selección múltiple de `privado`, `privado_uso_exclusivo`, `doble`). Responde **400** si hay un valor desconocido o repetido. Con `parqueaderos` = 0 se guarda vacío |
+| `/api/admin/inmuebles/{id}` | GET/PUT/DELETE | CRUD ver/editar/borrado lógico. GET devuelve `tiposParqueadero`. PUT lo reemplaza con las mismas reglas que POST; si se omite, queda vacío |
 | `/api/admin/inmuebles/{id}/imagenes` | POST/PUT/DELETE | Gestión de galería |
 | `/api/admin/inmuebles/{id}/operaciones` | POST/PUT | Precio y estado de venta/arriendo |
 | `/api/admin/inmuebles/{id}/destacado` | PUT | Marcar/quitar destacado — body `{ destacado }`. Máximo 3 destacados a la vez (solo publicados). Responde **400** `{ title: "Solicitud inválida", detail: "Máximo 3 inmuebles destacados. Quita uno para destacar otro." }` si no hay cupo, o `detail: "Solo los inmuebles publicados pueden destacarse."`. Pausar, archivar o eliminar un inmueble lo desmarca |

@@ -7,7 +7,7 @@
 | Endpoint | Método | Query params / Body | Propósito |
 | --- | --- | --- | --- |
 | `/api/inmuebles` | GET | `operacion`, `tipo`, `ubicacion_id`, `precio_min`, `precio_max`, `area_min`, `area_max`, `habitaciones`, `banos`, `parqueaderos`, `mascotas`, `estrato`, `admin_incluida`, `caracteristicas[]`, `q`, `orden`, `page` | Listado con filtros combinables (AND entre filtros, OR dentro de un mismo filtro) |
-| `/api/inmuebles/{slug}` | GET | — | Detalle completo del inmueble |
+| `/api/inmuebles/{slug}` | GET | — | Detalle completo del inmueble. Incluye `tiposParqueadero` (`privado`, `privado_uso_exclusivo`, `doble`; vacío si no se indicó) |
 | `/api/inmuebles/{id}/similares` | GET | — | Inmuebles similares (mismo barrio + rango de precio + tipo) |
 | `/api/catalogos/ubicaciones` | GET | — | Árbol zona → localidad → upz → barrio |
 | `/api/catalogos/tipos-inmueble` | GET | — | Lista de tipos (apartamento, casa, etc.) |
@@ -28,8 +28,8 @@
 | `/api/auth/logout` | POST | Logout (revoca el refresh token; requiere sesión) |
 | `/api/auth/recuperar-password` | POST | Solicitar token de recuperación (siempre 202) |
 | `/api/auth/restablecer-password` | POST | Consumir token y fijar nueva contraseña — body `{ token, nuevaPassword }` |
-| `/api/admin/inmuebles` | GET/POST | Listar (con filtro por estado) / crear inmueble |
-| `/api/admin/inmuebles/{id}` | GET/PUT/DELETE | Ver / editar / borrado lógico |
+| `/api/admin/inmuebles` | GET/POST | Listar (con filtro por estado) / crear inmueble. El body de POST acepta `tiposParqueadero` (opcional, selección múltiple de `privado`, `privado_uso_exclusivo`, `doble`). Responde **400** si hay un valor desconocido o repetido. Con `parqueaderos` = 0 se guarda vacío |
+| `/api/admin/inmuebles/{id}` | GET/PUT/DELETE | Ver / editar / borrado lógico. GET devuelve `tiposParqueadero`. PUT lo reemplaza con las mismas reglas que POST; si se omite, queda vacío |
 | `/api/admin/inmuebles/{id}/imagenes` | POST/PUT/DELETE | Subir, reordenar, marcar portada, eliminar, editar alt |
 | `/api/admin/inmuebles/{id}/operaciones` | POST/PUT | Precio, cuota admin y estado de venta/arriendo (independientes) |
 | `/api/admin/inmuebles/{id}/destacado` | PUT | Marcar/quitar destacado — body `{ destacado }`. Máximo 3 destacados a la vez (solo publicados). Responde **400** `{ title: "Solicitud inválida", detail: "Máximo 3 inmuebles destacados. Quita uno para destacar otro." }` si no hay cupo, o `detail: "Solo los inmuebles publicados pueden destacarse."`. Pausar, archivar o eliminar un inmueble lo desmarca |
@@ -79,6 +79,7 @@
   "habitaciones": 2,
   "banos": 2,
   "parqueaderos": 1,
+  "tipos_parqueadero": ["privado", "doble"],
   "piso": 5,
   "pisos_edificio": 12,
   "estrato": 4,
