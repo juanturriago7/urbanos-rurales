@@ -1,4 +1,6 @@
 import { Container } from '@/shared/components/ui/Container'
+import { Foto } from '@/shared/components/ui/Foto'
+import { FOTOS } from '@/assets/fotos'
 import { BedDouble, ChevronDown, House, MapPin, Ruler, Search, SlidersHorizontal } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
@@ -373,10 +375,24 @@ export function InmueblesListPage() {
     <div className="bg-[#eff4f8] min-h-screen font-['Outfit',sans-serif]">
 
       {/* ══ HERO HEADER ══════════════════════════════════════════ */}
-      <section
-        className="relative overflow-hidden bg-[#001124] pt-16 pb-16 sm:pt-24"
-        style={{ backgroundImage: 'linear-gradient(180deg, rgba(0,181,197,0.06) 1.67%, transparent 1.67%), linear-gradient(90deg, rgba(0,181,197,0.06) 1.67%, transparent 1.67%)' }}>
-        <Container className="flex flex-col gap-3">
+      <section className="relative overflow-hidden bg-[#001124] pt-16 pb-16 sm:pt-24">
+        <Foto
+          foto={FOTOS.cabeceraInmuebles}
+          sizes="100vw"
+          prioridad
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div
+          className="pointer-events-none absolute inset-0 bg-[rgba(0,17,36,0.68)] lg:bg-[linear-gradient(90deg,rgba(0,17,36,0.72)_0%,rgba(0,17,36,0.68)_50%,rgba(0,17,36,0.5)_85%,rgba(0,17,36,0.35)_100%)]"
+          aria-hidden="true"
+        />
+        {/* La cuadrícula sutil que antes era el fondo de la sección, ahora sobre la foto */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{ backgroundImage: 'linear-gradient(180deg, rgba(0,181,197,0.06) 1.67%, transparent 1.67%), linear-gradient(90deg, rgba(0,181,197,0.06) 1.67%, transparent 1.67%)' }}
+          aria-hidden="true"
+        />
+        <Container className="relative flex flex-col gap-3">
           <h1 className="titulo-display text-white">
             Portafolio de Inmuebles
           </h1>

@@ -2,6 +2,9 @@ import { Container } from '@/shared/components/ui/Container'
 import { Link } from 'react-router-dom'
 import { useArticulosPublico } from '@/features/public/proyectos/hooks/useProyectosPublico'
 import { Spinner } from '@/shared/components/ui/Spinner'
+import { Foto } from '@/shared/components/ui/Foto'
+import { FOTOS } from '@/assets/fotos'
+import { site } from '@/shared/config/site'
 
 const formatoFecha = new Intl.DateTimeFormat('es-CO', {
   year: 'numeric', month: 'long', day: 'numeric',
@@ -64,11 +67,20 @@ export function ProyectosListPage() {
                     />
                   </div>
                 ) : (
-                  <div
-                    className="flex aspect-[382/220] items-center justify-center"
-                    style={{ background: 'linear-gradient(135deg, #004b98 0%, #0071b2 60%, #00b5c5 100%)' }}
-                  >
-                    <span className="text-[rgba(255,255,255,0.4)] text-[11px]">Sin portada</span>
+                  // Portada de marca para artículos sin imagen: foto genérica del
+                  // territorio + nombre de la empresa. alt vacío: es decorativa.
+                  <div className="relative aspect-[382/220] overflow-hidden">
+                    <Foto
+                      foto={FOTOS.portadaArticulo}
+                      sizes="(min-width: 1024px) 384px, (min-width: 640px) 50vw, 100vw"
+                      alt=""
+                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 flex items-end bg-[rgba(0,17,36,0.55)] p-4">
+                      <span className="text-[12px] font-semibold tracking-[1.2px] text-white uppercase">
+                        {site.nombreCorto}
+                      </span>
+                    </div>
                   </div>
                 )}
                 <div className="p-5">
