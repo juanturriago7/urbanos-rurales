@@ -79,16 +79,27 @@ export function ClientesCarrusel({
     const track = trackRef.current
     if (!track || sinMovimiento) return
 
-    const speed = 0.5 // px por frame
+    // px por segundo. Antes era 0,5 px por frame: en una pantalla de 120 Hz
+    // iba al doble de velocidad que en una de 60 Hz.
+    const velocidad = 30
+    let ultimo: number | null = null
 
-    const animate = () => {
+    const animate = (ahora: number) => {
+      const dt = ultimo === null ? 0 : ahora - ultimo
+      ultimo = ahora
       if (!isPaused) {
-        const totalWidth = track.scrollWidth / 2
-        posRef.current += speed
-        if (posRef.current >= totalWidth) {
-          posRef.current = 0
+        // Periodo exacto del bucle: la distancia entre la primera tarjeta y su
+        // copia. `scrollWidth / 2` incluía medio `gap` de más y daba un salto
+        // de 10–16px en cada vuelta. Las dos medidas son relativas al mismo
+        // `offsetParent`, así que la resta no depende de dónde esté la sección.
+        const primera = track.children[0] as HTMLElement | undefined
+        const copia = track.children[CLIENTES.length] as HTMLElement | undefined
+        const periodo =
+          primera && copia ? copia.offsetLeft - primera.offsetLeft : track.scrollWidth / 2
+        if (periodo > 0) {
+          posRef.current = (posRef.current + (velocidad * dt) / 1000) % periodo
+          track.style.transform = `translateX(-${posRef.current}px)`
         }
-        track.style.transform = `translateX(-${posRef.current}px)`
       }
       rafRef.current = requestAnimationFrame(animate)
     }
@@ -116,6 +127,10 @@ export function ClientesCarrusel({
           className={sinMovimiento ? 'overflow-x-auto' : 'overflow-hidden'}
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
+          // En táctil no hay hover: se pausa mientras el dedo está encima.
+          onTouchStart={() => setIsPaused(true)}
+          onTouchEnd={() => setIsPaused(false)}
+          onTouchCancel={() => setIsPaused(false)}
           aria-label="Carrusel de clientes"
         >
           <div
@@ -125,14 +140,14 @@ export function ClientesCarrusel({
             {items.map((cliente, idx) => (
               <div
                 key={idx}
-                className="flex min-h-[104px] min-w-[150px] shrink-0 flex-col items-center justify-center gap-2 rounded-[16px] border border-[#d8dfe4] bg-white px-5 py-4 shadow-sm transition-shadow hover:shadow-md sm:min-w-[185px] sm:px-6"
+                className="flex min-h-[104px] w-[160px] shrink-0 flex-col items-center justify-center gap-2 rounded-[16px] border border-[#d8dfe4] bg-white px-4 py-4 shadow-sm transition-shadow hover:shadow-md sm:w-[200px] sm:px-6"
               >
                 {cliente.logo && !logosFallidos.includes(cliente.nombre) ? (
                   <>
                     <img
                       src={cliente.logo}
                       alt=""
-                      className="h-10 w-auto max-w-[130px] object-contain grayscale transition-all hover:grayscale-0 sm:h-12"
+                      className="h-10 w-auto max-w-full object-contain grayscale transition-all hover:grayscale-0 sm:h-12"
                       onError={() =>
                         setLogosFallidos((prev) =>
                           prev.includes(cliente.nombre) ? prev : [...prev, cliente.nombre],
