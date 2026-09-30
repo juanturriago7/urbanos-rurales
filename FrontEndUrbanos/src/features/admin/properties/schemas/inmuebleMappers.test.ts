@@ -47,6 +47,7 @@ const dto: InmuebleAdminDetalleDto = {
   habitaciones: 3,
   banos: 2,
   parqueaderos: 1,
+  tiposParqueadero: [],
   piso: null,
   pisosEdificio: null,
   estrato: 4,
@@ -278,5 +279,44 @@ describe('aOperacionesUpsert', () => {
     const datos = inmuebleSchema.parse(aValoresFormulario(dto))
     const ops = aOperacionesUpsert(datos, [opVenta])
     expect(ops.some((o) => o.tipoOperacion === 'arriendo')).toBe(false)
+  })
+})
+
+describe('tipos de parqueadero (ida y vuelta)', () => {
+  it('aValoresFormulario copia los tipos del detalle en orden canónico', () => {
+    const v = aValoresFormulario({
+      ...dto,
+      parqueaderos: 2,
+      tiposParqueadero: ['doble', 'privado'],
+    })
+    expect(v.tiposParqueadero).toEqual(['privado', 'doble'])
+  })
+
+  it('aValoresFormulario descarta los tipos si el detalle trae 0 parqueaderos', () => {
+    const v = aValoresFormulario({ ...dto, parqueaderos: 0, tiposParqueadero: ['privado'] })
+    expect(v.tiposParqueadero).toEqual([])
+  })
+
+  it('aDatosInput envía los tipos marcados en orden canónico', () => {
+    const datos = inmuebleSchema.parse({
+      ...aValoresFormulario(dto),
+      parqueaderos: 2,
+      tiposParqueadero: ['doble', 'privado_uso_exclusivo'],
+    })
+    expect(aDatosInput(datos).tiposParqueadero).toEqual(['privado_uso_exclusivo', 'doble'])
+  })
+
+  it('aDatosInput limpia los tipos si parqueaderos es 0', () => {
+    const datos = inmuebleSchema.parse({
+      ...aValoresFormulario(dto),
+      parqueaderos: 0,
+      tiposParqueadero: ['privado'],
+    })
+    expect(aDatosInput(datos).tiposParqueadero).toEqual([])
+  })
+
+  it('un inmueble sin tipos guardados se vuelve a enviar con []', () => {
+    const datos = inmuebleSchema.parse(aValoresFormulario(dto))
+    expect(aDatosInput(datos, dto).tiposParqueadero).toEqual([])
   })
 })

@@ -8,6 +8,7 @@ import type {
   TipoOperacion,
   UpsertOperacionInput,
 } from '@/features/admin/properties/api/inmueblesTypes'
+import type { TipoParqueadero } from '@/shared/lib/tiposParqueadero'
 
 /**
  * Inmuebles del panel admin. Todos los endpoints exigen JWT con rol Asesor o Admin.
@@ -74,6 +75,8 @@ export interface InmuebleDatosInput {
   habitaciones: number
   banos: number
   parqueaderos: number
+  /** Opcional. Si se omite, el backend lo guarda vacío (el PUT es reemplazo completo). */
+  tiposParqueadero?: TipoParqueadero[]
   piso?: number | null
   pisosEdificio?: number | null
   estrato?: number | null

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { TIPOS_PARQUEADERO } from '@/shared/lib/tiposParqueadero'
 
 /**
  * Schema del formulario de inmueble, compartido por creación y edición.
@@ -81,6 +82,12 @@ export const inmuebleSchema = z
     habitaciones: numeroRequerido.refine((v) => v >= 0, 'No puede ser negativo'),
     banos: numeroRequerido.refine((v) => v >= 0, 'No puede ser negativo'),
     parqueaderos: numeroRequerido.refine((v) => v >= 0, 'No puede ser negativo'),
+    // Grupo de checkboxes con el mismo `name`: RHF entrega el arreglo de los
+    // `value` marcados. Con 0 parqueaderos el mapper (aDatosInput) lo vacía.
+    tiposParqueadero: z
+      .array(z.enum(TIPOS_PARQUEADERO, { error: 'Tipo de parqueadero inválido' }))
+      .refine((ts) => new Set(ts).size === ts.length, 'No repitas un tipo de parqueadero')
+      .default([]),
 
     piso: numeroOpcional,
     pisosEdificio: numeroOpcional,
@@ -161,6 +168,7 @@ export const valoresPorDefecto: Partial<InmuebleFormInput> = {
   habitaciones: 0,
   banos: 0,
   parqueaderos: 0,
+  tiposParqueadero: [],
   tieneVenta: true,
   tieneArriendo: false,
   adminIncluidaArriendo: false,

@@ -10,6 +10,7 @@
 // `imagenesApi.ts`. Es `import type`, así que se borra al compilar y no
 // arrastra `apiClient` a este archivo ni a los mapeadores.
 import type { ImagenDto } from '@/features/admin/properties/api/imagenesApi'
+import type { TipoParqueadero } from '@/shared/lib/tiposParqueadero'
 
 export type EstadoInmueble = 'borrador' | 'publicado' | 'pausado' | 'archivado'
 export type TipoOperacion = 'venta' | 'arriendo'
@@ -51,6 +52,8 @@ export interface InmuebleAdminDetalleDto {
   habitaciones: number
   banos: number
   parqueaderos: number
+  /** Orden canónico (ver TIPOS_PARQUEADERO). Vacío si no se indicó. */
+  tiposParqueadero: TipoParqueadero[]
   piso: number | null
   pisosEdificio: number | null
   estrato: number | null

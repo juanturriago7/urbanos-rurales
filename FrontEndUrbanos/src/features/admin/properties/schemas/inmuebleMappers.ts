@@ -11,6 +11,7 @@ import type {
   InmuebleFormInput,
   InmuebleFormParsed,
 } from '@/features/admin/properties/schemas/inmuebleSchema'
+import { normalizarTiposParqueadero } from '@/shared/lib/tiposParqueadero'
 
 /** Detalle del backend → valores iniciales de React Hook Form. */
 export function aValoresFormulario(dto: InmuebleAdminDetalleDto): InmuebleFormInput {
@@ -41,6 +42,7 @@ export function aValoresFormulario(dto: InmuebleAdminDetalleDto): InmuebleFormIn
     habitaciones: dto.habitaciones,
     banos: dto.banos,
     parqueaderos: dto.parqueaderos,
+    tiposParqueadero: normalizarTiposParqueadero(dto.parqueaderos, dto.tiposParqueadero),
     piso: dto.piso,
     pisosEdificio: dto.pisosEdificio,
     estrato: dto.estrato,
@@ -128,6 +130,9 @@ export function aDatosInput(
     habitaciones: datos.habitaciones,
     banos: datos.banos,
     parqueaderos: datos.parqueaderos,
+    // Sin parqueaderos no hay tipo. El backend normaliza igual, pero así el
+    // payload no lleva una selección que el formulario ya ocultó.
+    tiposParqueadero: normalizarTiposParqueadero(datos.parqueaderos, datos.tiposParqueadero),
     piso: datos.piso,
     pisosEdificio: datos.pisosEdificio,
     estrato: datos.estrato,

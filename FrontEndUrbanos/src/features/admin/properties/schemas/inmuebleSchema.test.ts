@@ -210,3 +210,35 @@ describe('inmuebleSchema — longitud máxima de textos (columnas varchar)', () 
     if (r.success) expect(r.data.matriculaInmobiliaria).toBeNull()
   })
 })
+
+describe('inmuebleSchema — tipos de parqueadero', () => {
+  it('es opcional: sin la clave queda en []', () => {
+    const r = inmuebleSchema.safeParse(base)
+    expect(r.success).toBe(true)
+    if (r.success) expect(r.data.tiposParqueadero).toEqual([])
+  })
+
+  it('acepta varios tipos válidos', () => {
+    const r = inmuebleSchema.safeParse({ ...base, tiposParqueadero: ['privado', 'doble'] })
+    expect(r.success).toBe(true)
+    if (r.success) expect(r.data.tiposParqueadero).toEqual(['privado', 'doble'])
+  })
+
+  it('rechaza un valor fuera de la lista', () => {
+    const r = inmuebleSchema.safeParse({ ...base, tiposParqueadero: ['otro'] })
+    expect(r.success).toBe(false)
+    if (!r.success) {
+      const issue = r.error.issues.find((i) => i.path[0] === 'tiposParqueadero')
+      expect(issue?.message).toBe('Tipo de parqueadero inválido')
+    }
+  })
+
+  it('rechaza tipos repetidos', () => {
+    const r = inmuebleSchema.safeParse({ ...base, tiposParqueadero: ['privado', 'privado'] })
+    expect(r.success).toBe(false)
+    if (!r.success) {
+      const issue = r.error.issues.find((i) => i.path[0] === 'tiposParqueadero')
+      expect(issue?.message).toBe('No repitas un tipo de parqueadero')
+    }
+  })
+})
