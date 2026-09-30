@@ -383,7 +383,7 @@ export function InmueblesListPage() {
           className="absolute inset-0 h-full w-full object-cover"
         />
         <div
-          className="pointer-events-none absolute inset-0 bg-[rgba(0,17,36,0.68)] lg:bg-[linear-gradient(90deg,rgba(0,17,36,0.72)_0%,rgba(0,17,36,0.68)_50%,rgba(0,17,36,0.5)_85%,rgba(0,17,36,0.35)_100%)]"
+          className="pointer-events-none absolute inset-0 bg-[rgba(0,17,36,0.72)] lg:bg-[linear-gradient(90deg,rgba(0,17,36,0.72)_0%,rgba(0,17,36,0.68)_50%,rgba(0,17,36,0.5)_85%,rgba(0,17,36,0.35)_100%)]"
           aria-hidden="true"
         />
         {/* La cuadrícula sutil que antes era el fondo de la sección, ahora sobre la foto */}
