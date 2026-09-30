@@ -40,7 +40,7 @@ export function QuienesSomosPage() {
           className="absolute inset-0 h-full w-full object-cover"
         />
         <div
-          className="pointer-events-none absolute inset-0 bg-[rgba(0,17,36,0.76)] lg:bg-[linear-gradient(90deg,rgba(0,17,36,0.8)_0%,rgba(0,17,36,0.8)_62%,rgba(0,17,36,0.4)_85%,rgba(0,17,36,0.32)_100%)]"
+          className="pointer-events-none absolute inset-0 bg-[rgba(0,17,36,0.72)] lg:bg-[linear-gradient(90deg,rgba(0,17,36,0.8)_0%,rgba(0,17,36,0.8)_62%,rgba(0,17,36,0.4)_85%,rgba(0,17,36,0.32)_100%)]"
           aria-hidden="true"
         />
         <Container className="relative">
