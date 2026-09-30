@@ -10,7 +10,14 @@ internal sealed class InmuebleConfiguration : IEntityTypeConfiguration<Inmueble>
     public void Configure(EntityTypeBuilder<Inmueble> builder)
     {
         builder.ToTable("inmuebles", t =>
-            t.HasCheckConstraint("ck_inmuebles_estrato", "estrato BETWEEN 1 AND 6"));
+        {
+            t.HasCheckConstraint("ck_inmuebles_estrato", "estrato BETWEEN 1 AND 6");
+
+            // Tipos de parqueadero: solo valores conocidos y vacío si no hay
+            // parqueaderos. Los repetidos no los puede comprobar un CHECK (no admite
+            // subconsultas): los rechaza el validador y la entidad los normaliza.
+            t.HasCheckConstraint("ck_inmuebles_tipos_parqueadero", CheckTiposParqueadero());
+        });
 
         builder.HasKey(i => i.Id);
         builder.Ignore(i => i.EstaEliminado);   // derivada de eliminado_en
@@ -41,6 +48,15 @@ internal sealed class InmuebleConfiguration : IEntityTypeConfiguration<Inmueble>
         builder.Property(i => i.Habitaciones).HasColumnName("habitaciones").IsRequired().HasDefaultValue((short)0);
         builder.Property(i => i.Banos).HasColumnName("banos").IsRequired().HasDefaultValue((short)0);
         builder.Property(i => i.Parqueaderos).HasColumnName("parqueaderos").IsRequired().HasDefaultValue((short)0);
+
+        // text[] y no un ENUM nativo: evita HasPostgresEnum + MapEnum y los casts en
+        // cada consulta Dapper. Npgsql lo lee como string[] y Dapper pasa un
+        // string[] como un único parámetro de arreglo.
+        builder.Property(i => i.TiposParqueadero)
+               .HasColumnName("tipos_parqueadero")
+               .HasColumnType("text[]")
+               .IsRequired()
+               .HasDefaultValueSql("'{}'::text[]");
         builder.Property(i => i.Piso).HasColumnName("piso");
         builder.Property(i => i.PisosEdificio).HasColumnName("pisos_edificio");
         builder.Property(i => i.Estrato).HasColumnName("estrato");
@@ -107,5 +123,18 @@ internal sealed class InmuebleConfiguration : IEntityTypeConfiguration<Inmueble>
         // idx_inmuebles_geo eliminado en la migración ActualizarFichaTecnicaInmueble
         // (spec 03) junto con latitud_exacta/longitud_exacta/latitud_aproximada/
         // longitud_aproximada — ya no se buscan inmuebles por proximidad.
+    }
+
+    /// <summary>
+    /// tipos_parqueadero &lt;@ ARRAY['privado', 'privado_uso_exclusivo', 'doble']::text[]
+    /// AND (parqueaderos &gt; 0 OR cardinality(tipos_parqueadero) = 0).
+    /// Se arma desde <see cref="Inmueble.TiposParqueaderoValidos"/> para que añadir un
+    /// valor ahí genere, en la siguiente migración, el CHECK actualizado.
+    /// </summary>
+    private static string CheckTiposParqueadero()
+    {
+        var valores = string.Join(", ", Inmueble.TiposParqueaderoValidos.Select(t => $"'{t}'"));
+        return $"tipos_parqueadero <@ ARRAY[{valores}]::text[] "
+             + "AND (parqueaderos > 0 OR cardinality(tipos_parqueadero) = 0)";
     }
 }

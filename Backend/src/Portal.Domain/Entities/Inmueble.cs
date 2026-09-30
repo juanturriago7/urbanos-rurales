@@ -35,6 +35,13 @@ public sealed class Inmueble
     public short Habitaciones { get; private set; }
     public short Banos { get; private set; }
     public short Parqueaderos { get; private set; }
+
+    /// <summary>
+    /// Tipos de parqueadero, selección múltiple (columna text[] tipos_parqueadero).
+    /// Vacío si no se indicaron o si <see cref="Parqueaderos"/> es 0. Siempre sin
+    /// repetidos y en el orden de <see cref="TiposParqueaderoValidos"/>.
+    /// </summary>
+    public string[] TiposParqueadero { get; private set; } = [];
     public short? Piso { get; private set; }
     public short? PisosEdificio { get; private set; }
     public short? Estrato { get; private set; }
@@ -70,6 +77,15 @@ public sealed class Inmueble
 
     /// <summary>Solo un inmueble publicado y no eliminado puede ser destacado.</summary>
     public bool PuedeDestacarse => Estado == EstadoInmueble.Publicado && !EstaEliminado;
+
+    /// <summary>
+    /// Valores admitidos en <see cref="TiposParqueadero"/>, en el orden en que se
+    /// guardan y se muestran ("Privado", "Privado de uso exclusivo", "Doble (2 en
+    /// línea)"). Son las etiquetas del contrato de API. El CHECK
+    /// ck_inmuebles_tipos_parqueadero y el validador del comando salen de esta lista.
+    /// </summary>
+    public static readonly IReadOnlyList<string> TiposParqueaderoValidos =
+        ["privado", "privado_uso_exclusivo", "doble"];
 
     // Constructor privado para hidratación desde repositorio (Dapper)
     private Inmueble() { }
