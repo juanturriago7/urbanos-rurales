@@ -26,6 +26,8 @@ import { ClientesCarrusel } from '@/features/public/institucional/components/Cli
 import { useCrearLead } from '@/features/public/contacto/hooks/useCrearLead'
 import { useScrollReveal } from '@/shared/hooks/useScrollReveal'
 import { Container } from '@/shared/components/ui/Container'
+import { Foto } from '@/shared/components/ui/Foto'
+import { FOTOS } from '@/assets/fotos'
 import { site } from '@/shared/config/site'
 
 /* ── Servicios ─────────────────────────────────────────────────── */
@@ -142,11 +144,17 @@ export function HomePage() {
         className="relative flex items-center justify-center overflow-hidden pt-28 pb-16 sm:pt-32 sm:pb-24 lg:min-h-screen lg:pt-[110px] lg:pb-[100px]"
         style={{ backgroundColor: '#001124' }}
       >
-        {/* Gradiente cian diagonal */}
+        {/* Foto de fondo: el territorio desde dron (FOTOS/DJI_…0637) */}
+        <Foto
+          foto={FOTOS.heroTerritorio}
+          sizes="100vw"
+          prioridad
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        {/* Overlay navy: uniforme en móvil (el texto ocupa todo el ancho) y más
+            denso a la izquierda en escritorio, donde va el texto */}
         <div
-          className="absolute top-[-63px] right-[-192px] w-[1248px] h-[1386px] opacity-90 pointer-events-none"
-          style={{ background: 'linear-gradient(135deg, #0071b2 0%, #008ec9 40%, #00b5c5 100%)',
-                   maskImage: 'radial-gradient(ellipse 80% 80% at 70% 50%, black 40%, transparent 70%)' }}
+          className="pointer-events-none absolute inset-0 bg-[rgba(0,17,36,0.8)] lg:bg-[linear-gradient(90deg,rgba(0,17,36,0.92)_0%,rgba(0,17,36,0.78)_50%,rgba(0,17,36,0.55)_100%)]"
           aria-hidden="true"
         />
         {/* Grid overlay sutil */}
