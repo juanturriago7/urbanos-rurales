@@ -3,6 +3,7 @@ import { BedDouble, ChevronDown, House, MapPin, Ruler, Search, SlidersHorizontal
 import { useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { usePublicaciones } from '@/features/public/properties/hooks/usePublicaciones'
+import { paginasVisibles } from '@/features/public/properties/lib/paginacion'
 import { BadgeDestacado } from '@/features/public/properties/components/BadgeDestacado'
 import { useBuscarUbicaciones, useCaracteristicas } from '@/features/admin/catalogos/hooks/useCatalogos'
 import type { UbicacionBusquedaDto } from '@/features/admin/catalogos/api/catalogosApi'
@@ -127,17 +128,25 @@ function FiltroSelect({
   onChange: (v: string) => void
 }) {
   return (
-    <div className="flex flex-col gap-[6px] flex-1 min-w-0">
+    <div className="flex min-w-0 flex-col gap-[6px]">
       <label htmlFor={id}
         className="text-[#7a8187] text-[11px] font-semibold tracking-[0.66px] uppercase">
         {label}
       </label>
-      <select id={id} value={value} onChange={(e) => onChange(e.target.value)}
-        className="bg-[#eff4f8] border border-[#d2d8dd] rounded-[10px] pl-[19px] pr-8 py-[13px] text-[#0d1c27] text-[14px] outline-none focus:border-[#004b98] focus:bg-white transition-colors appearance-none cursor-pointer">
-        {options.map((o) => (
-          <option key={o.value || '__all'} value={o.value}>{o.label}</option>
-        ))}
-      </select>
+      {/* `appearance-none` quita la flecha nativa: sin este icono el select no
+          parece desplegable. */}
+      <div className="relative">
+        <select id={id} value={value} onChange={(e) => onChange(e.target.value)}
+          className="w-full bg-[#eff4f8] border border-[#d2d8dd] rounded-[10px] pl-[19px] pr-10 py-[13px] text-[#0d1c27] text-[14px] outline-none focus:border-[#004b98] focus:bg-white transition-colors appearance-none cursor-pointer">
+          {options.map((o) => (
+            <option key={o.value || '__all'} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+        <ChevronDown
+          className="pointer-events-none absolute top-1/2 right-4 h-4 w-4 -translate-y-1/2 text-[#7a8187]"
+          aria-hidden="true"
+        />
+      </div>
     </div>
   )
 }
@@ -165,7 +174,7 @@ function FiltroUbicacion({
   const { data: sugerencias } = useBuscarUbicaciones(termino)
 
   return (
-    <div className="relative flex flex-col gap-[6px] flex-1 min-w-0">
+    <div className="relative flex min-w-0 flex-col gap-[6px]">
       <label htmlFor="f-ubicacion"
         className="text-[#7a8187] text-[11px] font-semibold tracking-[0.66px] uppercase">
         Ubicación
@@ -312,6 +321,8 @@ export function InmueblesListPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const paginaActual = filtros.page ?? 1
+
   const seleccionarUbicacion = (u: UbicacionBusquedaDto) => {
     const next = new URLSearchParams(searchParams)
     next.set('ubicacion_id', String(u.id))
@@ -363,7 +374,7 @@ export function InmueblesListPage() {
 
       {/* ══ HERO HEADER ══════════════════════════════════════════ */}
       <section
-        className="relative overflow-hidden bg-[#001124] pt-28 pb-16 sm:pt-32 lg:pt-[150px]"
+        className="relative overflow-hidden bg-[#001124] pt-16 pb-16 sm:pt-24"
         style={{ backgroundImage: 'linear-gradient(180deg, rgba(0,181,197,0.06) 1.67%, transparent 1.67%), linear-gradient(90deg, rgba(0,181,197,0.06) 1.67%, transparent 1.67%)' }}>
         <Container className="flex flex-col gap-3">
           <h1 className="titulo-display text-white">
@@ -431,7 +442,14 @@ export function InmueblesListPage() {
               style={{ gridTemplateRows: filtrosAbiertos ? '1fr' : '0fr' }}
             >
               <div className="overflow-hidden">
-                <div className="flex flex-wrap items-end gap-4 border-t border-[#e0e5e9] px-5 py-6 sm:px-8 sm:py-7">
+                <div
+                  className={[
+                    'grid grid-cols-1 items-end gap-4 border-t border-[#e0e5e9] px-5 py-6 sm:grid-cols-2 sm:px-8 sm:py-7',
+                    // Con "Limpiar filtros" visible se le reserva una quinta columna
+                    // al botón; sin él, cuatro columnas iguales sin hueco al final.
+                    hayFiltros ? 'lg:grid-cols-[repeat(4,minmax(0,1fr))_auto]' : 'lg:grid-cols-4',
+                  ].join(' ')}
+                >
                   <FiltroSelect id="f-tipo" label="Tipo de inmueble"
                     value={searchParams.get('tipo') ?? ''}
                     options={OPT_TIPO}
@@ -456,7 +474,7 @@ export function InmueblesListPage() {
 
                   {hayFiltros && (
                     <button type="button" onClick={limpiar}
-                      className="border border-[#c8cfd4] text-[#7a8187] text-[13px] font-semibold px-[21px] py-[13px] rounded-[10px] hover:border-[#004b98] hover:text-[#004b98] transition-colors shrink-0 self-end">
+                      className="border border-[#c8cfd4] text-[#7a8187] text-[13px] font-semibold px-[21px] py-[13px] rounded-[10px] hover:border-[#004b98] hover:text-[#004b98] transition-colors sm:col-span-2 sm:justify-self-end lg:col-span-1">
                       Limpiar filtros
                     </button>
                   )}
@@ -484,10 +502,10 @@ export function InmueblesListPage() {
                             <p className="text-[#7a8187] text-[11px] font-semibold tracking-[0.66px] uppercase mb-2">
                               {cat.nombre}
                             </p>
-                            <ul className="space-y-1.5">
+                            <ul>
                               {visibles.map((c) => (
                                 <li key={c.id}>
-                                  <label className="flex items-center gap-2 cursor-pointer text-[#0d1c27] text-[14px] hover:text-[#004b98] transition-colors">
+                                  <label className="flex items-center gap-2 py-1.5 cursor-pointer text-[#0d1c27] text-[14px] hover:text-[#004b98] transition-colors">
                                     <input
                                       type="checkbox"
                                       checked={caracteristicasSeleccionadas.has(c.id)}
@@ -554,37 +572,46 @@ export function InmueblesListPage() {
               {data.totalPages > 1 && (
                 <nav className="mt-12 flex items-center justify-center gap-2" aria-label="Paginación">
                   <button type="button" disabled={!data.hasPreviousPage}
-                    onClick={() => cambiarPagina((filtros.page ?? 1) - 1)}
-                    className="px-5 py-2.5 rounded-[10px] border border-[#d8dfe4] bg-white text-[#001124] text-[13px] font-semibold hover:border-[#004b98] hover:text-[#004b98] disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
-                    ← Anterior
+                    onClick={() => cambiarPagina(paginaActual - 1)}
+                    aria-label="Página anterior"
+                    className="flex h-11 items-center gap-2 rounded-[10px] border border-[#d8dfe4] bg-white px-4 text-[13px] font-semibold text-[#001124] transition-colors hover:border-[#004b98] hover:text-[#004b98] disabled:cursor-not-allowed disabled:opacity-30 sm:px-5">
+                    <span aria-hidden="true">←</span>
+                    <span className="hidden sm:inline">Anterior</span>
                   </button>
 
-                  <div className="flex items-center gap-1">
-                    {Array.from({ length: Math.min(data.totalPages, 7) }).map((_, i) => {
-                      const page = i + 1
-                      const current = filtros.page ?? 1
-                      const isActive = page === current
-                      return (
-                        <button key={page} type="button"
-                          onClick={() => cambiarPagina(page)}
-                          className={`w-9 h-9 rounded-[8px] text-[13px] font-semibold transition-colors ${
-                            isActive
+                  {/* En móvil los números no caben (a 375px desbordaban desde 3
+                      páginas): solo el indicador. */}
+                  <span className="px-2 text-[13px] font-semibold text-[#7a8187] sm:hidden">
+                    Página {paginaActual} de {data.totalPages}
+                  </span>
+
+                  <div className="hidden items-center gap-1 sm:flex">
+                    {paginasVisibles(paginaActual, data.totalPages).map((item) =>
+                      typeof item === 'number' ? (
+                        <button key={item} type="button"
+                          onClick={() => cambiarPagina(item)}
+                          aria-current={item === paginaActual ? 'page' : undefined}
+                          className={`h-10 w-10 rounded-[8px] text-[13px] font-semibold transition-colors ${
+                            item === paginaActual
                               ? 'bg-[#004b98] text-white'
                               : 'bg-white border border-[#d8dfe4] text-[#7a8187] hover:border-[#004b98] hover:text-[#004b98]'
                           }`}>
-                          {page}
+                          {item}
                         </button>
-                      )
-                    })}
-                    {data.totalPages > 7 && (
-                      <span className="px-2 text-[#7a8187] text-[13px]">... {data.totalPages}</span>
+                      ) : (
+                        <span key={item} className="px-1 text-[13px] text-[#7a8187]" aria-hidden="true">
+                          …
+                        </span>
+                      ),
                     )}
                   </div>
 
                   <button type="button" disabled={!data.hasNextPage}
-                    onClick={() => cambiarPagina((filtros.page ?? 1) + 1)}
-                    className="px-5 py-2.5 rounded-[10px] border border-[#d8dfe4] bg-white text-[#001124] text-[13px] font-semibold hover:border-[#004b98] hover:text-[#004b98] disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
-                    Siguiente →
+                    onClick={() => cambiarPagina(paginaActual + 1)}
+                    aria-label="Página siguiente"
+                    className="flex h-11 items-center gap-2 rounded-[10px] border border-[#d8dfe4] bg-white px-4 text-[13px] font-semibold text-[#001124] transition-colors hover:border-[#004b98] hover:text-[#004b98] disabled:cursor-not-allowed disabled:opacity-30 sm:px-5">
+                    <span className="hidden sm:inline">Siguiente</span>
+                    <span aria-hidden="true">→</span>
                   </button>
                 </nav>
               )}
