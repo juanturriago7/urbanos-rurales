@@ -85,7 +85,11 @@ export function ClientesCarrusel({
     let ultimo: number | null = null
 
     const animate = (ahora: number) => {
-      const dt = ultimo === null ? 0 : ahora - ultimo
+      // Si la pestaña estuvo en segundo plano o el equipo se suspendió, rAF
+      // se reanuda con un `ahora` muy adelantado: sin límite, `dt` sería
+      // enorme y la tarjeta teletransportaría en ese primer frame. Se acota
+      // a 100ms (el salto máximo entonces es 100ms × 30px/s = 3px).
+      const dt = ultimo === null ? 0 : Math.min(ahora - ultimo, 100)
       ultimo = ahora
       if (!isPaused) {
         // Periodo exacto del bucle: la distancia entre la primera tarjeta y su
