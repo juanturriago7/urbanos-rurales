@@ -12,6 +12,7 @@ using Portal.Application.Features.Inmuebles.Commands.UpsertOperacion;
 using Portal.Application.Features.Inmuebles.DTOs;
 using Portal.Application.Features.Inmuebles.Queries.GetInmuebleAdminPorId;
 using Portal.Application.Features.Inmuebles.Queries.GetInmueblesAdmin;
+using Portal.Application.Features.Inmuebles.Queries.GetResumenDestacados;
 
 namespace Portal.Api.Controllers;
 
@@ -42,6 +43,12 @@ public sealed class AdminInmueblesController : ControllerBase
         CancellationToken ct = default)
         => Ok(await _mediator.Send(
             new GetInmueblesAdminQuery(estado, q, new PaginationParams(page, pageSize)), ct));
+
+    /// <summary>Cupo de destacados (RF-078): cuántos hay y el máximo. Alimenta el contador del listado.</summary>
+    [HttpGet("destacados/resumen")]
+    [ProducesResponseType(typeof(DestacadosResumenDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetResumenDestacados(CancellationToken ct)
+        => Ok(await _mediator.Send(new GetResumenDestacadosQuery(), ct));
 
     /// <summary>Detalle completo para edición (incluye dirección exacta, RF-044).</summary>
     [HttpGet("{id:long}")]

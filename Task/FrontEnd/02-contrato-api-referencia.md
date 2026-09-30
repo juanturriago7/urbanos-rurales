@@ -32,6 +32,8 @@
 | `/api/admin/inmuebles/{id}` | GET/PUT/DELETE | Ver / editar / borrado lógico |
 | `/api/admin/inmuebles/{id}/imagenes` | POST/PUT/DELETE | Subir, reordenar, marcar portada, eliminar, editar alt |
 | `/api/admin/inmuebles/{id}/operaciones` | POST/PUT | Precio, cuota admin y estado de venta/arriendo (independientes) |
+| `/api/admin/inmuebles/{id}/destacado` | PUT | Marcar/quitar destacado — body `{ destacado }`. Máximo 3 destacados a la vez (solo publicados). Responde **400** `{ title: "Solicitud inválida", detail: "Máximo 3 inmuebles destacados. Quita uno para destacar otro." }` si no hay cupo, o `detail: "Solo los inmuebles publicados pueden destacarse."`. Pausar, archivar o eliminar un inmueble lo desmarca |
+| `/api/admin/inmuebles/destacados/resumen` | GET | Cupo de destacados — responde `{ total, maximo }` (contador "X/3" del listado admin) |
 | `/api/admin/leads` | GET/PUT | Listado, filtro por estado, asignación a asesor |
 
 ### 2.3 Ejemplo de shape de respuesta — tarjeta de listado

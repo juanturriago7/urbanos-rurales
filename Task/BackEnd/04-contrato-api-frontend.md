@@ -24,6 +24,8 @@
 | `/api/admin/inmuebles/{id}` | GET/PUT/DELETE | CRUD ver/editar/borrado lógico |
 | `/api/admin/inmuebles/{id}/imagenes` | POST/PUT/DELETE | Gestión de galería |
 | `/api/admin/inmuebles/{id}/operaciones` | POST/PUT | Precio y estado de venta/arriendo |
+| `/api/admin/inmuebles/{id}/destacado` | PUT | Marcar/quitar destacado — body `{ destacado }`. Máximo 3 destacados a la vez (solo publicados). Responde **400** `{ title: "Solicitud inválida", detail: "Máximo 3 inmuebles destacados. Quita uno para destacar otro." }` si no hay cupo, o `detail: "Solo los inmuebles publicados pueden destacarse."`. Pausar, archivar o eliminar un inmueble lo desmarca |
+| `/api/admin/inmuebles/destacados/resumen` | GET | Cupo de destacados — responde `{ total, maximo }` (contador "X/3" del listado admin) |
 | `/api/admin/leads` | GET/PUT | Gestión y asignación de leads |
 | `/api/sitemap.xml` | GET | Sitemap dinámico |
 

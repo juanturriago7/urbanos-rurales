@@ -27,6 +27,9 @@ public sealed record InmuebleAdminListItemDto(
     string? ImagenPortada,
     DateTime ActualizadoEn);
 
+/// <summary>Cupo de destacados para el contador "X/3" del listado admin (RF-078).</summary>
+public sealed record DestacadosResumenDto(int Total, int Maximo);
+
 public sealed record OperacionDto(
     long Id,
     string TipoOperacion,
