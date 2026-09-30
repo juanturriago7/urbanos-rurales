@@ -40,6 +40,12 @@ export interface InmuebleAdminListItemDto {
   actualizadoEn: string
 }
 
+/** Cupo de destacados (RF-078): cuántos hay publicados y el máximo permitido. */
+export interface DestacadosResumenDto {
+  total: number
+  maximo: number
+}
+
 export interface OperacionInput {
   tipoOperacion: TipoOperacion
   precio: number
@@ -116,6 +122,13 @@ export const cambiarEstadoInmueble = async (id: number, estado: EstadoInmueble):
 
 export const marcarDestacado = async (id: number, destacado: boolean): Promise<void> => {
   await apiClient.put(`/api/admin/inmuebles/${id}/destacado`, { destacado })
+}
+
+export const getResumenDestacados = async (): Promise<DestacadosResumenDto> => {
+  const { data } = await apiClient.get<DestacadosResumenDto>(
+    '/api/admin/inmuebles/destacados/resumen',
+  )
+  return data
 }
 
 export const eliminarInmueble = async (id: number): Promise<void> => {

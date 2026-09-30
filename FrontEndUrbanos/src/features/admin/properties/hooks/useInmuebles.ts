@@ -6,6 +6,7 @@ import {
   eliminarInmueble,
   getInmuebleAdmin,
   getInmueblesAdmin,
+  getResumenDestacados,
   marcarDestacado,
   upsertOperacion,
   type CrearInmuebleInput,
@@ -19,6 +20,9 @@ export const inmueblesQueryKeys = {
   all: ['inmuebles'] as const,
   list: (filtro: FiltroInmueblesAdmin) => ['inmuebles', 'list', filtro] as const,
   detalle: (id: number) => ['inmuebles', 'detalle', id] as const,
+  // Cuelga de 'inmuebles': las mutaciones que ya invalidan `all` (destacar,
+  // cambiar estado, eliminar) refrescan también el contador.
+  resumenDestacados: ['inmuebles', 'destacados', 'resumen'] as const,
 }
 
 export function useInmuebles(filtro: FiltroInmueblesAdmin = {}) {
@@ -27,6 +31,14 @@ export function useInmuebles(filtro: FiltroInmueblesAdmin = {}) {
     queryFn: () => getInmueblesAdmin(filtro),
     // Evita el parpadeo a vacío al cambiar de página o de filtro.
     placeholderData: (anterior) => anterior,
+  })
+}
+
+/** Contador "X/3" de destacados del listado admin (RF-078). */
+export function useResumenDestacados() {
+  return useQuery({
+    queryKey: inmueblesQueryKeys.resumenDestacados,
+    queryFn: getResumenDestacados,
   })
 }
 

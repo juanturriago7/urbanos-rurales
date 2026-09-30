@@ -5,7 +5,7 @@ vi.mock('@/shared/lib/axios', () => ({
 }))
 
 const { apiClient } = await import('@/shared/lib/axios')
-const { actualizarInmueble, getInmuebleAdmin, upsertOperacion } =
+const { actualizarInmueble, getInmuebleAdmin, getResumenDestacados, upsertOperacion } =
   await import('@/features/admin/properties/api/inmueblesApi')
 
 beforeEach(() => {
@@ -48,5 +48,16 @@ describe('upsertOperacion', () => {
     await upsertOperacion(7, op)
 
     expect(apiClient.put).toHaveBeenCalledWith('/api/admin/inmuebles/7/operaciones', op)
+  })
+})
+
+describe('getResumenDestacados', () => {
+  it('pega al resumen de destacados y devuelve total y máximo', async () => {
+    vi.mocked(apiClient.get).mockResolvedValue({ data: { total: 2, maximo: 3 } })
+
+    const resumen = await getResumenDestacados()
+
+    expect(apiClient.get).toHaveBeenCalledWith('/api/admin/inmuebles/destacados/resumen')
+    expect(resumen).toEqual({ total: 2, maximo: 3 })
   })
 })
