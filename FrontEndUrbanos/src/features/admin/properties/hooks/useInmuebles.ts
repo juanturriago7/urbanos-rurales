@@ -57,7 +57,10 @@ export function useCambiarEstado() {
   return useMutation({
     mutationFn: ({ id, estado }: { id: number; estado: EstadoInmueble }) =>
       cambiarEstadoInmueble(id, estado),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: inmueblesQueryKeys.all }),
+    // onSettled, no onSuccess: un 400 también puede deberse a datos ya
+    // desactualizados (otra pestaña/admin cambió el estado antes), así que el
+    // listado y el contador deben refrescarse también cuando la mutación falla.
+    onSettled: () => queryClient.invalidateQueries({ queryKey: inmueblesQueryKeys.all }),
   })
 }
 
@@ -67,7 +70,9 @@ export function useMarcarDestacado() {
   return useMutation({
     mutationFn: ({ id, destacado }: { id: number; destacado: boolean }) =>
       marcarDestacado(id, destacado),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: inmueblesQueryKeys.all }),
+    // onSettled, no onSuccess: un 400 "sin cupo" (dos pestañas/admins) deja el
+    // contador "X/3" y el listado desactualizados si solo refrescamos en éxito.
+    onSettled: () => queryClient.invalidateQueries({ queryKey: inmueblesQueryKeys.all }),
   })
 }
 

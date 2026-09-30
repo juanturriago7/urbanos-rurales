@@ -54,9 +54,8 @@ function TarjetaInmueble({ inmueble }: { inmueble: InmueblePublicoListItemDto })
 
   return (
     <article className="group relative bg-white border border-[#d8dfe4] rounded-[18px] overflow-hidden p-px flex flex-col hover:shadow-[0_8px_32px_rgba(0,17,36,0.10)] hover:-translate-y-0.5 transition-all duration-300">
-      {/* El Link envuelve imagen + info; el botón favorito queda fuera para no anidar
-          <button> dentro de <a>, que es HTML inválido. `contents` lo saca del flujo
-          para que la grilla flex de arriba (imagen/info) no se rompa. */}
+      {/* `contents` saca el Link del flujo para que la grilla flex de abajo
+          (imagen/info) se comporte como si el <a> no existiera en el layout. */}
       <Link to={`/inmuebles/${inmueble.slug}`} className="contents">
         {/* Imagen */}
         <div className="relative shrink-0 overflow-hidden rounded-t-[17px]" style={{ aspectRatio: '382/286.5' }}>
