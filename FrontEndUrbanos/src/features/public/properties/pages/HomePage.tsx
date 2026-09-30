@@ -247,16 +247,22 @@ export function HomePage() {
           ═══════════════════════════════════════════════════════ */}
       <section id="quienes-somos" className="scroll-mt-16 bg-[#f8fafd] py-16 sm:py-24 md:scroll-mt-[102px]">
         <Container className="flex flex-col items-center gap-12 lg:flex-row lg:gap-20">
-          {/* Imagen placeholder */}
-          <div className="hidden aspect-[4/3] w-[45%] max-w-[560px] shrink-0 overflow-hidden rounded-[20px] lg:block"
-            style={{ background: 'linear-gradient(135deg, #004b98 0%, #0071b2 60%, #00b5c5 100%)' }}>
-            <div className="w-full h-full flex items-end p-6">
-              <div className="ml-auto bg-white rounded-[14px] shadow-[0px_8px_16px_rgba(0,17,36,0.2)] flex gap-3 items-center px-5 py-4">
-                <p className="font-extrabold text-[#004b98] text-[28px] leading-none">2006</p>
-                <div>
-                  <p className="text-[#7a8187] text-[11px] font-medium leading-[1.4]">Fundación<br/>de la empresa</p>
-                </div>
-              </div>
+          {/* Foto del equipo con la insignia de fundación. Visible también en
+              móvil (antes era hidden lg:block): es la foto más humana del sitio.
+              3:2 nativo para no cortar a nadie en los bordes. */}
+          <div className="relative w-full shrink-0 overflow-hidden rounded-[20px] lg:w-[45%] lg:max-w-[560px]">
+            <Foto
+              foto={FOTOS.equipo}
+              sizes="(min-width: 1024px) 560px, 100vw"
+              className="aspect-[3/2] h-auto w-full object-cover"
+            />
+            <div className="absolute right-4 bottom-4 flex items-center gap-3 rounded-[14px] bg-white px-5 py-4 shadow-[0px_8px_16px_rgba(0,17,36,0.2)] sm:right-6 sm:bottom-6">
+              <p className="text-[28px] leading-none font-extrabold text-[#004b98]">2006</p>
+              <p className="text-[11px] leading-[1.4] font-medium text-[#7a8187]">
+                Fundación
+                <br />
+                de la empresa
+              </p>
             </div>
           </div>
 
@@ -376,8 +382,14 @@ export function HomePage() {
                   <ArrowRight className="w-[14px] h-[14px]" aria-hidden="true" />
                 </Link>
               </div>
-              <div className="flex-1 bg-[rgba(39,234,234,0.12)] hidden lg:flex items-center justify-center rounded-r-[20px]">
-                <p className="text-[rgba(255,255,255,0.3)] text-[12px] italic text-center px-5">[ fotografía aérea de proyecto inmobiliario ]</p>
+              {/* Provisional: cenital rural de palmas. Sustituir por una aérea de
+                  proyecto inmobiliario urbano cuando el cliente la envíe. */}
+              <div className="relative hidden flex-1 lg:block">
+                <Foto
+                  foto={FOTOS.comercializacion}
+                  sizes="(min-width: 1280px) 400px, 33vw"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
               </div>
             </div>
           </div>
