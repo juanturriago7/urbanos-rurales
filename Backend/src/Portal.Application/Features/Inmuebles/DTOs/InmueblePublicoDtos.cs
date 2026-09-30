@@ -42,6 +42,9 @@ public sealed class InmueblePublicoDetalleDto
     public short Habitaciones { get; init; }
     public short Banos { get; init; }
     public short Parqueaderos { get; init; }
+
+    /// <summary>'privado' | 'privado_uso_exclusivo' | 'doble'. Vacío si no se indicó.</summary>
+    public string[] TiposParqueadero { get; init; } = [];
     public short? Piso { get; init; }
     public short? PisosEdificio { get; init; }
     public short? Estrato { get; init; }
