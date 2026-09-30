@@ -9,12 +9,12 @@ export function Footer() {
     <footer id="contacto-footer" className="bg-[#001124]">
       <Container width="wide">
         {/* Fila principal */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 py-10">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 py-10">
           {/* Logo */}
           <Logo variant="light" tagline="www.urbanosrurales.com" />
 
           {/* Links nav */}
-          <nav className="flex flex-wrap items-center gap-6">
+          <nav className="flex flex-wrap items-center gap-x-6 gap-y-1">
             {[
               { label: 'Inicio',    to: '/' },
               { label: 'Inmuebles', to: '/inmuebles' },
@@ -22,12 +22,12 @@ export function Footer() {
             ].map((item) =>
               'anchor' in item ? (
                 <a key={item.label} href={`/#${item.anchor}`}
-                  className="text-[#7495a0] text-[13px] hover:text-white transition-colors duration-200">
+                  className="py-2 text-[#7495a0] text-[13px] hover:text-white transition-colors duration-200">
                   {item.label}
                 </a>
               ) : (
                 <Link key={item.label} to={item.to}
-                  className="text-[#7495a0] text-[13px] hover:text-white transition-colors duration-200">
+                  className="py-2 text-[#7495a0] text-[13px] hover:text-white transition-colors duration-200">
                   {item.label}
                 </Link>
               )
@@ -51,7 +51,7 @@ export function Footer() {
         </div>
 
         {/* Separador + copyright */}
-        <div className="border-t border-[rgba(255,255,255,0.08)] py-5 flex justify-center">
+        <div className="border-t border-[rgba(255,255,255,0.08)] pt-5 pb-24 sm:pb-5 flex justify-center">
           <p className="text-[#51686f] text-[12px] text-center">
             © {new Date().getFullYear()} Urbanos &amp; Rurales S.A.S — Todos los derechos reservados · Bogotá, Colombia
           </p>

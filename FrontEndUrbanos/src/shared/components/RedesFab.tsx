@@ -18,6 +18,9 @@ const MENSAJE = 'Hola, vengo del sitio web y quiero información sobre un inmueb
  * para quedar pegado al borde inferior. Es el CTA principal y esa es la esquina
  * que el pulgar alcanza sin estirarse en móvil; las redes quedan por encima,
  * visibles pero sin robarle el punto cómodo.
+ *
+ * En móvil solo queda WhatsApp (`soloDesdeSm`): la pila de tres medía ~170px
+ * de alto y tapaba texto, el envío del formulario y la paginación.
  */
 const BOTONES = [
   {
@@ -28,6 +31,7 @@ const BOTONES = [
     // El degradado es la identidad de Instagram; en plano se leería como un
     // icono genérico al lado de los otros dos, que sí van con su color de marca.
     fondo: 'bg-[linear-gradient(45deg,#F58529_0%,#DD2A7B_45%,#8134AF_75%,#515BD4_100%)]',
+    soloDesdeSm: true,
   },
   {
     etiqueta: 'Síguenos en TikTok',
@@ -35,6 +39,7 @@ const BOTONES = [
     href: site.redes.tiktok,
     Icon: TikTokIcon,
     fondo: 'bg-[#010101]',
+    soloDesdeSm: true,
   },
   {
     etiqueta: 'Respondemos en segundos',
@@ -42,6 +47,7 @@ const BOTONES = [
     href: `https://wa.me/${site.contacto.whatsapp}?text=${encodeURIComponent(MENSAJE)}`,
     Icon: WhatsAppIcon,
     fondo: 'bg-[#25D366]',
+    soloDesdeSm: false,
   },
 ]
 
@@ -83,7 +89,7 @@ export function RedesFab() {
         visible ? 'opacity-100' : 'pointer-events-none opacity-0',
       ].join(' ')}
     >
-      {BOTONES.map(({ etiqueta, aria, href, Icon, fondo }) => (
+      {BOTONES.map(({ etiqueta, aria, href, Icon, fondo, soloDesdeSm }) => (
         <a
           key={etiqueta}
           href={href}
@@ -92,7 +98,7 @@ export function RedesFab() {
           aria-label={aria}
           // `items-end` en el contenedor ancla el borde derecho, así que la
           // etiqueta puede aparecer y desaparecer en hover sin mover el círculo.
-          className="group flex items-center gap-3"
+          className={['group items-center gap-3', soloDesdeSm ? 'hidden sm:flex' : 'flex'].join(' ')}
         >
           <span className="rounded-control bg-surface text-text-secondary shadow-dropdown hidden px-3 py-2 text-xs whitespace-nowrap group-hover:block">
             {etiqueta}
