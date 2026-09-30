@@ -43,7 +43,7 @@ export function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-surface-muted font-sans">
-      <div className="w-full max-w-md rounded-[--radius-card] bg-white p-8 shadow-md">
+      <div className="w-full max-w-md rounded-(--radius-card) bg-white p-8 shadow-md">
         <h1 className="text-2xl font-bold text-text-primary">Acceso Admin</h1>
         <p className="mt-1 text-sm text-text-secondary">Portal Urbanos — Panel de gestión</p>
 

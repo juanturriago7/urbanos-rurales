@@ -13,7 +13,7 @@ interface TarjetaFotosProps {
 export function TarjetaFotos({ inmuebleId }: TarjetaFotosProps) {
   if (inmuebleId === null) {
     return (
-      <section className="rounded-[--radius-card] border border-dashed border-border bg-white p-5 text-center shadow-sm">
+      <section className="rounded-(--radius-card) border border-dashed border-border bg-white p-5 text-center shadow-sm">
         <h3 className="text-sm font-semibold uppercase tracking-wider text-text-secondary">
           Fotos <span className="font-normal normal-case">(opcional)</span>
         </h3>

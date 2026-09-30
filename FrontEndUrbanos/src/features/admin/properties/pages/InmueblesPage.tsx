@@ -151,7 +151,7 @@ export function InmueblesPage() {
       )}
 
       {data && data.items.length === 0 && (
-        <div className="mt-6 rounded-[--radius-card] border border-dashed border-border bg-white p-10 text-center">
+        <div className="mt-6 rounded-(--radius-card) border border-dashed border-border bg-white p-10 text-center">
           <p className="text-sm text-text-secondary">
             {debouncedQ || estado
               ? 'Ningún inmueble coincide con el filtro.'
@@ -165,7 +165,7 @@ export function InmueblesPage() {
 
       {data && data.items.length > 0 && (
         <>
-          <div className="mt-4 overflow-x-auto rounded-[--radius-card] border border-border bg-white shadow-sm">
+          <div className="mt-4 overflow-x-auto rounded-(--radius-card) border border-border bg-white shadow-sm">
             <table className="min-w-full divide-y divide-border text-sm">
               <thead className="bg-surface-muted">
                 <tr>

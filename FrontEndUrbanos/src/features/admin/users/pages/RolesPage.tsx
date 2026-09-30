@@ -37,7 +37,7 @@ export function RolesPage() {
       {/* Tabla de datos */}
       {data && (
         <>
-          <div className="mt-4 overflow-hidden rounded-[--radius-card] border border-border bg-white shadow-sm">
+          <div className="mt-4 overflow-x-auto rounded-(--radius-card) border border-border bg-white shadow-sm">
             <table className="min-w-full divide-y divide-border text-sm">
               <thead className="bg-surface-muted">
                 <tr>

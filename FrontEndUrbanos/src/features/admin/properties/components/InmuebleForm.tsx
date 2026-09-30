@@ -380,7 +380,7 @@ export function InmuebleForm({
         </Seccion>
 
         {/* ── Operaciones ──────────────────────────────────────────────────── */}
-        <section className="border-border rounded-[--radius-card] border bg-white p-5 shadow-sm">
+        <section className="border-border rounded-(--radius-card) border bg-white p-5 shadow-sm">
           <h3 className="text-text-secondary text-sm font-semibold tracking-wider uppercase">
             Operaciones
           </h3>
@@ -457,7 +457,7 @@ export function InmuebleForm({
 
         {/* ── Características ──────────────────────────────────────────────── */}
         {caracteristicas.data && caracteristicas.data.length > 0 && (
-          <section className="border-border rounded-[--radius-card] border bg-white p-5 shadow-sm">
+          <section className="border-border rounded-(--radius-card) border bg-white p-5 shadow-sm">
             <h3 className="text-text-secondary text-sm font-semibold tracking-wider uppercase">
               Características
             </h3>
@@ -540,7 +540,7 @@ function Seccion({
   gridClassName?: string
 }) {
   return (
-    <section className="border-border rounded-[--radius-card] border bg-white p-5 shadow-sm">
+    <section className="border-border rounded-(--radius-card) border bg-white p-5 shadow-sm">
       <h3 className="text-text-secondary text-sm font-semibold tracking-wider uppercase">
         {titulo}
       </h3>

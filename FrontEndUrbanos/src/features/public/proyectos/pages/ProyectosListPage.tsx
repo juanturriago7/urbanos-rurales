@@ -35,13 +35,13 @@ export function ProyectosListPage() {
           <div className="flex justify-center py-16"><Spinner size="lg" /></div>
         )}
         {isError && (
-          <div className="rounded-[--radius-card] border border-red-200 bg-red-50 p-6 text-sm text-error">
+          <div className="rounded-(--radius-card) border border-red-200 bg-red-50 p-6 text-sm text-error">
             Error: {error instanceof Error ? error.message : 'desconocido'}
           </div>
         )}
 
         {data && data.items.length === 0 && (
-          <p className="rounded-[--radius-card] border border-dashed border-border bg-white p-12 text-center text-[15px] text-text-secondary">
+          <p className="rounded-(--radius-card) border border-dashed border-border bg-white p-12 text-center text-[15px] text-text-secondary">
             Aún no hay artículos publicados.
           </p>
         )}

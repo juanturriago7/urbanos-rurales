@@ -67,7 +67,7 @@ export function TiposInmuebleAdminPage() {
         </p>
       </div>
 
-      <section className="rounded-[--radius-card] border border-border bg-white p-5 shadow-sm">
+      <section className="rounded-(--radius-card) border border-border bg-white p-5 shadow-sm">
         <h3 className="text-sm font-semibold uppercase tracking-wider text-text-secondary">
           Nuevo tipo
         </h3>
@@ -103,7 +103,7 @@ export function TiposInmuebleAdminPage() {
         </p>
       </section>
 
-      <section className="rounded-[--radius-card] border border-border bg-white p-5 shadow-sm">
+      <section className="rounded-(--radius-card) border border-border bg-white p-5 shadow-sm">
         <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-text-secondary">
           Tipos registrados
         </h3>

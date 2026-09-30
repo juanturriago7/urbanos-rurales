@@ -56,7 +56,7 @@ export function CaracteristicasAdminPage() {
         restaurar: descomentar esta <section> y sus dependencias arriba (import
         useCrearCategoria, crearCat, state nuevaCategoria, agregarCategoria).
 
-      <section className="rounded-[--radius-card] border border-border bg-white p-5 shadow-sm">
+      <section className="rounded-(--radius-card) border border-border bg-white p-5 shadow-sm">
         <h3 className="text-sm font-semibold uppercase tracking-wider text-text-secondary">
           Nueva categoría
         </h3>
@@ -79,7 +79,7 @@ export function CaracteristicasAdminPage() {
       </section>
       */}
 
-      <section className="rounded-[--radius-card] border border-border bg-white p-5 shadow-sm">
+      <section className="rounded-(--radius-card) border border-border bg-white p-5 shadow-sm">
         <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-text-secondary">
           Categorías y características
         </h3>

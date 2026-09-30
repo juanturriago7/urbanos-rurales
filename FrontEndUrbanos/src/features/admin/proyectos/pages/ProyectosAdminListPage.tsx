@@ -53,7 +53,7 @@ export function ProyectosAdminListPage() {
       )}
 
       {data && data.items.length > 0 && (
-        <div className="overflow-hidden rounded-[--radius-card] border border-border bg-white shadow-sm">
+        <div className="overflow-x-auto rounded-(--radius-card) border border-border bg-white shadow-sm">
           <table className="min-w-full divide-y divide-border text-sm">
             <thead className="bg-surface-muted">
               <tr>

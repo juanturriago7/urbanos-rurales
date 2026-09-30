@@ -39,7 +39,7 @@ export function UbicacionesAdminPage() {
       </div>
 
       {/* Alta de zona raíz */}
-      <section className="rounded-[--radius-card] border border-border bg-white p-5 shadow-sm">
+      <section className="rounded-(--radius-card) border border-border bg-white p-5 shadow-sm">
         <h3 className="text-sm font-semibold uppercase tracking-wider text-text-secondary">
           Nueva zona
         </h3>
@@ -69,7 +69,7 @@ export function UbicacionesAdminPage() {
       </section>
 
       {/* Árbol */}
-      <section className="rounded-[--radius-card] border border-border bg-white p-5 shadow-sm">
+      <section className="rounded-(--radius-card) border border-border bg-white p-5 shadow-sm">
         <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-text-secondary">
           Árbol de ubicaciones
         </h3>

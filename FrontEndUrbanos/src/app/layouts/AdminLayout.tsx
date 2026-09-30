@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Outlet, Link, NavLink } from 'react-router-dom'
 import { useAuthStore } from '@/shared/hooks/useAuthStore'
 import { useLogout } from '@/features/admin/auth/hooks/useLogin'
+import { useBloquearScroll } from '@/shared/hooks/useBloquearScroll'
 
 const navItems = [
   { to: '/admin/properties', label: 'Propiedades' },
@@ -37,23 +38,20 @@ export function AdminLayout() {
 
   const cerrarMenu = () => setMenuAbierto(false)
 
-  // Bloquea el scroll del body y cierra con Escape mientras el drawer está abierto.
+  useBloquearScroll(menuAbierto)
+
+  // Cierra con Escape mientras el drawer está abierto.
   useEffect(() => {
     if (!menuAbierto) return
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setMenuAbierto(false)
     }
     document.addEventListener('keydown', onKey)
-    return () => {
-      document.body.style.overflow = prev
-      document.removeEventListener('keydown', onKey)
-    }
+    return () => document.removeEventListener('keydown', onKey)
   }, [menuAbierto])
 
   return (
-    <div className="flex h-screen overflow-hidden bg-surface-muted font-sans">
+    <div className="flex h-dvh overflow-hidden bg-surface-muted font-sans">
       {/* Sidebar (desktop) */}
       <aside className="hidden w-64 flex-col border-r border-border bg-white shadow-sm md:flex">
         <div className="flex h-16 items-center border-b border-border px-6">
@@ -134,14 +132,14 @@ export function AdminLayout() {
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Topbar */}
         <header className="flex h-16 items-center justify-between gap-3 border-b border-border bg-white px-4 shadow-sm md:px-6">
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2">
             {/* Botón de menú (mobile) */}
             <button
               type="button"
               onClick={() => setMenuAbierto(true)}
               aria-label="Abrir menú"
               aria-expanded={menuAbierto}
-              className="rounded-lg p-1.5 text-text-secondary hover:bg-surface-muted hover:text-text-primary md:hidden"
+              className="shrink-0 rounded-lg p-2.5 text-text-secondary hover:bg-surface-muted hover:text-text-primary md:hidden"
             >
               <svg
                 className="h-5 w-5"
@@ -154,7 +152,7 @@ export function AdminLayout() {
                 <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round" />
               </svg>
             </button>
-            <h1 className="text-base font-semibold text-text-primary">Panel de Administración</h1>
+            <h1 className="truncate text-base font-semibold text-text-primary">Panel de Administración</h1>
           </div>
           <button
             onClick={handleLogout}

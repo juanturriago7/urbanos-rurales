@@ -69,7 +69,7 @@ export function InmuebleFormPage() {
       </div>
 
       {yaCreado && (
-        <div className="mt-4 rounded-[--radius-card] border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+        <div className="mt-4 rounded-(--radius-card) border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
           Inmueble creado en borrador. Ya puedes subir fotos o terminar.
         </div>
       )}

@@ -57,7 +57,7 @@ export function GaleriaImagenes({ inmuebleId }: GaleriaImagenesProps) {
   }
 
   return (
-    <section className="border-border rounded-[--radius-card] border bg-white p-5 shadow-sm">
+    <section className="border-border rounded-(--radius-card) border bg-white p-5 shadow-sm">
       <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <div>
           <h3 className="text-text-secondary text-sm font-semibold tracking-wider uppercase">
@@ -101,7 +101,7 @@ export function GaleriaImagenes({ inmuebleId }: GaleriaImagenesProps) {
       )}
 
       {!isLoading && total === 0 && (
-        <div className="border-border text-text-secondary mt-4 rounded-[--radius-card] border border-dashed p-8 text-center text-sm">
+        <div className="border-border text-text-secondary mt-4 rounded-(--radius-card) border border-dashed p-8 text-center text-sm">
           Todavía no hay fotos. La primera que subas queda como portada.
         </div>
       )}
@@ -111,7 +111,7 @@ export function GaleriaImagenes({ inmuebleId }: GaleriaImagenesProps) {
           {imagenes!.map((imagen) => (
             <div
               key={imagen.id}
-              className="group border-border relative overflow-hidden rounded-[--radius-card] border"
+              className="group border-border relative overflow-hidden rounded-(--radius-card) border"
             >
               <img
                 src={imagen.urlCdn}
