@@ -23,6 +23,11 @@ import {
   type InmuebleFormInput,
   type InmuebleFormParsed,
 } from '@/features/admin/properties/schemas/inmuebleSchema'
+import {
+  ETIQUETAS_TIPO_PARQUEADERO,
+  TIPOS_PARQUEADERO,
+  hayParqueaderos,
+} from '@/shared/lib/tiposParqueadero'
 
 const HINT_UBICACION_POR_DEFECTO =
   'Zona, localidad o UPZ — escribe para filtrar y elige el nivel más específico que conozcas.'
@@ -115,6 +120,8 @@ export function InmuebleForm({
   const tieneVenta = useWatch({ control, name: 'tieneVenta' })
   const tieneArriendo = useWatch({ control, name: 'tieneArriendo' })
   const tipoInmuebleIdActual = useWatch({ control, name: 'tipoInmuebleId' })
+  const parqueaderosActual = useWatch({ control, name: 'parqueaderos' })
+  const conParqueaderos = hayParqueaderos(parqueaderosActual)
 
   const tipoActual = tipos.data?.find((t) => String(t.id) === String(tipoInmuebleIdActual))
   const esPH = tipoActual?.esPropiedadHorizontal ?? false
@@ -332,8 +339,45 @@ export function InmuebleForm({
             type="number"
             min={0}
             error={errors.parqueaderos?.message}
-            {...register('parqueaderos')}
+            {...register('parqueaderos', {
+              // Sin parqueaderos no hay tipo: se limpia la selección para que no
+              // reaparezca marcada si el admin vuelve a subir el número.
+              onChange: (e) => {
+                if (!hayParqueaderos(e.target.value)) setValue('tiposParqueadero', [])
+              },
+            })}
           />
+          {/* Tipo de parqueadero: opcional y de selección múltiple. Solo tiene
+              sentido con 1 o más parqueaderos. Ocupa la fila entera para que su
+              posición no dependa de si el tipo de inmueble muestra el área de
+              terreno o no. */}
+          {conParqueaderos && (
+            <fieldset className="m-0 min-w-0 border-0 p-0 sm:col-span-2 xl:col-span-3">
+              <legend className="text-text-primary text-sm font-medium">Tipo de parqueadero</legend>
+              <p className="text-text-secondary mt-1 text-xs">
+                Opcional. Marca todos los que apliquen.
+              </p>
+              <div className="mt-2 flex flex-wrap gap-x-6 gap-y-2">
+                {TIPOS_PARQUEADERO.map((tipo) => (
+                  <label
+                    key={tipo}
+                    className="text-text-secondary flex items-center gap-2 text-sm"
+                  >
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4"
+                      value={tipo}
+                      {...register('tiposParqueadero')}
+                    />
+                    {ETIQUETAS_TIPO_PARQUEADERO[tipo]}
+                  </label>
+                ))}
+              </div>
+              {errors.tiposParqueadero?.message && (
+                <p className="text-error mt-1 text-xs">{errors.tiposParqueadero.message}</p>
+              )}
+            </fieldset>
+          )}
           <Input
             label="Estrato"
             type="number"
