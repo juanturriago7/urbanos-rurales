@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 import type { InmueblePublicoListItemDto } from '@/features/public/properties/api/inmueblesPublicApi'
 import { usePublicaciones } from '@/features/public/properties/hooks/usePublicaciones'
 import { BadgeDestacado } from '@/features/public/properties/components/BadgeDestacado'
-import { indiceMasCercanoAlCentro } from '@/features/public/properties/lib/carrusel'
+import { destinoDeSnap, indiceMasCercano } from '@/features/public/properties/lib/carrusel'
 
 const formatoPesos = new Intl.NumberFormat('es-CO', {
   style: 'currency',
@@ -13,7 +13,10 @@ const formatoPesos = new Intl.NumberFormat('es-CO', {
   maximumFractionDigits: 0,
 })
 
-function formatPrice(precioVenta: number | null, precioArriendo: number | null): {
+function formatPrice(
+  precioVenta: number | null,
+  precioArriendo: number | null,
+): {
   texto: string
   operacion: 'Venta' | 'Arriendo' | null
 } {
@@ -35,12 +38,13 @@ const CANTIDAD = 3
  * la tarjeta siguiente asome; `py-2` evita que el desplazamiento del hover se
  * recorte (un `overflow-x-auto` también recorta en vertical) y `relative` hace
  * del carril el `offsetParent` de las tarjetas, para medirlas en las mismas
- * coordenadas que `scrollLeft`.
+ * coordenadas que `scrollLeft`. Desde `lg` ya no hay scroll —es una grilla—
+ * así que `lg:py-0` evita el espacio vertical extra que ese `py-2` dejaría.
  */
 const CARRIL = [
   'relative -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 py-2',
   '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mx-6 sm:px-6',
-  'lg:mx-0 lg:grid lg:grid-cols-3 lg:gap-6 lg:overflow-visible lg:px-0',
+  'lg:mx-0 lg:grid lg:grid-cols-3 lg:gap-6 lg:overflow-visible lg:px-0 lg:py-0',
 ].join(' ')
 
 /** Ancho de cada tarjeta dentro del carril: una y algo en móvil, dos en tablet. */
@@ -68,11 +72,16 @@ export function PublicacionesDestacadas() {
   function alDeslizar() {
     const carril = carrilRef.current
     if (!carril) return
-    const centros = Array.from(carril.children, (hijo) => {
+    const destinos = Array.from(carril.children, (hijo) => {
       const tarjeta = hijo as HTMLElement
-      return tarjeta.offsetLeft + tarjeta.offsetWidth / 2
+      return destinoDeSnap(
+        tarjeta.offsetLeft,
+        tarjeta.offsetWidth,
+        carril.clientWidth,
+        carril.scrollWidth,
+      )
     })
-    setActivo(indiceMasCercanoAlCentro(centros, carril.scrollLeft + carril.clientWidth / 2))
+    setActivo(indiceMasCercano(destinos, carril.scrollLeft))
   }
 
   function irATarjeta(indice: number) {
@@ -81,7 +90,12 @@ export function PublicacionesDestacadas() {
     if (!carril || !tarjeta) return
     const sinMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     carril.scrollTo({
-      left: tarjeta.offsetLeft - (carril.clientWidth - tarjeta.offsetWidth) / 2,
+      left: destinoDeSnap(
+        tarjeta.offsetLeft,
+        tarjeta.offsetWidth,
+        carril.clientWidth,
+        carril.scrollWidth,
+      ),
       behavior: sinMovimiento ? 'auto' : 'smooth',
     })
   }
@@ -135,9 +149,18 @@ export function PublicacionesDestacadas() {
               ))}
             </div>
 
-            {/* Puntos: solo donde hay carrusel y si hay más de una tarjeta */}
+            {/* Puntos: solo donde hay carrusel y si hay más de una tarjeta.
+            Con 2 tarjetas ambas caben desde `sm` (sm:basis-[48%]) y el carril
+            no se desliza, así que desde ahí no sirven. El botón es un área
+            de toque de al menos 24px (WCAG 2.2 SC 2.5.8); la píldora visible
+            va en el `span` interior. */}
             {items.length > 1 && (
-              <div className="mt-4 flex justify-center gap-2 lg:hidden">
+              <div
+                className={[
+                  'mt-4 flex justify-center gap-0 lg:hidden',
+                  items.length <= 2 ? 'sm:hidden' : '',
+                ].join(' ')}
+              >
                 {items.map((inmueble, i) => (
                   <button
                     key={inmueble.id}
@@ -145,11 +168,15 @@ export function PublicacionesDestacadas() {
                     onClick={() => irATarjeta(i)}
                     aria-label={`Ver inmueble ${i + 1} de ${items.length}`}
                     aria-current={i === activo ? 'true' : undefined}
-                    className={[
-                      'h-2.5 rounded-full transition-all duration-300',
-                      i === activo ? 'w-6 bg-[#004b98]' : 'w-2.5 bg-[#c3ccd3]',
-                    ].join(' ')}
-                  />
+                    className="flex h-6 min-w-6 items-center justify-center"
+                  >
+                    <span
+                      className={[
+                        'h-2.5 rounded-full transition-all duration-300',
+                        i === activo ? 'w-6 bg-[#004b98]' : 'w-2.5 bg-[#c3ccd3]',
+                      ].join(' ')}
+                    />
+                  </button>
                 ))}
               </div>
             )}
