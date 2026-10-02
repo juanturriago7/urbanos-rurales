@@ -21,8 +21,12 @@ texto, el envío del formulario y la paginación. El usuario quiere verlos.
   - Al tocarlo se despliegan Instagram y TikTok (círculos de 40px) por encima
     del botón, con una transición de opacidad y desplazamiento. El ícono cambia
     a `X` mientras están abiertas.
-  - Las redes se cierran al tocar fuera, al pulsar `Escape`, al elegir una red
-    o al cambiar de ruta.
+  - Las redes se cierran al tocar fuera, al pulsar `Escape` (el foco vuelve
+    al botón solo si estaba dentro del FAB), al tocar cualquiera de los
+    enlaces (incluido WhatsApp) o al cambiar de ruta.
+  - En el DOM el botón va antes de la lista, para que al tabular desde él se
+    llegue a las redes recién abiertas. El orden visual en móvil (redes,
+    botón, WhatsApp) se logra con `max-sm:-order-1` en la lista.
   - Mientras están cerradas, las redes llevan `visibility: hidden`
     (`max-sm:invisible`), que las saca del orden de tabulación, del árbol de
     accesibilidad y de los toques. A diferencia de `inert`, se puede limitar a
@@ -75,12 +79,18 @@ etiqueta, revertidos con `lg:items-start lg:text-left lg:self-start` (o con
     tarjeta asoma para indicar que se puede deslizar.
   - La barra de scroll va oculta.
   - Debajo del carrusel van puntos indicadores, uno por tarjeta. El punto
-    activo se recalcula en cada evento `scroll` del carril: es la tarjeta cuyo
-    centro queda más cerca del centro visible, según la función pura
-    `indiceMasCercanoAlCentro` de `lib/carrusel.ts`, que tiene test (los tests
-    del proyecto corren sin DOM). Tocar un punto desplaza el carril hasta su
-    tarjeta con `scrollTo` sobre el carril, no con `scrollIntoView`, para no
-    mover la página en vertical. Los puntos se ocultan desde `lg`.
+    activo se recalcula en cada evento `scroll` del carril: es la tarjeta
+    cuyo destino de snap (la posición de scroll que la centra, acotada al
+    rango de scroll) queda más cerca de `scrollLeft`. Lo calculan las
+    funciones puras `destinoDeSnap` e `indiceMasCercano` de
+    `lib/carrusel.ts`, que tienen test (los tests del proyecto corren sin
+    DOM). Comparar centros en su lugar falla en tablet: con dos tarjetas por
+    pantalla, la del medio queda siempre más cerca del centro. Tocar un punto
+    desplaza el carril hasta el destino de su tarjeta, con la misma función,
+    usando `scrollTo` sobre el carril y no `scrollIntoView`, para no mover la
+    página en vertical. Cada punto tiene un área táctil de 24px. Los puntos
+    se ocultan desde `lg`, y desde `sm` si hay 2 inmuebles o menos (caben
+    todos y el carril no se desliza).
 - El render de la tarjeta se extrae a un componente local `TarjetaPublicacion`
   dentro del mismo archivo, para usarlo igual en la grilla y en el carrusel.
 - Botón grande debajo: "Ver más inmuebles →" (`Link` a `/inmuebles`), con el
