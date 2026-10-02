@@ -1,8 +1,11 @@
 import { Container } from '@/shared/components/ui/Container'
-import { BedDouble, House, MapPin, Ruler } from 'lucide-react'
+import { ArrowRight, BedDouble, House, MapPin, Ruler } from 'lucide-react'
+import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import type { InmueblePublicoListItemDto } from '@/features/public/properties/api/inmueblesPublicApi'
 import { usePublicaciones } from '@/features/public/properties/hooks/usePublicaciones'
 import { BadgeDestacado } from '@/features/public/properties/components/BadgeDestacado'
+import { indiceMasCercanoAlCentro } from '@/features/public/properties/lib/carrusel'
 
 const formatoPesos = new Intl.NumberFormat('es-CO', {
   style: 'currency',
@@ -23,172 +26,243 @@ function formatPrice(precioVenta: number | null, precioArriendo: number | null):
   return { texto: '—', operacion: null }
 }
 
+/** El home es una muestra; el portafolio completo vive en /inmuebles. */
+const CANTIDAD = 3
+
+/**
+ * Carrusel deslizable con scroll-snap por debajo de `lg`, grilla de 3 desde
+ * `lg`. Los márgenes negativos lo llevan hasta el borde de la pantalla para que
+ * la tarjeta siguiente asome; `py-2` evita que el desplazamiento del hover se
+ * recorte (un `overflow-x-auto` también recorta en vertical) y `relative` hace
+ * del carril el `offsetParent` de las tarjetas, para medirlas en las mismas
+ * coordenadas que `scrollLeft`.
+ */
+const CARRIL = [
+  'relative -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 py-2',
+  '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mx-6 sm:px-6',
+  'lg:mx-0 lg:grid lg:grid-cols-3 lg:gap-6 lg:overflow-visible lg:px-0',
+].join(' ')
+
+/** Ancho de cada tarjeta dentro del carril: una y algo en móvil, dos en tablet. */
+const CELDA = 'shrink-0 basis-[85%] snap-center sm:basis-[48%] lg:basis-auto'
+
 /**
  * Sección de publicaciones en el home — spec 05.
  *
- * Antes: estaba comentada por completo en HomePage.tsx y usaba un lenguaje
- * editorial propio (serif + paleta tostada) que la hacía sentir ajena al
- * resto del home (sans, paleta azul #004b98/#00b5c5). Ahora comparte paleta
- * y tipografía, y el header tiene más peso que el resto de secciones porque
- * es contenido transaccional, no institucional.
+ * Muestra solo 3 inmuebles y remite al portafolio completo con un botón grande
+ * al final. Comparte paleta y tipografía con el resto del home.
  *
  * Si no hay publicaciones o la API falla, la sección no se renderiza (mejor
  * ausente que un hueco o un error visible debajo del hero).
  */
 export function PublicacionesDestacadas() {
-  const { data, isLoading, isError } = usePublicaciones({ pageSize: 6 })
+  const { data, isLoading, isError } = usePublicaciones({ pageSize: CANTIDAD })
+  const carrilRef = useRef<HTMLDivElement>(null)
+  const [activo, setActivo] = useState(0)
 
   if (isError) return null
   if (!isLoading && (!data || data.items.length === 0)) return null
 
+  const items = data?.items ?? []
+
+  function alDeslizar() {
+    const carril = carrilRef.current
+    if (!carril) return
+    const centros = Array.from(carril.children, (hijo) => {
+      const tarjeta = hijo as HTMLElement
+      return tarjeta.offsetLeft + tarjeta.offsetWidth / 2
+    })
+    setActivo(indiceMasCercanoAlCentro(centros, carril.scrollLeft + carril.clientWidth / 2))
+  }
+
+  function irATarjeta(indice: number) {
+    const carril = carrilRef.current
+    const tarjeta = carril?.children[indice] as HTMLElement | undefined
+    if (!carril || !tarjeta) return
+    const sinMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    carril.scrollTo({
+      left: tarjeta.offsetLeft - (carril.clientWidth - tarjeta.offsetWidth) / 2,
+      behavior: sinMovimiento ? 'auto' : 'smooth',
+    })
+  }
+
   return (
     <section className="bg-[#eff4f8] py-16 sm:py-24">
       <Container>
-        {/* Header de sección — más prominente que el resto */}
-        <div className="reveal mb-10 flex flex-col gap-3 sm:mb-12 sm:flex-row sm:items-end sm:justify-between">
-          <div className="flex flex-col gap-3">
-            <span className="self-start bg-[rgba(0,75,152,0.08)] px-[14px] py-[5px] rounded-full">
-              <span className="text-[#004b98] text-[11px] font-semibold tracking-[1.32px] uppercase">
-                Publicaciones
-              </span>
+        {/* Encabezado: centrado en móvil, a la izquierda desde sm */}
+        <div className="reveal mb-10 flex flex-col items-center gap-3 text-center sm:mb-12 sm:items-start sm:text-left">
+          <span className="rounded-full bg-[rgba(0,75,152,0.08)] px-[14px] py-[5px]">
+            <span className="text-[11px] font-semibold tracking-[1.32px] text-[#004b98] uppercase">
+              Publicaciones
             </span>
-            <h2 className="titulo-seccion text-[#001124]">
-              Inmuebles disponibles
-            </h2>
-            <p className="texto-lead max-w-[560px] text-[#7a8187]">
-              Nuestras propiedades destacadas y las más recientes del portafolio.
-            </p>
-          </div>
-          <Link
-            to="/inmuebles"
-            className="inline-flex items-center gap-2 bg-[#004b98] text-white font-semibold text-[14px] px-6 py-3 rounded-[10px] hover:bg-[#003b7a] transition-colors self-start sm:self-auto"
-          >
-            Ver todas las propiedades →
-          </Link>
+          </span>
+          <h2 className="titulo-seccion text-[#001124]">Inmuebles disponibles</h2>
+          <p className="texto-lead max-w-[560px] text-[#7a8187]">
+            Nuestras propiedades destacadas y las más recientes del portafolio.
+          </p>
         </div>
 
         {/* Skeletons de carga */}
         {isLoading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 3 }).map((_, i) => (
+          <div className={CARRIL}>
+            {Array.from({ length: CANTIDAD }).map((_, i) => (
               <div
                 key={i}
-                className="bg-white border border-[#d8dfe4] rounded-[18px] overflow-hidden animate-pulse"
+                className={`${CELDA} animate-pulse overflow-hidden rounded-[18px] border border-[#d8dfe4] bg-white`}
               >
                 <div className="bg-[#e0e5e9]" style={{ aspectRatio: '382/286.5' }} />
-                <div className="p-5 flex flex-col gap-3">
-                  <div className="h-5 bg-[#e0e5e9] rounded w-1/3" />
-                  <div className="h-4 bg-[#e0e5e9] rounded w-3/4" />
-                  <div className="h-3 bg-[#e0e5e9] rounded w-1/2" />
+                <div className="flex flex-col gap-3 p-5">
+                  <div className="h-5 w-1/3 rounded bg-[#e0e5e9]" />
+                  <div className="h-4 w-3/4 rounded bg-[#e0e5e9]" />
+                  <div className="h-3 w-1/2 rounded bg-[#e0e5e9]" />
                 </div>
               </div>
             ))}
           </div>
         )}
 
-        {/* Grid de tarjetas — mismo lenguaje que /inmuebles para consistencia */}
-        {!isLoading && data && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {data.items.map((inmueble) => {
-              const { texto: precio, operacion } = formatPrice(
-                inmueble.precioVenta,
-                inmueble.precioArriendo,
-              )
-              const badgeBg = operacion === 'Arriendo' ? 'bg-[#df500c]' : 'bg-[#00b5c5]'
-              const badgeTxt = operacion === 'Arriendo' ? 'text-white' : 'text-[#001124]'
+        {!isLoading && (
+          <>
+            <div
+              ref={carrilRef}
+              onScroll={alDeslizar}
+              className={CARRIL}
+              role="region"
+              aria-label="Inmuebles disponibles"
+            >
+              {items.map((inmueble) => (
+                <TarjetaPublicacion key={inmueble.id} inmueble={inmueble} className={CELDA} />
+              ))}
+            </div>
 
-              return (
-                <article
-                  key={inmueble.id}
-                  className="group relative bg-white border border-[#d8dfe4] rounded-[18px] overflow-hidden p-px flex flex-col hover:shadow-[0_8px_32px_rgba(0,17,36,0.10)] hover:-translate-y-0.5 transition-all duration-300"
-                >
-                  <Link to={`/inmuebles/${inmueble.slug}`} className="contents">
-                    {/* Imagen */}
-                    <div
-                      className="relative shrink-0 overflow-hidden rounded-t-[17px]"
-                      style={{ aspectRatio: '382/286.5' }}
-                    >
-                      {inmueble.imagenPortada ? (
-                        <img
-                          src={inmueble.imagenPortada}
-                          alt={inmueble.titulo}
-                          loading="lazy"
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                        />
-                      ) : (
-                        <div
-                          className="w-full h-full flex items-center justify-center"
-                          style={{
-                            background:
-                              'linear-gradient(135deg, #004b98 0%, #0071b2 60%, #00b5c5 100%)',
-                          }}
-                        >
-                          <span className="text-[rgba(255,255,255,0.4)] text-[11px] text-center px-4">
-                            Sin fotografía disponible
-                          </span>
-                        </div>
-                      )}
-                      {operacion && (
-                        <span
-                          className={`absolute top-3.5 left-3.5 ${badgeBg} ${badgeTxt} text-[11px] font-bold tracking-[0.33px] px-3 py-1.5 rounded-full`}
-                        >
-                          {operacion}
-                        </span>
-                      )}
-                      {inmueble.destacado && <BadgeDestacado />}
-                    </div>
-
-                    {/* Info */}
-                    <div className="flex flex-col gap-1 p-5">
-                      <p className="font-extrabold text-[#004b98] text-[20px] tracking-[-0.5px] leading-none">
-                        {precio}
-                      </p>
-                      <p className="font-bold text-[#001124] text-[15px] leading-snug mt-0.5 line-clamp-2">
-                        {inmueble.titulo}
-                      </p>
-                      <div className="flex items-center gap-[5px] pb-2.5 text-[#7a8187]">
-                        <MapPin className="w-[13px] h-[13px] shrink-0" aria-hidden="true" />
-                        <span className="text-[#7a8187] text-[13px] truncate">
-                          {inmueble.ubicacion}
-                        </span>
-                      </div>
-                      <div className="border-t border-[#e0e5e9] pt-[15px] flex flex-wrap gap-x-[14px] gap-y-1 items-center">
-                        {inmueble.areaConstruidaM2 && (
-                          <span className="flex items-center gap-[5px] text-[#7a8187]">
-                            <Ruler className="w-[13px] h-[13px]" aria-hidden="true" />
-                            <span className="text-[#7a8187] text-[12px] font-medium">
-                              {inmueble.areaConstruidaM2} m²
-                            </span>
-                          </span>
-                        )}
-                        {inmueble.habitaciones > 0 && (
-                          <span className="flex items-center gap-[5px] text-[#7a8187]">
-                            <BedDouble className="w-[13px] h-[13px]" aria-hidden="true" />
-                            <span className="text-[#7a8187] text-[12px] font-medium">
-                              {inmueble.habitaciones} hab
-                            </span>
-                          </span>
-                        )}
-                        <span className="flex items-center gap-[5px] text-[#7a8187]">
-                          <House className="w-[13px] h-[13px]" aria-hidden="true" />
-                          <span className="text-[#7a8187] text-[12px] font-medium capitalize">
-                            {inmueble.tipoInmueble}
-                          </span>
-                        </span>
-                        {inmueble.estrato && (
-                          <span className="text-[#7a8187] text-[12px] font-medium">
-                            Estrato {inmueble.estrato}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </Link>
-                </article>
-              )
-            })}
-          </div>
+            {/* Puntos: solo donde hay carrusel y si hay más de una tarjeta */}
+            {items.length > 1 && (
+              <div className="mt-4 flex justify-center gap-2 lg:hidden">
+                {items.map((inmueble, i) => (
+                  <button
+                    key={inmueble.id}
+                    type="button"
+                    onClick={() => irATarjeta(i)}
+                    aria-label={`Ver inmueble ${i + 1} de ${items.length}`}
+                    aria-current={i === activo ? 'true' : undefined}
+                    className={[
+                      'h-2.5 rounded-full transition-all duration-300',
+                      i === activo ? 'w-6 bg-[#004b98]' : 'w-2.5 bg-[#c3ccd3]',
+                    ].join(' ')}
+                  />
+                ))}
+              </div>
+            )}
+          </>
         )}
+
+        <div className="mt-10 flex justify-center sm:mt-12">
+          <Link
+            to="/inmuebles"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-[10px] bg-[#004b98] px-10 py-4 text-[16px] font-bold text-white transition-colors duration-200 hover:bg-[#003b7a] sm:w-auto"
+          >
+            Ver más inmuebles
+            <ArrowRight className="h-5 w-5" aria-hidden="true" />
+          </Link>
+        </div>
       </Container>
     </section>
+  )
+}
+
+interface TarjetaPublicacionProps {
+  inmueble: InmueblePublicoListItemDto
+  className?: string
+}
+
+/** Tarjeta de inmueble, mismo lenguaje que /inmuebles para consistencia. */
+function TarjetaPublicacion({ inmueble, className = '' }: TarjetaPublicacionProps) {
+  const { texto: precio, operacion } = formatPrice(inmueble.precioVenta, inmueble.precioArriendo)
+  const badgeBg = operacion === 'Arriendo' ? 'bg-[#df500c]' : 'bg-[#00b5c5]'
+  const badgeTxt = operacion === 'Arriendo' ? 'text-white' : 'text-[#001124]'
+
+  return (
+    <article
+      className={`group relative flex flex-col overflow-hidden rounded-[18px] border border-[#d8dfe4] bg-white p-px transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_32px_rgba(0,17,36,0.10)] ${className}`}
+    >
+      <Link to={`/inmuebles/${inmueble.slug}`} className="contents">
+        {/* Imagen */}
+        <div
+          className="relative shrink-0 overflow-hidden rounded-t-[17px]"
+          style={{ aspectRatio: '382/286.5' }}
+        >
+          {inmueble.imagenPortada ? (
+            <img
+              src={inmueble.imagenPortada}
+              alt={inmueble.titulo}
+              loading="lazy"
+              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+          ) : (
+            <div
+              className="flex h-full w-full items-center justify-center"
+              style={{
+                background: 'linear-gradient(135deg, #004b98 0%, #0071b2 60%, #00b5c5 100%)',
+              }}
+            >
+              <span className="px-4 text-center text-[11px] text-[rgba(255,255,255,0.4)]">
+                Sin fotografía disponible
+              </span>
+            </div>
+          )}
+          {operacion && (
+            <span
+              className={`absolute top-3.5 left-3.5 ${badgeBg} ${badgeTxt} rounded-full px-3 py-1.5 text-[11px] font-bold tracking-[0.33px]`}
+            >
+              {operacion}
+            </span>
+          )}
+          {inmueble.destacado && <BadgeDestacado />}
+        </div>
+
+        {/* Info */}
+        <div className="flex flex-col gap-1 p-5">
+          <p className="text-[20px] leading-none font-extrabold tracking-[-0.5px] text-[#004b98]">
+            {precio}
+          </p>
+          <p className="mt-0.5 line-clamp-2 text-[15px] leading-snug font-bold text-[#001124]">
+            {inmueble.titulo}
+          </p>
+          <div className="flex items-center gap-[5px] pb-2.5 text-[#7a8187]">
+            <MapPin className="h-[13px] w-[13px] shrink-0" aria-hidden="true" />
+            <span className="truncate text-[13px] text-[#7a8187]">{inmueble.ubicacion}</span>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-[14px] gap-y-1 border-t border-[#e0e5e9] pt-[15px]">
+            {inmueble.areaConstruidaM2 && (
+              <span className="flex items-center gap-[5px] text-[#7a8187]">
+                <Ruler className="h-[13px] w-[13px]" aria-hidden="true" />
+                <span className="text-[12px] font-medium text-[#7a8187]">
+                  {inmueble.areaConstruidaM2} m²
+                </span>
+              </span>
+            )}
+            {inmueble.habitaciones > 0 && (
+              <span className="flex items-center gap-[5px] text-[#7a8187]">
+                <BedDouble className="h-[13px] w-[13px]" aria-hidden="true" />
+                <span className="text-[12px] font-medium text-[#7a8187]">
+                  {inmueble.habitaciones} hab
+                </span>
+              </span>
+            )}
+            <span className="flex items-center gap-[5px] text-[#7a8187]">
+              <House className="h-[13px] w-[13px]" aria-hidden="true" />
+              <span className="text-[12px] font-medium text-[#7a8187] capitalize">
+                {inmueble.tipoInmueble}
+              </span>
+            </span>
+            {inmueble.estrato && (
+              <span className="text-[12px] font-medium text-[#7a8187]">
+                Estrato {inmueble.estrato}
+              </span>
+            )}
+          </div>
+        </div>
+      </Link>
+    </article>
   )
 }
