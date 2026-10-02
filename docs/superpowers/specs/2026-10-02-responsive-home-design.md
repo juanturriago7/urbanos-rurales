@@ -23,8 +23,13 @@ texto, el envío del formulario y la paginación. El usuario quiere verlos.
     a `X` mientras están abiertas.
   - Las redes se cierran al tocar fuera, al pulsar `Escape`, al elegir una red
     o al cambiar de ruta.
-  - Mientras están cerradas, las redes se marcan `inert`, el mismo criterio
-    que ya usa el retardo inicial.
+  - Mientras están cerradas, las redes llevan `visibility: hidden`
+    (`max-sm:invisible`), que las saca del orden de tabulación, del árbol de
+    accesibilidad y de los toques. A diferencia de `inert`, se puede limitar a
+    móvil con una clase y no necesita una media query en JS. El contenedor
+    pasa a `pointer-events-none` con los botones en `pointer-events-auto`, para
+    que el hueco que dejan las redes ocultas no bloquee toques sobre el
+    contenido de debajo.
 - El retardo inicial de 2 segundos o primer scroll aplica a todo el FAB, igual
   que hoy.
 - En la ficha de inmueble el FAB sigue oculto por debajo de `lg`, como hoy.
@@ -70,9 +75,12 @@ etiqueta, revertidos con `lg:items-start lg:text-left lg:self-start` (o con
     tarjeta asoma para indicar que se puede deslizar.
   - La barra de scroll va oculta.
   - Debajo del carrusel van puntos indicadores, uno por tarjeta. El punto
-    activo se calcula con `IntersectionObserver` sobre las tarjetas, y tocar un
-    punto lleva a su tarjeta con `scrollIntoView`. Los puntos se ocultan desde
-    `lg`.
+    activo se recalcula en cada evento `scroll` del carril: es la tarjeta cuyo
+    centro queda más cerca del centro visible, según la función pura
+    `indiceMasCercanoAlCentro` de `lib/carrusel.ts`, que tiene test (los tests
+    del proyecto corren sin DOM). Tocar un punto desplaza el carril hasta su
+    tarjeta con `scrollTo` sobre el carril, no con `scrollIntoView`, para no
+    mover la página en vertical. Los puntos se ocultan desde `lg`.
 - El render de la tarjeta se extrae a un componente local `TarjetaPublicacion`
   dentro del mismo archivo, para usarlo igual en la grilla y en el carrusel.
 - Botón grande debajo: "Ver más inmuebles →" (`Link` a `/inmuebles`), con el
