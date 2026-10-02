@@ -1,22 +1,44 @@
 /**
- * Índice del elemento cuyo centro queda más cerca de `centroVisible`.
+ * Destino de scroll que centra una tarjeta dentro del carril, acotado a lo
+ * que el carril puede desplazarse.
  *
- * Lo usa el carrusel de inmuebles del home para saber qué punto marcar. Las
- * tarjetas van con `snap-center`, pero la primera y la última nunca llegan a
- * centrarse (el scroll topa antes), así que no basta con dividir `scrollLeft`
- * entre el ancho de la tarjeta: se compara la distancia de cada centro al
- * centro del área visible, todo en coordenadas del carril.
+ * `offsetLeft`/`anchoTarjeta` describen la tarjeta y `anchoVisible`/
+ * `anchoTotal` el carril (`clientWidth`/`scrollWidth`). Sin acotar, la
+ * primera y la última tarjeta pedirían un `scrollLeft` negativo o mayor que
+ * el máximo posible, porque el carril nunca llega a desplazarse tanto.
+ *
+ * La usan tanto `alDeslizar` (para saber qué tarjeta quedó centrada,
+ * comparando `scrollLeft` con el destino de cada una) como `irATarjeta` (para
+ * desplazarse hasta una tarjeta), de modo que ambos cálculos no diverjan.
+ */
+export function destinoDeSnap(
+  offsetLeft: number,
+  anchoTarjeta: number,
+  anchoVisible: number,
+  anchoTotal: number,
+): number {
+  const destino = offsetLeft - (anchoVisible - anchoTarjeta) / 2
+  const maximo = Math.max(anchoTotal - anchoVisible, 0)
+  return Math.min(Math.max(destino, 0), maximo)
+}
+
+/**
+ * Índice del valor más cercano a `objetivo`.
+ *
+ * Lo usa el carrusel de inmuebles del home para saber qué punto marcar,
+ * comparando `scrollLeft` con el destino de snap de cada tarjeta (ver
+ * `destinoDeSnap`). Comparar centros en su lugar falla en tablet: con
+ * `sm:basis-[48%]` caben casi dos tarjetas por pantalla y el centro de la
+ * segunda queda más cerca que el de la primera y la tercera en casi todo el
+ * rango de scroll, así que el punto nunca llegaba a la última tarjeta.
  *
  * Sin elementos devuelve 0. En empate gana el primero.
  */
-export function indiceMasCercanoAlCentro(
-  centros: readonly number[],
-  centroVisible: number,
-): number {
+export function indiceMasCercano(valores: readonly number[], objetivo: number): number {
   let indice = 0
   let menorDistancia = Infinity
-  centros.forEach((centro, i) => {
-    const distancia = Math.abs(centro - centroVisible)
+  valores.forEach((valor, i) => {
+    const distancia = Math.abs(valor - objetivo)
     if (distancia < menorDistancia) {
       menorDistancia = distancia
       indice = i
