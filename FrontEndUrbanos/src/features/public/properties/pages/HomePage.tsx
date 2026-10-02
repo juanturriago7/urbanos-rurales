@@ -268,10 +268,10 @@ export function HomePage() {
 
           {/* Texto */}
           <div className="flex-1 flex flex-col gap-3 min-w-0">
-            <div className="reveal self-start bg-[rgba(0,75,152,0.08)] px-[14px] py-[5px] rounded-full">
+            <div className="reveal self-center bg-[rgba(0,75,152,0.08)] px-[14px] py-[5px] rounded-full lg:self-start">
               <span className="text-[#004b98] text-[11px] font-semibold tracking-[1.32px] uppercase">Quiénes somos</span>
             </div>
-            <h2 className="reveal titulo-seccion text-[#001124]">
+            <h2 className="reveal titulo-seccion text-center text-[#001124] lg:text-left">
               Expertos en gestión predial e inmobiliaria
             </h2>
             <p className="reveal text-[15px] leading-[1.75] text-pretty text-[#7a8187]">
@@ -334,8 +334,8 @@ export function HomePage() {
       <section id="servicios" className="scroll-mt-16 bg-[#eff4f8] py-16 sm:py-24 md:scroll-mt-[102px]">
         <Container className="flex flex-col gap-10 sm:gap-14">
           {/* Header sección */}
-          <div className="reveal flex flex-col gap-3">
-            <div className="self-start bg-[rgba(0,75,152,0.08)] px-[14px] py-[5px] rounded-full">
+          <div className="reveal flex flex-col items-center gap-3 text-center lg:items-start lg:text-left">
+            <div className="bg-[rgba(0,75,152,0.08)] px-[14px] py-[5px] rounded-full">
               <span className="text-[#004b98] text-[11px] font-semibold tracking-[1.32px] uppercase">Líneas de Servicio</span>
             </div>
             <h2 className="titulo-seccion text-[#001124]">
@@ -486,8 +486,8 @@ export function HomePage() {
       <section id="contacto" className="scroll-mt-16 bg-white py-16 sm:py-24 md:scroll-mt-[102px]">
         <Container className="flex flex-col gap-10 sm:gap-14">
           {/* Header */}
-          <div className="reveal flex flex-col gap-3">
-            <div className="self-start bg-[rgba(0,75,152,0.08)] px-[14px] py-[5px] rounded-full">
+          <div className="reveal flex flex-col items-center gap-3 text-center lg:items-start lg:text-left">
+            <div className="bg-[rgba(0,75,152,0.08)] px-[14px] py-[5px] rounded-full">
               <span className="text-[#004b98] text-[11px] font-semibold tracking-[1.32px] uppercase">Contacto</span>
             </div>
             <h2 className="titulo-seccion text-[#001124]">
