@@ -104,7 +104,8 @@ export function RedesFab() {
   }, [])
 
   // Abiertas, se pliegan al tocar fuera o con Escape (devolviendo el foco al
-  // botón, para que quien navega con teclado no lo pierda).
+  // botón solo si ya estaba dentro del FAB, para no robárselo a quien ya
+  // tabuló hacia otro lado de la página).
   useEffect(() => {
     if (!abiertas) return
 
@@ -115,7 +116,9 @@ export function RedesFab() {
     function alPulsarTecla(e: KeyboardEvent) {
       if (e.key !== 'Escape') return
       setAbiertas(false)
-      botonRef.current?.focus()
+      if (contenedorRef.current?.contains(document.activeElement)) {
+        botonRef.current?.focus()
+      }
     }
 
     document.addEventListener('pointerdown', alTocarFuera)
@@ -153,26 +156,12 @@ export function RedesFab() {
         visible ? 'opacity-100' : 'opacity-0',
       ].join(' ')}
     >
-      <div
-        id={ID_LISTA}
-        // Plegadas en móvil: `invisible` (visibility: hidden) las saca del tab,
-        // del árbol de accesibilidad y de los toques. A diferencia de `inert`,
-        // se limita a móvil con una variante de Tailwind.
-        className={[
-          'flex flex-col items-end gap-3 transition-[opacity,transform,visibility] duration-200',
-          abiertas ? '' : 'max-sm:invisible max-sm:translate-y-2 max-sm:opacity-0',
-        ].join(' ')}
-      >
-        {REDES.map((red) => (
-          <EnlaceFab
-            key={red.etiqueta}
-            enlace={red}
-            tamano="red"
-            onClick={() => setAbiertas(false)}
-          />
-        ))}
-      </div>
-
+      {/* El toggle va antes que la lista en el DOM: así quien navega hacia
+      adelante con teclado o lector de pantalla cae en Instagram al salir del
+      toggle, no en WhatsApp. `max-sm:-order-1` conserva en pantalla el orden
+      visual de siempre en móvil (redes, toggle, WhatsApp); desde `sm` el
+      toggle está oculto y el orden visual ya es Instagram, TikTok, WhatsApp
+      sin necesidad de `order`. */}
       <button
         ref={botonRef}
         type="button"
@@ -189,7 +178,28 @@ export function RedesFab() {
         )}
       </button>
 
-      <EnlaceFab enlace={WHATSAPP} tamano="principal" />
+      <div
+        id={ID_LISTA}
+        // Plegadas en móvil: `invisible` (visibility: hidden) las saca del tab,
+        // del árbol de accesibilidad y de los toques. A diferencia de `inert`,
+        // se limita a móvil con una variante de Tailwind.
+        className={[
+          'flex flex-col items-end gap-3 transition-[opacity,transform,visibility] duration-200',
+          'max-sm:-order-1',
+          abiertas ? '' : 'max-sm:invisible max-sm:translate-y-2 max-sm:opacity-0',
+        ].join(' ')}
+      >
+        {REDES.map((red) => (
+          <EnlaceFab
+            key={red.etiqueta}
+            enlace={red}
+            tamano="red"
+            onClick={() => setAbiertas(false)}
+          />
+        ))}
+      </div>
+
+      <EnlaceFab enlace={WHATSAPP} tamano="principal" onClick={() => setAbiertas(false)} />
     </div>
   )
 }
